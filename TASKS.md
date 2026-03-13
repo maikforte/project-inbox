@@ -25,15 +25,15 @@ Each task is sized to be a single prompt session.
   - End Turn button
   Use Graybox2D sprites and Micro5 font. No logic yet — layout only.
 
-- [ ] **TASK-04 · Deck & Hand System**
+- [x] **TASK-04 · Deck & Hand System**
   `DeckManager`: shuffle draw pile, draw N cards into hand, discard hand at end of turn, reshuffle discard into draw pile when empty.
   Wire up to GameManager.
 
-- [ ] **TASK-05 · Turn & AP System**
+- [x] **TASK-05 · Turn & AP System**
   `TurnManager`: player turn start (draw 5, gain 3 AP), end turn button triggers enemy turn, enemy turn end returns to player.
   AP spend/refund logic. Block card play when AP insufficient.
 
-- [ ] **TASK-06 · Card UI & Playing Cards**
+- [x] **TASK-06 · Card UI & Playing Cards**
   Instantiate hand cards as UI elements. Card shows name, cost, type color, effect text.
   Click to play: deduct AP, trigger effect, move card to discard.
   Hover to preview full card.

@@ -23,6 +23,9 @@ namespace InboxZero.Core
         [Header("Relics")]
         public List<RelicData> ActiveRelics = new List<RelicData>();
 
+        [Header("Combat State")]
+        public int CurrentShield;
+
         [Header("Run State")]
         public int CurrentFloor;
         public int CurrentRoom;
@@ -44,6 +47,7 @@ namespace InboxZero.Core
             CurrentAP = MaxAP;
             CurrentFloor = 1;
             CurrentRoom = 1;
+            CurrentShield = 0;
             DrawPile.Clear();
             Hand.Clear();
             DiscardPile.Clear();
