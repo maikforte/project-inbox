@@ -68,7 +68,7 @@ Each task is sized to be a single prompt session.
   After Room 4 of a floor: show floor-cleared message, award a relic (Floors 2 and 3 only), then load next floor.
   On Floor 4 Room 1 cleared → trigger Victory.
 
-- [ ] **TASK-13B · Scene Wiring & First Playtest**
+- [x] **TASK-13B · Scene Wiring & First Playtest**
   Place all manager GameObjects in CombatScene. Create a `CombatSetup` script that wires all UnityEvents in code.
   Create minimum viable test content: 3 starter cards (SOs) and 1 test enemy (SO).
   Connect End Turn button. Result: pressing Play runs a real combat encounter end-to-end.
