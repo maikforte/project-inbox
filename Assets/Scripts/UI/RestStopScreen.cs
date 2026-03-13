@@ -29,12 +29,14 @@ namespace InboxZero.UI
         // Fires when the player clicks Continue — wire to FloorMapScreen.Show().
         public UnityEvent OnComplete = new UnityEvent();
 
+        Canvas _canvas;
         GameObject _panel;
 
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            _canvas = FindObjectOfType<Canvas>();
         }
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -59,7 +61,7 @@ namespace InboxZero.UI
 
         void BuildPanel(int healed)
         {
-            var canvas = FindObjectOfType<Canvas>();
+            var canvas = _canvas;
             if (canvas == null) { Debug.LogError("[RestStopScreen] No Canvas found."); return; }
 
             _panel = new GameObject("RestStopPanel", typeof(RectTransform));
@@ -77,7 +79,7 @@ namespace InboxZero.UI
             MakeLabel("Header", rt,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0, 60), new Vector2(320, 18),
-                "// REST STOP //", 10, TextAlignmentOptions.Center);
+                "// REST STOP //", 14, TextAlignmentOptions.Center);
 
             // Flavour text
             string line = flavourLines.Length > 0
@@ -85,7 +87,7 @@ namespace InboxZero.UI
                 : "";
             var flavourGo = MakeLabel("Flavour", rt,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0, 20), new Vector2(300, 40), line, 7, TextAlignmentOptions.Center);
+                new Vector2(0, 20), new Vector2(300, 40), line, 14, TextAlignmentOptions.Center);
             flavourGo.GetComponent<TextMeshProUGUI>().enableWordWrapping = true;
 
             // Heal notice
@@ -95,7 +97,7 @@ namespace InboxZero.UI
             MakeLabel("HealNotice", rt,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0, -16), new Vector2(260, 14),
-                healMsg, 7, TextAlignmentOptions.Center);
+                healMsg, 14, TextAlignmentOptions.Center);
 
             // Continue button
             var btnGo = new GameObject("ContinueButton", typeof(RectTransform));
@@ -111,7 +113,7 @@ namespace InboxZero.UI
 
             var lblGo = MakeLabel("Label", btnRt,
                 Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
-                Vector2.zero, Vector2.zero, "CONTINUE", 8, TextAlignmentOptions.Center);
+                Vector2.zero, Vector2.zero, "CONTINUE", 14, TextAlignmentOptions.Center);
             lblGo.GetComponent<TextMeshProUGUI>().enableWordWrapping = false;
         }
 

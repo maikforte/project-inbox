@@ -55,6 +55,9 @@ namespace InboxZero.UI
             if (Data == null) return;
             if (!TurnManager.Instance.CanPlayCard(Data.apCost)) return;
 
+            HandDisplay.Instance.HidePreview();
+            transform.localScale = Vector3.one;
+
             TurnManager.Instance.TrySpendAP(Data.apCost);
             CardEffectResolver.Resolve(Data);
             DeckManager.Instance.PlayCard(Data);

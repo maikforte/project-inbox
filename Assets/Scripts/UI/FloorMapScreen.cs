@@ -21,12 +21,14 @@ namespace InboxZero.UI
         // Fires after Room 4 is selected — TASK-13 (floor transition) listens here.
         public UnityEvent OnFloorComplete   = new UnityEvent();
 
+        Canvas _canvas;
         GameObject _panel;
 
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            _canvas = FindObjectOfType<Canvas>();
         }
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -55,7 +57,7 @@ namespace InboxZero.UI
 
         void BuildPanel(List<RoomOption> options)
         {
-            var canvas = FindObjectOfType<Canvas>();
+            var canvas = _canvas;
             if (canvas == null) { Debug.LogError("[FloorMapScreen] No Canvas found."); return; }
 
             _panel = new GameObject("FloorMapPanel", typeof(RectTransform));
@@ -74,12 +76,12 @@ namespace InboxZero.UI
             MakeLabel("Header", panelRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0, -24), new Vector2(300, 16),
-                $"FLOOR {gm.CurrentFloor}  //  ROOM {gm.CurrentRoom}", 8);
+                $"FLOOR {gm.CurrentFloor}  //  ROOM {gm.CurrentRoom}", 14);
 
             MakeLabel("SubHeader", panelRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0, -44), new Vector2(300, 14),
-                "CHOOSE YOUR NEXT ENCOUNTER", 7);
+                "CHOOSE YOUR NEXT ENCOUNTER", 14);
 
             // Option buttons
             float totalWidth  = options.Count * 120f + (options.Count - 1) * 24f;
@@ -113,13 +115,13 @@ namespace InboxZero.UI
             string icon = option.type == RoomType.Combat ? "[!]" : "[+]";
             var iconGo = MakeLabel("Icon", rt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -10), new Vector2(80, 24), icon, 12);
+                new Vector2(0, -10), new Vector2(80, 24), icon, 14);
             iconGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
             // Label
             var labelGo = MakeLabel("Label", rt,
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0, 10), new Vector2(110, 14), option.label, 7);
+                new Vector2(0, 10), new Vector2(110, 14), option.label, 14);
             labelGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
             var btn = go.AddComponent<Button>();

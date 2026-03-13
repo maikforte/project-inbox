@@ -58,6 +58,8 @@ namespace InboxZero.Combat
 
             TurnManager.Instance.IsCombatEnded = true;
 
+            if (InboxZero.UI.HandDisplay.Instance != null) InboxZero.UI.HandDisplay.Instance.HidePreview();
+
             if (victoryPanel != null) victoryPanel.SetActive(true);
             if (victoryText  != null) victoryText.text = "INBOX CLEARED";
         }
@@ -68,13 +70,24 @@ namespace InboxZero.Combat
 
             TurnManager.Instance.IsCombatEnded = true;
 
+            if (InboxZero.UI.HandDisplay.Instance != null) InboxZero.UI.HandDisplay.Instance.HidePreview();
+
             if (gameOverPanel != null) gameOverPanel.SetActive(true);
             if (gameOverText  != null) gameOverText.text = "YOU HAVE BEEN UNSUBSCRIBED";
         }
 
         // ── Button handlers ───────────────────────────────────────────────────
 
-        void OnContinue() => OnVictoryContinued.Invoke();
-        void OnRestart()  => OnGameOverRestarted.Invoke();
+        void OnContinue()
+        {
+            if (victoryPanel != null) victoryPanel.SetActive(false);
+            OnVictoryContinued.Invoke();
+        }
+
+        void OnRestart()
+        {
+            if (gameOverPanel != null) gameOverPanel.SetActive(false);
+            OnGameOverRestarted.Invoke();
+        }
     }
 }

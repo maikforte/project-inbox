@@ -16,6 +16,9 @@ namespace InboxZero.UI
         [Tooltip("All reward cards. Filtered by rarity at runtime based on current floor.")]
         public List<CardData> rewardPool = new List<CardData>();
 
+        [Header("Sprites")]
+        public Sprite cardBackground;
+
         [Header("Font")]
         public TMP_FontAsset cardFont;
 
@@ -33,6 +36,7 @@ namespace InboxZero.UI
         static readonly Color DefendColor  = new Color(0.18f, 0.75f, 0.25f);
         static readonly Color SpecialColor = new Color(0.55f, 0.18f, 0.80f);
 
+        Canvas _canvas;
         GameObject _panel;
         readonly List<GameObject> _cardObjects = new List<GameObject>();
 
@@ -40,6 +44,7 @@ namespace InboxZero.UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            _canvas = FindObjectOfType<Canvas>();
         }
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -93,7 +98,7 @@ namespace InboxZero.UI
         void BuildPanel(List<CardData> options)
         {
             // Find the Canvas in the scene to parent to
-            var canvas = FindObjectOfType<Canvas>();
+            var canvas = _canvas;
             if (canvas == null) { Debug.LogError("[CardRewardScreen] No Canvas found."); return; }
 
             _panel = new GameObject("CardRewardPanel", typeof(RectTransform));
@@ -112,7 +117,7 @@ namespace InboxZero.UI
             // Title
             MakeText("Title", panelRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -30), new Vector2(300, 20), "CHOOSE A CARD", 10);
+                new Vector2(0, -30), new Vector2(300, 20), "CHOOSE A CARD", 14);
 
             // Card row
             float totalWidth = CardCount * CardWidth + (CardCount - 1) * CardSpacing;
@@ -141,7 +146,7 @@ namespace InboxZero.UI
             skipBtn.onClick.AddListener(OnSkip);
             var skipLabelGo = MakeText("Label", skipRt,
                 Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
-                Vector2.zero, Vector2.zero, "SKIP", 8);
+                Vector2.zero, Vector2.zero, "SKIP", 14);
             skipLabelGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
         }
 
@@ -155,7 +160,9 @@ namespace InboxZero.UI
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.sizeDelta = new Vector2(CardWidth, CardHeight);
 
-            go.AddComponent<Image>().color = new Color(0.18f, 0.18f, 0.28f);
+            var bgImg = go.AddComponent<Image>();
+            if (cardBackground != null) bgImg.sprite = cardBackground;
+            bgImg.color = new Color(0.18f, 0.18f, 0.28f);
             go.AddComponent<GraphicRaycaster>();
 
             // Type bar
@@ -173,26 +180,26 @@ namespace InboxZero.UI
             // Cost
             MakeText("Cost", rt,
                 new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
-                new Vector2(Padding, -TypeBarHeight - 1), new Vector2(18, 14), data.apCost.ToString(), 8);
+                new Vector2(Padding, -TypeBarHeight - 1), new Vector2(18, 14), data.apCost.ToString(), 14);
 
             // Rarity pip (top-right)
             MakeText("Rarity", rt,
                 new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1),
                 new Vector2(-Padding, -TypeBarHeight - 1), new Vector2(40, 10),
-                data.rarity.ToString().ToUpper(), 5);
+                data.rarity.ToString().ToUpper(), 14);
 
             // Name
             var nameGo = MakeText("Name", rt,
                 new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1f),
                 new Vector2(0, -TypeBarHeight - Padding), new Vector2(0, 18),
-                data.cardName.ToUpper(), 8);
+                data.cardName.ToUpper(), 14);
             nameGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
             // Effect text
             var effectGo = MakeText("Effect", rt,
                 new Vector2(0, 0), new Vector2(1, 1), new Vector2(0.5f, 0.5f),
                 new Vector2(0, -TypeBarHeight - 26), new Vector2(-8, -TypeBarHeight - 30),
-                data.effectDescription, 6);
+                data.effectDescription, 14);
             var effectTmp = effectGo.GetComponent<TextMeshProUGUI>();
             effectTmp.alignment  = TextAlignmentOptions.TopLeft;
             effectTmp.enableWordWrapping = true;

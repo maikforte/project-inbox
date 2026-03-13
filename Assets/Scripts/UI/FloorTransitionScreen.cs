@@ -29,6 +29,7 @@ namespace InboxZero.UI
             "", "THE INBOX", "THE THREADS", "THE ESCALATIONS", "THE FINAL THREAD"
         };
 
+        Canvas _canvas;
         GameObject _panel;
         RelicData  _pendingRelic;
 
@@ -36,6 +37,7 @@ namespace InboxZero.UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            _canvas = FindObjectOfType<Canvas>();
         }
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -79,7 +81,7 @@ namespace InboxZero.UI
 
         void BuildPanel(int clearedFloor)
         {
-            var canvas = FindObjectOfType<Canvas>();
+            var canvas = _canvas;
             if (canvas == null) { Debug.LogError("[FloorTransitionScreen] No Canvas found."); return; }
 
             _panel = new GameObject("FloorTransitionPanel", typeof(RectTransform));
@@ -97,19 +99,19 @@ namespace InboxZero.UI
             MakeLabel("ClearedTitle", rt,
                 Center, Center, Center,
                 new Vector2(0, 70), new Vector2(320, 18),
-                $"FLOOR {clearedFloor} CLEARED", 11, TextAlignmentOptions.Center);
+                $"FLOOR {clearedFloor} CLEARED", 14, TextAlignmentOptions.Center);
 
             MakeLabel("FloorName", rt,
                 Center, Center, Center,
                 new Vector2(0, 46), new Vector2(320, 14),
-                $"// {floorName} //", 8, TextAlignmentOptions.Center);
+                $"// {floorName} //", 14, TextAlignmentOptions.Center);
 
             string nextFloorName = (clearedFloor + 1) < FloorNames.Length
                 ? FloorNames[clearedFloor + 1] : "";
             MakeLabel("NextFloor", rt,
                 Center, Center, Center,
                 new Vector2(0, 24), new Vector2(320, 12),
-                $"ENTERING FLOOR {clearedFloor + 1}: {nextFloorName}", 7,
+                $"ENTERING FLOOR {clearedFloor + 1}: {nextFloorName}", 14,
                 TextAlignmentOptions.Center);
 
             if (_pendingRelic != null)
@@ -134,17 +136,17 @@ namespace InboxZero.UI
             MakeLabel("RelicHeader", relicRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0, -6), new Vector2(200, 12),
-                "RELIC ACQUIRED", 7, TextAlignmentOptions.Center);
+                "RELIC ACQUIRED", 14, TextAlignmentOptions.Center);
 
             MakeLabel("RelicName", relicRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0, -20), new Vector2(200, 14),
-                _pendingRelic.relicName.ToUpper(), 9, TextAlignmentOptions.Center);
+                _pendingRelic.relicName.ToUpper(), 14, TextAlignmentOptions.Center);
 
             var effectGo = MakeLabel("RelicEffect", relicRt,
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0, 8), new Vector2(200, 22),
-                _pendingRelic.effectDescription, 6, TextAlignmentOptions.Center);
+                _pendingRelic.effectDescription, 14, TextAlignmentOptions.Center);
             effectGo.GetComponent<TextMeshProUGUI>().enableWordWrapping = true;
 
             BuildContinueButton(parent, new Vector2(0, -110));
@@ -165,7 +167,7 @@ namespace InboxZero.UI
 
             var lbl = MakeLabel("Label", rt,
                 Vector2.zero, Vector2.one, Center,
-                Vector2.zero, Vector2.zero, "CONTINUE", 8, TextAlignmentOptions.Center);
+                Vector2.zero, Vector2.zero, "CONTINUE", 14, TextAlignmentOptions.Center);
             lbl.GetComponent<TextMeshProUGUI>().enableWordWrapping = false;
         }
 
