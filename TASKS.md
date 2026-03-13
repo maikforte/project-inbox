@@ -17,7 +17,7 @@ Each task is sized to be a single prompt session.
   Singleton `GameManager` tracking: current HP, max HP, current AP, deck list, hand, discard, active relics, current floor, current room.
   No UI — pure state.
 
-- [ ] **TASK-03 · Combat Scene UI Layout**
+- [x] **TASK-03 · Combat Scene UI Layout**
   Build the combat scene canvas (640×360):
   - Enemy panel (name, HP bar, status icons area)
   - Player panel (HP bar, AP pips, shield display)
