@@ -9,11 +9,11 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 1 — Core Combat Loop (Playable Combat)
 
-- [ ] **TASK-01 · Data Models**
+- [x] **TASK-01 · Data Models**
   Define `CardData`, `EnemyData`, and `RelicData` as ScriptableObjects.
   Fields per spec in CLAUDE.md. No game logic — data only.
 
-- [ ] **TASK-02 · Game Manager & Run State**
+- [x] **TASK-02 · Game Manager & Run State**
   Singleton `GameManager` tracking: current HP, max HP, current AP, deck list, hand, discard, active relics, current floor, current room.
   No UI — pure state.
 
