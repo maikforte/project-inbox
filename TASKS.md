@@ -54,19 +54,24 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 2 — Run Structure (Full Floor Loop)
 
-- [ ] **TASK-10 · Card Reward Screen**
+- [x] **TASK-10 · Card Reward Screen**
   After combat victory: show 3 random cards drawn from the reward pool (filtered by floor tier). Player picks 1 to add to deck, or skips. Then advance to room selection.
 
-- [ ] **TASK-11 · Floor Map & Room Selection**
+- [x] **TASK-11 · Floor Map & Room Selection**
   After reward screen: show 2–3 room options for next room (combat, rest stop icons).
   Player picks one. Track room progress (4 rooms per floor).
 
-- [ ] **TASK-12 · Rest Stop Room**
+- [x] **TASK-12 · Rest Stop Room**
   Non-combat room: display flavour text, restore 15 HP (capped at max HP), advance to next room.
 
-- [ ] **TASK-13 · Floor Transition**
+- [x] **TASK-13 · Floor Transition**
   After Room 4 of a floor: show floor-cleared message, award a relic (Floors 2 and 3 only), then load next floor.
   On Floor 4 Room 1 cleared → trigger Victory.
+
+- [ ] **TASK-13B · Scene Wiring & First Playtest**
+  Place all manager GameObjects in CombatScene. Create a `CombatSetup` script that wires all UnityEvents in code.
+  Create minimum viable test content: 3 starter cards (SOs) and 1 test enemy (SO).
+  Connect End Turn button. Result: pressing Play runs a real combat encounter end-to-end.
 
 ---
 
