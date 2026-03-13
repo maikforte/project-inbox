@@ -11,6 +11,9 @@ namespace InboxZero.Core
 
         public TurnPhase CurrentPhase { get; private set; }
 
+        // Set by CombatResultManager on victory or game over. Blocks all further input.
+        public bool IsCombatEnded { get; set; }
+
         // Fired at the start of each player turn (after draw + AP reset).
         public UnityEvent OnPlayerTurnStart = new UnityEvent();
         // Fired when the player ends their turn.
@@ -39,6 +42,7 @@ namespace InboxZero.Core
             CurrentPhase = TurnPhase.PlayerTurn;
 
             var gm = GameManager.Instance;
+            gm.CurrentShield = 0;   // shield resets at the start of each new turn
             gm.CurrentAP = gm.MaxAP;
             DeckManager.Instance.DrawCards(gm.HandSize);
 
@@ -48,6 +52,7 @@ namespace InboxZero.Core
         // Called by the End Turn button.
         public void EndPlayerTurn()
         {
+            if (IsCombatEnded) return;
             if (CurrentPhase != TurnPhase.PlayerTurn) return;
 
             DeckManager.Instance.DiscardHand();
@@ -93,7 +98,8 @@ namespace InboxZero.Core
         // Returns true if a card costing `apCost` can be played right now.
         public bool CanPlayCard(int apCost)
         {
-            return CurrentPhase == TurnPhase.PlayerTurn
+            return !IsCombatEnded
+                && CurrentPhase == TurnPhase.PlayerTurn
                 && GameManager.Instance.CurrentAP >= apCost;
         }
     }

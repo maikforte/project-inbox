@@ -38,14 +38,14 @@ Each task is sized to be a single prompt session.
   Click to play: deduct AP, trigger effect, move card to discard.
   Hover to preview full card.
 
-- [ ] **TASK-07 · Basic Card Effects**
+- [x] **TASK-07 · Basic Card Effects**
   Implement effect handlers for: `DealDamage`, `GainShield`, `DrawCards`, `GainAP`.
   Shield absorbs damage before HP; resets to 0 at end of player turn.
 
-- [ ] **TASK-08 · Enemy Combat Logic**
+- [x] **TASK-08 · Enemy Combat Logic**
   `EnemyController`: display enemy stats, attack player each enemy turn (respects shield), apply regen at end of enemy turn, die when HP ≤ 0.
 
-- [ ] **TASK-09 · Combat Win / Lose**
+- [x] **TASK-09 · Combat Win / Lose**
   On enemy death → show "Victory" state, pause for input.
   On player HP ≤ 0 → trigger Game Over.
   Both states block further input.
