@@ -1,6 +1,17 @@
 # INBOX//ZERO
 ### A Roguelite About Your Emails
 
+**Technical:** Pixel art game. Resolution: 640x360. URP 2D. Unity 6.
+
+## Development Conventions
+
+- **Tasks:** See `TASKS.md` for the full task list. Work on one task at a time as prompted.
+- **Placeholder art:** Use `Assets/Graybox2D/Prefabs/` sprites for all in-game visuals until final art is ready.
+- **Fonts:** Use `Micro5-Regular` or `BetterPixels` (both TMP SDF assets) for all UI text.
+- **No screenshots:** Do not take screenshots to verify results.
+- **Scripts folder:** All game scripts go in `Assets/Scripts/`. Organize by subfolder: `Core/`, `Combat/`, `UI/`, `Data/`, `Cards/`, `Enemies/`, `Relics/`.
+- **ScriptableObjects:** Card, Enemy, and Relic data are ScriptableObjects stored in `Assets/Data/`.
+
 > *"The inbox is a dungeon. Every unread is a monster. You are the only one who can save yourself."*
 
 ---
