@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s http://localhost:8080/)",
+      "Bash(curl -s -X POST http://localhost:8080/mcp -H \"Content-Type: application/json\" -d '{\"\"jsonrpc\"\":\"\"2.0\"\",\"\"id\"\":1,\"\"method\"\":\"\"tools/list\"\",\"\"params\"\":{}}')",
+      "Bash(curl -s -X POST http://localhost:8080/mcp -H \"Content-Type: application/json\" -H \"Accept: application/json, text/event-stream\" -d '{\"\"jsonrpc\"\":\"\"2.0\"\",\"\"id\"\":1,\"\"method\"\":\"\"tools/list\"\",\"\"params\"\":{}}')",
+      "Bash(SESSION_ID=\"a43722bd24da49ffbe77e66c4a65e391\" curl -s -X POST http://localhost:8080/mcp -H \"Content-Type: application/json\" -H \"Accept: application/json, text/event-stream\" -H \"mcp-session-id: $SESSION_ID\" -d '{\"\"\"\"jsonrpc\"\"\"\":\"\"\"\"2.0\"\"\"\",\"\"\"\"id\"\"\"\":2,\"\"\"\"method\"\"\"\":\"\"\"\"tools/list\"\"\"\",\"\"\"\"params\"\"\"\":{}}')",
+      "Bash(sed 's/^data: //')",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(t[''''name'''']\\) for t in data[''''result''''][''''tools'''']]\")"
+    ]
+  }
+}
