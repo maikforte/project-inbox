@@ -70,9 +70,17 @@ namespace InboxZero.Enemies
         {
             if (type == StatusEffectType.None) return;
             if (_statuses.ContainsKey(type))
-                _statuses[type] = Mathf.Max(_statuses[type], duration);
+            {
+                // Guilt stacks additively; other statuses (Unread) refresh to the higher value.
+                if (type == StatusEffectType.Guilt)
+                    _statuses[type] += duration;
+                else
+                    _statuses[type] = Mathf.Max(_statuses[type], duration);
+            }
             else
+            {
                 _statuses[type] = duration;
+            }
             UpdateUI();
         }
 
@@ -148,12 +156,10 @@ namespace InboxZero.Enemies
             OnDeath.Invoke();
         }
 
-        // Player status effects are stored on GameManager / future CombatManager.
-        // For now AwaitingReply reduces AP next turn — stub here, TASK-10 wires it.
         void ApplyStatusToPlayer(StatusEffectType type, int duration)
         {
-            // Handled by CombatManager in a future task.
-            Debug.Log($"[Enemy] Applies {type} x{duration} to player.");
+            if (PlayerStatusManager.Instance != null)
+                PlayerStatusManager.Instance.ApplyStatus(type, duration);
         }
 
         void UpdateUI()
@@ -169,10 +175,18 @@ namespace InboxZero.Enemies
 
             if (statusText != null)
             {
-                var sb = new System.Text.StringBuilder();
-                foreach (var kv in _statuses)
-                    sb.Append($"{kv.Key} {kv.Value}  ");
-                statusText.text = sb.ToString().TrimEnd();
+                if (_statuses.Count == 0)
+                {
+                    statusText.text = "";
+                }
+                else
+                {
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var kv in _statuses)
+                        if (kv.Value > 0)
+                            sb.Append($"{kv.Key.ToString().ToUpper()} {kv.Value}  ");
+                    statusText.text = sb.ToString().TrimEnd();
+                }
             }
         }
     }

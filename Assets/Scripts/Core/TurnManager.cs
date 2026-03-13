@@ -32,6 +32,8 @@ namespace InboxZero.Core
         // Call at the start of combat to kick off the first player turn.
         public void BeginCombat()
         {
+            if (PlayerStatusManager.Instance != null)
+                PlayerStatusManager.Instance.ClearAll();
             StartPlayerTurn();
         }
 
@@ -44,6 +46,11 @@ namespace InboxZero.Core
             var gm = GameManager.Instance;
             gm.CurrentShield = 0;   // shield resets at the start of each new turn
             gm.CurrentAP = gm.MaxAP;
+
+            // Apply player status effects (Guilt damage, AwaitingReply AP reduction).
+            if (PlayerStatusManager.Instance != null)
+                PlayerStatusManager.Instance.ProcessTurnStart();
+
             DeckManager.Instance.DrawCards(gm.HandSize);
 
             OnPlayerTurnStart.Invoke();

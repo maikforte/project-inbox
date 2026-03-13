@@ -77,11 +77,11 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 3 — Status Effects & Starter Content
 
-- [ ] **TASK-14 · Status Effects System**
+- [x] **TASK-14 · Status Effects System**
   Implement `Unread` (enemy skips attack, ticks down each enemy turn), `Guilt` (2 dmg/turn to afflicted, stackable), `Awaiting Reply` (player loses 1 AP next turn per stack).
   Status icon display on enemy/player panel.
 
-- [ ] **TASK-15 · All Starter Cards**
+- [x] **TASK-15 · All Starter Cards**
   Implement and create ScriptableObjects for all 9 starter deck cards:
   Reply Politely, Archive It (×2), Hard Delete, Mark as Read (×2), Unsubscribe, Set Filter.
 

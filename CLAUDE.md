@@ -11,6 +11,28 @@
 - **No screenshots:** Do not take screenshots to verify results.
 - **Scripts folder:** All game scripts go in `Assets/Scripts/`. Organize by subfolder: `Core/`, `Combat/`, `UI/`, `Data/`, `Cards/`, `Enemies/`, `Relics/`.
 - **ScriptableObjects:** Card, Enemy, and Relic data are ScriptableObjects stored in `Assets/Data/`.
+- **Asset GUIDs:** When writing `.asset` files and their `.meta` files manually, Unity may regenerate the `.meta` with a new GUID on first import. Always read the `.meta` file back after Ctrl+R and update any scene YAML references that used the pre-assigned GUID. Symptoms of a stale GUID: null entries in inspector lists, NullReferenceException from code that iterates those lists.
+
+## How to Test After Each Task
+
+### After any script change
+1. **Ctrl+R** (Assets → Refresh) in Unity to recompile.
+2. Check **Console** — fix all errors before testing. Warnings are OK.
+3. Press **Play**.
+
+### Milestone 2 — Run structure (TASK-10 to 13B)
+- Kill the enemy → **Victory panel** appears ("INBOX CLEARED"). Click **Continue** → panel hides, card reward screen appears.
+- Pick a card or skip → floor map appears with 2–3 room options.
+- Pick Combat → new combat starts. Pick Rest Stop → rest screen heals HP and shows flavour text, then returns to floor map.
+- After Room 4 → floor transition screen shows "FLOOR X CLEARED". Click Continue → next floor combat starts.
+- Let HP reach 0 → game over panel appears. Click Restart → combat resets.
+
+### Milestone 3 — Status effects & starter cards (TASK-14 to 15)
+- Press Play → hand should show **5 cards** from the 9-card starter deck (Reply Politely ×2, Archive It ×2, Hard Delete, Mark as Read ×2, Unsubscribe, Set Filter). Card names and type-bar colors should be correct.
+- Hover a card → preview panel shows card details. **Click** the card → preview dismisses immediately (no lingering panel).
+- To test **Unread**: temporarily set the test enemy's `Status Applied On Attack = Unread`, `Status Duration = 2` in the inspector. End your turn → the enemy panel shows `UNREAD 2`. On the enemy's turn it skips the attack. On the next enemy turn it attacks and the counter drops to 1, then clears.
+- To test **AwaitingReply**: set enemy SO to `Status Applied On Attack = AwaitingReply`, `Status Duration = 1`. End turn → after the enemy attacks, start of your next turn shows `AWAITINGREPLY 1` briefly on the player panel, and you have 2 AP instead of 3.
+- To test **Guilt on enemy**: temporarily add a card effect `ApplyStatusToEnemy / Guilt / duration 3` to any card. Play it → enemy panel shows `GUILT 3`. Each enemy turn it takes 6 damage (3 stacks × 2) and the counter drops.
 
 > *"The inbox is a dungeon. Every unread is a monster. You are the only one who can save yourself."*
 

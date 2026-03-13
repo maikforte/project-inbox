@@ -103,6 +103,7 @@ namespace InboxZero.UI
 
         void SpawnCard(CardData data, int slotIndex)
         {
+            if (data == null) return;
             if (cardContainer == null || slotIndex >= cardContainer.childCount) return;
 
             var slot = (RectTransform)cardContainer.GetChild(slotIndex);

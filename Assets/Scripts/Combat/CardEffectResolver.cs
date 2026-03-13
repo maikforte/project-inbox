@@ -46,7 +46,7 @@ namespace InboxZero.Combat
                         break;
 
                     case CardEffectType.ApplyStatusToPlayer:
-                        // Player status effects handled by CombatManager (future task).
+                        PlayerStatusManager.Instance?.ApplyStatus(effect.statusType, effect.statusDuration);
                         break;
 
                     case CardEffectType.RestoreHP:
