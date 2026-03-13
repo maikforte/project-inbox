@@ -85,20 +85,20 @@ Each task is sized to be a single prompt session.
   Implement and create ScriptableObjects for all 9 starter deck cards:
   Reply Politely, Archive It (×2), Hard Delete, Mark as Read (×2), Unsubscribe, Set Filter.
 
-- [ ] **TASK-16 · Floor 1 Enemies**
+- [x] **TASK-16 · Floor 1 Enemies**
   Create EnemyData ScriptableObjects and wire combat for:
   - Newsletter Flood (28 HP, 5 dmg/turn)
   - Calendar Invite (22 HP, 7 dmg/turn)
 
-- [ ] **TASK-17 · Floor 2 Enemies & Uncommon Cards**
+- [x] **TASK-17 · Floor 2 Enemies & Uncommon Cards**
   Enemies: Reply-All Demon (40 HP, 9 dmg), Auto-CC Manager (35 HP, 8 dmg).
   Uncommon reward cards: Forward Bomb, Snooze 7 Days, Keyboard Shortcut, CC the CEO, Report as Spam.
 
-- [ ] **TASK-18 · Floor 3 Enemies & Rare Cards**
+- [x] **TASK-18 · Floor 3 Enemies & Rare Cards**
   Enemies: Out-of-Office Loop (50 HP, 10 dmg, applies Awaiting Reply), Passive-Aggressive Karen (45 HP, 11 dmg, 4 regen/turn).
   Rare reward cards: Vacation Autoresponder, Recall Email, Start New Thread.
 
-- [ ] **TASK-19 · Floor 4 Boss**
+- [x] **TASK-19 · Floor 4 Boss**
   The Thread That Never Ends (80 HP, 14 dmg/turn, 5 regen/turn).
   Wire into Floor 4 room 1 as the sole encounter.
 
@@ -106,11 +106,11 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 4 — Relics
 
-- [ ] **TASK-20 · Relic System & Starting Relic**
+- [x] **TASK-20 · Relic System & Starting Relic**
   `RelicManager`: store active relics, trigger hooks (on turn start, on card played, on damage taken, on combat start).
   Implement Paperclip (+1 AP on first turn of combat). Show relic icons in UI.
 
-- [ ] **TASK-21 · Acquirable Relics**
+- [x] **TASK-21 · Acquirable Relics**
   Implement all 5 acquirable relics with their hooks:
   Cold Coffee (+3 HP/turn start), Inbox Zero Badge (+2 dmg per attack card), Mechanical Keyboard (+1 draw/turn), Do Not Disturb (-2 incoming dmg), Work Phone Off (+15 max HP on acquire).
 

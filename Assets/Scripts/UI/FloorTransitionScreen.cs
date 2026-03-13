@@ -177,7 +177,11 @@ namespace InboxZero.UI
         {
             // Award relic before advancing
             if (_pendingRelic != null)
+            {
                 GameManager.Instance.ActiveRelics.Add(_pendingRelic);
+                if (RelicManager.Instance != null)
+                    RelicManager.Instance.OnRelicAcquired(_pendingRelic);
+            }
 
             // Advance to next floor, reset room counter
             GameManager.Instance.CurrentFloor++;

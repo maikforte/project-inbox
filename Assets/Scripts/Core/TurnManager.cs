@@ -34,6 +34,8 @@ namespace InboxZero.Core
         {
             if (PlayerStatusManager.Instance != null)
                 PlayerStatusManager.Instance.ClearAll();
+            if (RelicManager.Instance != null)
+                RelicManager.Instance.OnCombatStart();
             StartPlayerTurn();
         }
 

@@ -44,9 +44,11 @@ namespace InboxZero.Core
             DontDestroyOnLoad(gameObject);
         }
 
-        // Applies incoming damage: shield absorbs first, remainder hits HP.
+        // Applies incoming damage: relic reduction first, then shield absorbs, remainder hits HP.
         public void TakeDamage(int amount)
         {
+            if (RelicManager.Instance != null)
+                amount = Mathf.Max(0, amount - RelicManager.Instance.GetDamageReduction());
             int absorbed = Mathf.Min(CurrentShield, amount);
             CurrentShield -= absorbed;
             CurrentHP -= amount - absorbed;

@@ -63,6 +63,9 @@ namespace InboxZero.UI
             DeckManager.Instance.PlayCard(Data);
 
             HandDisplay.Instance.RemoveCard(this);
+
+            // Sync display: card effects (DrawCards, etc.) may have changed GameManager.Hand.
+            HandDisplay.Instance.RefreshHand();
         }
 
         public void OnPointerEnter(PointerEventData _)

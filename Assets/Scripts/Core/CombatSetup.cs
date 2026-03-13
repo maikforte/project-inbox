@@ -9,19 +9,22 @@ using UnityEngine.UI;
 
 namespace InboxZero.Core
 {
-    /// <summary>
     /// Bootstraps the Combat scene: wires all UnityEvent chains and initialises
-    /// run state. For TASK-13B this uses hard-wired test content; later tasks
-    /// supply enemy-selection logic per floor.
-    /// </summary>
+    /// run state. Enemies are drawn from per-floor pools; add EnemyData SOs to
+    /// each list in the inspector as floors are implemented.
     public class CombatSetup : MonoBehaviour
     {
-        [Header("Test Content")]
-        [Tooltip("Enemy used for this encounter.")]
-        [SerializeField] EnemyData testEnemyData;
+        [Header("Enemy Pools — one list per floor")]
+        [SerializeField] List<EnemyData> floor1Enemies = new List<EnemyData>();
+        [SerializeField] List<EnemyData> floor2Enemies = new List<EnemyData>();
+        [SerializeField] List<EnemyData> floor3Enemies = new List<EnemyData>();
+        [SerializeField] List<EnemyData> floor4Enemies = new List<EnemyData>();
 
+        [Header("Starter Deck & Relic")]
         [Tooltip("Cards added to the player deck at run start.")]
         [SerializeField] List<CardData> starterCards = new List<CardData>();
+        [Tooltip("Relic the player starts every run with (e.g. Paperclip).")]
+        [SerializeField] RelicData startingRelic;
 
         [Header("Scene References")]
         [SerializeField] EnemyController enemyController;
@@ -31,7 +34,7 @@ namespace InboxZero.Core
         void Start()
         {
             WireEvents();
-            StartCombat(testEnemyData);
+            StartRun();
         }
 
         // ── Event wiring ──────────────────────────────────────────────────────
@@ -74,22 +77,44 @@ namespace InboxZero.Core
 
         // ── Combat lifecycle ──────────────────────────────────────────────────
 
-        void StartCombat(EnemyData data)
+        void StartRun()
         {
             GameManager.Instance.InitRun();
             DeckManager.Instance.InitDeck(new List<CardData>(starterCards));
-            enemyController.Init(data);
+            if (startingRelic != null)
+            {
+                GameManager.Instance.ActiveRelics.Add(startingRelic);
+                RelicManager.Instance?.OnRelicAcquired(startingRelic);
+            }
+            BeginNextCombat();
+        }
+
+        void BeginNextCombat()
+        {
+            TurnManager.Instance.IsCombatEnded = false;
+            var enemy = PickEnemyForFloor(GameManager.Instance.CurrentFloor);
+            if (enemy == null)
+            {
+                Debug.LogError($"[CombatSetup] No enemy data for floor {GameManager.Instance.CurrentFloor}. Add entries to the floor pool in the inspector.");
+                return;
+            }
+            enemyController.Init(enemy);
             combatResultManager.RegisterEnemy(enemyController);
             TurnManager.Instance.BeginCombat();
         }
 
-        // Begins a fresh combat encounter (reuses testEnemyData for TASK-13B).
-        void BeginNextCombat()
+        EnemyData PickEnemyForFloor(int floor)
         {
-            TurnManager.Instance.IsCombatEnded = false;
-            enemyController.Init(testEnemyData);
-            combatResultManager.RegisterEnemy(enemyController);
-            TurnManager.Instance.BeginCombat();
+            var pool = floor switch
+            {
+                1 => floor1Enemies,
+                2 => floor2Enemies,
+                3 => floor3Enemies,
+                4 => floor4Enemies,
+                _ => floor1Enemies,
+            };
+            if (pool == null || pool.Count == 0) return null;
+            return pool[Random.Range(0, pool.Count)];
         }
 
         // ── Flow callbacks ────────────────────────────────────────────────────
@@ -135,7 +160,7 @@ namespace InboxZero.Core
         void RestartRun()
         {
             TurnManager.Instance.IsCombatEnded = false;
-            StartCombat(testEnemyData);
+            StartRun();
         }
     }
 }
