@@ -33,6 +33,10 @@ namespace InboxZero.Core
         public int CurrentFloor;
         public int CurrentRoom;
 
+        [Header("Run Stats")]
+        public int CardsPlayed;
+        public int DamageDealt;
+
         void Awake()
         {
             if (Instance != null && Instance != this)
@@ -52,6 +56,12 @@ namespace InboxZero.Core
             int absorbed = Mathf.Min(CurrentShield, amount);
             CurrentShield -= absorbed;
             CurrentHP -= amount - absorbed;
+
+            if (absorbed > 0)
+                AudioManager.Instance?.PlayShieldBlock();
+            else if (amount > 0)
+                AudioManager.Instance?.PlayDamageHit();
+
             if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
@@ -70,6 +80,8 @@ namespace InboxZero.Core
             Hand.Clear();
             DiscardPile.Clear();
             ActiveRelics.Clear();
+            CardsPlayed = 0;
+            DamageDealt = 0;
         }
     }
 }

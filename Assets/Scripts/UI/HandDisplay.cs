@@ -79,6 +79,15 @@ namespace InboxZero.UI
             ShowSlotLabel(slot);
         }
 
+        /// Removes the card from the tracked list and reveals the slot label,
+        /// but does NOT destroy the GameObject — caller owns the animation + destruction.
+        public void DetachCard(CardView view)
+        {
+            var slot = view != null ? view.transform.parent : null;
+            _cards.Remove(view);
+            ShowSlotLabel(slot);
+        }
+
         void ClearCards()
         {
             foreach (var c in _cards)

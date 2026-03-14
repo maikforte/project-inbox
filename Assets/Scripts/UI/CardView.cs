@@ -1,3 +1,4 @@
+using System.Collections;
 using InboxZero.Combat;
 using InboxZero.Core;
 using InboxZero.Data;
@@ -61,11 +62,41 @@ namespace InboxZero.UI
             TurnManager.Instance.TrySpendAP(Data.apCost);
             CardEffectResolver.Resolve(Data);
             DeckManager.Instance.PlayCard(Data);
+            AudioManager.Instance?.PlayCardPlay();
 
-            HandDisplay.Instance.RemoveCard(this);
-
-            // Sync display: card effects (DrawCards, etc.) may have changed GameManager.Hand.
+            // Detach from hand list, animate the card flying away, then update hand display.
+            HandDisplay.Instance.DetachCard(this);
+            StartCoroutine(AnimatePlayAndDestroy());
             HandDisplay.Instance.RefreshHand();
+        }
+
+        IEnumerator AnimatePlayAndDestroy()
+        {
+            // Reparent to canvas root so the card can move freely above the hand container.
+            var canvas = GetComponentInParent<Canvas>()?.rootCanvas;
+            if (canvas == null) { Destroy(gameObject); yield break; }
+
+            transform.SetParent(canvas.transform, worldPositionStays: true);
+            transform.SetAsLastSibling();
+
+            var rt = (RectTransform)transform;
+            var startPos = rt.anchoredPosition;
+
+            var cg = gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+
+            const float Duration = 0.18f;
+            float t = 0f;
+            while (t < Duration)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / Duration);
+                rt.anchoredPosition = startPos + Vector2.up * (p * 50f);
+                cg.alpha = 1f - p;
+                yield return null;
+            }
+
+            Destroy(gameObject);
         }
 
         public void OnPointerEnter(PointerEventData _)

@@ -50,6 +50,7 @@ namespace InboxZero.Core
             var gm = GameManager.Instance;
             gm.Hand.Remove(card);
             gm.DiscardPile.Add(card);
+            gm.CardsPlayed++;
         }
 
         // Discard entire hand (end of turn).

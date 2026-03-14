@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InboxZero.Combat;
 using InboxZero.Core;
 using InboxZero.Data;
+using InboxZero.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -32,6 +33,10 @@ namespace InboxZero.Enemies
         // StatusEffectType → remaining turns
         readonly Dictionary<StatusEffectType, int> _statuses = new Dictionary<StatusEffectType, int>();
 
+        // HP bar smooth lerp
+        float _fillTarget;
+        float _fillDisplay;
+
         const int GuiltDamagePerTurn = 2;
 
         // ── Initialisation ────────────────────────────────────────────────────
@@ -42,6 +47,7 @@ namespace InboxZero.Enemies
             CurrentHP = data.maxHP;
             IsDead    = false;
             _statuses.Clear();
+            _fillTarget = _fillDisplay = 1f;
 
             CardEffectResolver.ActiveTarget = this;
 
@@ -63,6 +69,8 @@ namespace InboxZero.Enemies
             if (IsDead) return;
             CurrentHP -= amount;
             UpdateUI();
+            FloatingText.Spawn($"-{amount}", hpBarFill?.rectTransform, new Color(1f, 0.35f, 0.35f));
+            AudioManager.Instance?.PlayDamageHit();
             CheckDeath();
         }
 
@@ -85,6 +93,13 @@ namespace InboxZero.Enemies
         }
 
         // ── Enemy turn logic ──────────────────────────────────────────────────
+
+        void Update()
+        {
+            if (hpBarFill == null || _fillDisplay == _fillTarget) return;
+            _fillDisplay = Mathf.MoveTowards(_fillDisplay, _fillTarget, Time.deltaTime * 3f);
+            hpBarFill.fillAmount = _fillDisplay;
+        }
 
         void OnEnemyTurnStart()
         {
@@ -153,6 +168,7 @@ namespace InboxZero.Enemies
             IsDead    = true;
             UpdateUI();
             TurnManager.Instance.OnEnemyTurnStart.RemoveListener(OnEnemyTurnStart);
+            AudioManager.Instance?.PlayEnemyDeath();
             OnDeath.Invoke();
         }
 
@@ -170,8 +186,8 @@ namespace InboxZero.Enemies
             if (hpText != null)
                 hpText.text = $"{Mathf.Max(CurrentHP, 0)} / {(Data != null ? Data.maxHP : 0)}";
 
-            if (hpBarFill != null && Data != null)
-                hpBarFill.fillAmount = (float)Mathf.Max(CurrentHP, 0) / Data.maxHP;
+            if (Data != null)
+                _fillTarget = (float)Mathf.Max(CurrentHP, 0) / Data.maxHP;
 
             if (statusText != null)
             {

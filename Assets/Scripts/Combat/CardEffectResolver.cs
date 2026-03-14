@@ -27,6 +27,7 @@ namespace InboxZero.Combat
                     case CardEffectType.DealDamage:
                         int dmg = effect.value + BonusDamage(card);
                         ActiveTarget?.TakeDamage(dmg);
+                        GameManager.Instance.DamageDealt += dmg;
                         break;
 
                     case CardEffectType.GainShield:

@@ -64,6 +64,7 @@ namespace InboxZero.Core
             if (IsCombatEnded) return;
             if (CurrentPhase != TurnPhase.PlayerTurn) return;
 
+            AudioManager.Instance?.PlayTurnEnd();
             DeckManager.Instance.DiscardHand();
             OnPlayerTurnEnd.Invoke();
 

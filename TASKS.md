@@ -118,25 +118,25 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 5 — Game Screens
 
-- [ ] **TASK-22 · Main Menu / Run Start Screen**
+- [x] **TASK-22 · Main Menu / Run Start Screen**
   Title screen: game name, "Start Run" button, brief flavour text. Loads into Floor 1 Room 1 combat.
 
-- [ ] **TASK-23 · Game Over Screen**
+- [x] **TASK-23 · Game Over Screen**
   On HP ≤ 0: show "RUN TERMINATED" screen, floor reached, prompt to restart. Returns to main menu.
 
-- [ ] **TASK-24 · Victory Screen**
+- [x] **TASK-24 · Victory Screen**
   On boss death: show "INBOX ZERO ACHIEVED" screen with run stats (floors cleared, cards played count, damage dealt). Return to main menu.
 
 ---
 
 ## MILESTONE 6 — Polish
 
-- [ ] **TASK-25 · Card Animations & Visual Feedback**
+- [x] **TASK-25 · Card Animations & Visual Feedback**
   Card play animation (slide up + fade), damage numbers floating on hit, HP bar smooth lerp, shield flash on block.
 
-- [ ] **TASK-26 · SFX Placeholders**
+- [x] **TASK-26 · SFX Placeholders**
   Hook up placeholder audio: card play click, damage hit, shield block, enemy death, turn end. Use Unity's built-in AudioSource.
 
 ---
 
-*Last updated: 2026-03-13*
+*Last updated: 2026-03-14*

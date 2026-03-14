@@ -34,7 +34,15 @@ namespace InboxZero.Core
         void Start()
         {
             WireEvents();
-            StartRun();
+            if (MainMenuScreen.Instance != null)
+            {
+                MainMenuScreen.Instance.Init(this);
+                MainMenuScreen.Instance.Show();
+            }
+            else
+            {
+                StartRun();
+            }
         }
 
         // ── Event wiring ──────────────────────────────────────────────────────
@@ -68,16 +76,17 @@ namespace InboxZero.Core
             if (FloorTransitionScreen.Instance != null)
             {
                 FloorTransitionScreen.Instance.OnNextFloorReady.AddListener(BeginNextCombat);
-                FloorTransitionScreen.Instance.OnGameVictory.AddListener(OnGameVictory);
+                FloorTransitionScreen.Instance.OnGameVictory.AddListener(ReturnToMenu);
             }
 
-            // Game Over restart
-            combatResultManager.OnGameOverRestarted.AddListener(RestartRun);
+            // Game Over / Victory → return to main menu
+            combatResultManager.OnGameOverRestarted.AddListener(ReturnToMenu);
+            combatResultManager.OnGameVictory.AddListener(ReturnToMenu);
         }
 
         // ── Combat lifecycle ──────────────────────────────────────────────────
 
-        void StartRun()
+        public void StartRun()
         {
             GameManager.Instance.InitRun();
             DeckManager.Instance.InitDeck(new List<CardData>(starterCards));
@@ -151,16 +160,9 @@ namespace InboxZero.Core
                 FloorTransitionScreen.Instance.Show();
         }
 
-        static void OnGameVictory()
+        static void ReturnToMenu()
         {
-            // Placeholder: reload the scene. A proper Victory screen replaces this in TASK-24.
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-
-        void RestartRun()
-        {
-            TurnManager.Instance.IsCombatEnded = false;
-            StartRun();
         }
     }
 }

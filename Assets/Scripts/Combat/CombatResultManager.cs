@@ -23,8 +23,9 @@ namespace InboxZero.Combat
         public EnemyController Enemy { get; set; }
 
         // Optional callbacks for scene flow (floor map, restart scene, etc.).
-        public UnityEvent OnVictoryContinued = new UnityEvent();
+        public UnityEvent OnVictoryContinued  = new UnityEvent();
         public UnityEvent OnGameOverRestarted = new UnityEvent();
+        public UnityEvent OnGameVictory       = new UnityEvent();
 
         void Start()
         {
@@ -55,25 +56,38 @@ namespace InboxZero.Combat
         public void TriggerVictory()
         {
             if (TurnManager.Instance.IsCombatEnded) return;
-
             TurnManager.Instance.IsCombatEnded = true;
-
             if (InboxZero.UI.HandDisplay.Instance != null) InboxZero.UI.HandDisplay.Instance.HidePreview();
 
             if (victoryPanel != null) victoryPanel.SetActive(true);
-            if (victoryText  != null) victoryText.text = "INBOX CLEARED";
+
+            if (GameManager.Instance.CurrentFloor >= 4)
+            {
+                var gm = GameManager.Instance;
+                if (victoryText != null)
+                    victoryText.text = $"INBOX ZERO ACHIEVED\n\nCARDS PLAYED:  {gm.CardsPlayed}\nDAMAGE DEALT:  {gm.DamageDealt}";
+            }
+            else
+            {
+                if (victoryText != null) victoryText.text = "INBOX CLEARED";
+            }
         }
 
         public void TriggerGameOver()
         {
             if (TurnManager.Instance.IsCombatEnded) return;
-
             TurnManager.Instance.IsCombatEnded = true;
-
             if (InboxZero.UI.HandDisplay.Instance != null) InboxZero.UI.HandDisplay.Instance.HidePreview();
 
             if (gameOverPanel != null) gameOverPanel.SetActive(true);
-            if (gameOverText  != null) gameOverText.text = "YOU HAVE BEEN UNSUBSCRIBED";
+
+            int floor = GameManager.Instance.CurrentFloor;
+            if (gameOverText != null)
+                gameOverText.text = $"RUN TERMINATED\nREACHED FLOOR {floor}";
+
+            // Relabel the restart button to make it clear it goes to main menu.
+            var btnLabel = gameOverRestartButton?.GetComponentInChildren<TextMeshProUGUI>();
+            if (btnLabel != null) btnLabel.text = "MAIN MENU";
         }
 
         // ── Button handlers ───────────────────────────────────────────────────
@@ -81,7 +95,10 @@ namespace InboxZero.Combat
         void OnContinue()
         {
             if (victoryPanel != null) victoryPanel.SetActive(false);
-            OnVictoryContinued.Invoke();
+            if (GameManager.Instance.CurrentFloor >= 4)
+                OnGameVictory.Invoke();
+            else
+                OnVictoryContinued.Invoke();
         }
 
         void OnRestart()
@@ -89,5 +106,6 @@ namespace InboxZero.Combat
             if (gameOverPanel != null) gameOverPanel.SetActive(false);
             OnGameOverRestarted.Invoke();
         }
+
     }
 }
