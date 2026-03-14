@@ -18,6 +18,7 @@ namespace InboxZero.Enemies
         public TextMeshProUGUI hpText;
         public Image hpBarFill;
         public TextMeshProUGUI statusText;
+        [SerializeField] InboxZero.UI.StatusChipDisplay statusChipDisplay;
 
         [Header("Timing")]
         [Tooltip("Seconds between enemy turn actions (for readability).")]
@@ -189,21 +190,7 @@ namespace InboxZero.Enemies
             if (Data != null)
                 _fillTarget = (float)Mathf.Max(CurrentHP, 0) / Data.maxHP;
 
-            if (statusText != null)
-            {
-                if (_statuses.Count == 0)
-                {
-                    statusText.text = "";
-                }
-                else
-                {
-                    var sb = new System.Text.StringBuilder();
-                    foreach (var kv in _statuses)
-                        if (kv.Value > 0)
-                            sb.Append($"{kv.Key.ToString().ToUpper()} {kv.Value}  ");
-                    statusText.text = sb.ToString().TrimEnd();
-                }
-            }
+            statusChipDisplay?.Refresh(_statuses);
         }
     }
 }

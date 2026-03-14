@@ -139,4 +139,16 @@ Each task is sized to be a single prompt session.
 
 ---
 
+## MILESTONE 7 — Visual Polish
+
+All panel and container Image components use a single 9-sliced sprite as a placeholder. Swap the sprite reference on any Image to apply final art — no layout changes needed.
+
+- [x] **TASK-27 · Status Effect Label Chips**
+  Replace plain status text with label chips: horizontal row of pill badges per status on the enemy panel.
+
+- [x] **TASK-28 · Consistent Sliced Sprite**
+  Apply one 9-sliced sprite to all container/panel Images (EnemyPanel, PlayerPanel, card slots, End Turn button, victory/game over panels, card preview, card backgrounds). Sprite can be swapped per-element for final art without code changes.
+
+---
+
 *Last updated: 2026-03-14*
