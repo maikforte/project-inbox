@@ -36,6 +36,7 @@ namespace InboxZero.Core
                 PlayerStatusManager.Instance.ClearAll();
             if (RelicManager.Instance != null)
                 RelicManager.Instance.OnCombatStart();
+            AudioManager.Instance?.PlayBattleMusic();
             StartPlayerTurn();
         }
 

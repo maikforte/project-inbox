@@ -8,6 +8,10 @@ namespace InboxZero.Core
     {
         public static AudioManager Instance { get; private set; }
 
+        [Header("Music")]
+        public AudioClip battleMusic;
+        [Range(0f, 1f)] public float musicVolume = 0.5f;
+
         [Header("SFX Clips")]
         public AudioClip cardPlay;
         public AudioClip damageHit;
@@ -15,15 +19,32 @@ namespace InboxZero.Core
         public AudioClip enemyDeath;
         public AudioClip turnEnd;
 
-        AudioSource _source;
+        AudioSource _sfxSource;
+        AudioSource _musicSource;
 
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-            _source = gameObject.AddComponent<AudioSource>();
-            _source.playOnAwake = false;
+
+            _sfxSource = gameObject.AddComponent<AudioSource>();
+            _sfxSource.playOnAwake = false;
+
+            _musicSource = gameObject.AddComponent<AudioSource>();
+            _musicSource.playOnAwake = false;
+            _musicSource.loop = true;
+            _musicSource.volume = musicVolume;
         }
+
+        public void PlayBattleMusic()
+        {
+            if (battleMusic == null) return;
+            if (_musicSource.isPlaying) return;
+            _musicSource.clip = battleMusic;
+            _musicSource.Play();
+        }
+
+        public void StopMusic() => _musicSource.Stop();
 
         public void PlayCardPlay()    => Play(cardPlay);
         public void PlayDamageHit()   => Play(damageHit);
@@ -33,7 +54,7 @@ namespace InboxZero.Core
 
         void Play(AudioClip clip)
         {
-            if (clip != null) _source.PlayOneShot(clip);
+            if (clip != null) _sfxSource.PlayOneShot(clip);
         }
     }
 }

@@ -80,14 +80,20 @@ Each run is fresh. Each run will probably kill you.
 Each combat encounter follows this sequence:
 
 ```
-START OF TURN
-    → Draw 5 cards (or 6 with Mechanical Keyboard relic)
-    → Gain 3 AP (Action Points)
+COMBAT START (once per fight)
+    → Draw 5 cards into hand (opening hand)
+    → Gain 3 AP
+
+START OF TURN (every subsequent turn)
+    → Draw 1 card
+    → Gain 3 AP
     → Apply start-of-turn relic effects (Cold Coffee: +3 HP)
+    → Apply start-of-turn status effects (AwaitingReply AP reduction)
 
 YOUR TURN
     → Play cards from hand by spending AP
-    → Cards deal damage, build shield, draw more cards, apply statuses
+    → Played cards go to the discard pile immediately
+    → Unplayed cards STAY IN HAND — they are never auto-discarded
     → End turn when done (or out of AP)
 
 ENEMY TURN
@@ -98,10 +104,63 @@ ENEMY TURN
     → Player status effects tick down (Guilt deals 2 dmg, etc.)
 
 END OF TURN
-    → Discard entire hand
     → Shield resets to 0
     → Loop back to Start of Turn
 ```
+
+### Card Draw & Deck Cycling
+
+- **Hand persists.** Only played cards move to the discard pile. Unplayed cards remain in hand.
+- **Draw 1 per turn.** After the opening hand of 5, you draw exactly 1 card at the start of each turn (effects like Mark as Read or Unsubscribe can draw additional cards).
+- **Deck exhaustion.** When the draw pile runs out, shuffle the discard pile into a new draw pile. Cards currently in hand are **never** included in the reshuffle.
+- **Max hand size: 7.** If drawing would exceed 7 cards, you must choose a card to discard before the new card enters. This prevents indefinite hand accumulation.
+
+### Card Drops (replaces guaranteed reward screen)
+
+Enemies do **not** guarantee a card reward. Instead, defeating an enemy has a chance to drop a card based on the enemy's reward tier. Dropped cards go into a **collection pool** — they are not immediately added to the deck.
+
+| Enemy Tier | Drop Chance | Card Rarity Offered |
+|---|---|---|
+| Common | 40% | Common |
+| Uncommon | 65% | Common or Uncommon |
+| Rare | 90% | Uncommon or Rare |
+| Boss | 100% | Rare |
+
+**Deck building** happens at dedicated moments only — not mid-combat, not after every fight. Proposed triggers (TBD, pick one or combine):
+- **Rest Stops** — the rest stop screen shows collected cards and lets you swap them into/out of your active deck alongside the HP heal
+- **Level transitions** — the floor-cleared screen includes a deck builder step before moving to the next level
+- **Inbox Drafts** — dropped cards appear as a special "Drafts" folder row in the inbox sidebar; opening it at any time lets you review and equip
+
+### Deck Composition Rules
+
+These limits apply when adding cards to the active deck:
+
+| Rarity | Max copies in deck |
+|---|---|
+| Starter | No limit (form the baseline) |
+| Common | No limit |
+| Uncommon | 4 total |
+| Rare | 2 total |
+
+- **Max deck size: 15 cards.** You may always leave collected cards in the pool unequipped.
+- You may never hold more than 1 copy of the same Rare card.
+- Cards in the collection pool but not in the active deck are kept for the rest of the run.
+
+### Proposed Future Mechanics (design notes)
+
+Ideas worth considering for later tasks — not yet implemented:
+
+| Mechanic | Description |
+|---|---|
+| **Overflow Discard** | When hand hits 7 and you must discard, you choose — creates meaningful tension between keeping cheap cards vs. strong ones |
+| **Priority Flag** | Mark 1 card per deck as Priority; it is always in your opening hand of 5 |
+| **Momentum** | Playing 3+ cards in a single turn grants +1 AP the following turn ("cleared the queue") |
+| **Reply Chain** | Playing the same card twice in consecutive turns gives it +50% effect ("the thread keeps going") |
+| **Mark Unread** | You can return a card from hand to top of draw pile — useful for protecting a key card when hand is nearly full |
+| **Attachment** | Some cards have an Attachment flag; they must be played on the turn immediately after being drawn, or they auto-discard |
+| **Inbox Drafts** | Dropped cards appear as a "Drafts" row in the inbox sidebar — opens a deck builder overlay at any time between fights |
+| **Card Selling** | At rest stops, you can permanently delete a card from the collection pool in exchange for +5 HP ("unsubscribe from the mailing list") |
+| **Forwarded Cards** | Some drops are "forwarded" — they have a one-time use bonus effect the first time they are played, then become a normal card |
 
 ### The Inbox Structure
 

@@ -141,6 +141,50 @@ Each task is sized to be a single prompt session.
 
 ---
 
+## MILESTONE 5B — Card Mechanics Redesign
+
+- [ ] **TASK-31 · Persistent Hand & Draw-1 System**
+  Rework `DeckManager` and `TurnManager` to implement the new hand rules:
+  - Combat start: draw 5 cards (opening hand only)
+  - Each turn start: draw 1 card (not 5)
+  - `DiscardHand()` removed from `EndPlayerTurn()` — unplayed cards stay in hand
+  - `DeckManager.DiscardHand()` still exists but is only called when a card is played (`PlayCard` already moves it to discard)
+  - Deck exhaustion: when draw pile empties, reshuffle discard only (exclude current hand) into draw pile
+  - `HandDisplay.RefreshHand()` must no longer wipe and respawn all cards each turn — only append the newly drawn card(s)
+
+- [ ] **TASK-32 · Max Hand Size & Overflow Discard**
+  Enforce a max hand size of 7:
+  - Before drawing, check if `Hand.Count >= 7`
+  - If so, prompt the player to choose a card from hand to discard before the new card is drawn
+  - UI: highlight hand cards, clicking one discards it and completes the draw
+  - If no overflow, draw proceeds normally
+
+- [ ] **TASK-33 · Deck Composition Limits**
+  Enforce rarity caps in the deck builder:
+  - Track Uncommon count (max 4) and Rare count (max 2) in the active deck
+  - Track Rare duplicates (max 1 copy of any specific Rare)
+  - Track total deck size (max 15)
+  - Cards that would violate a limit are greyed out in the deck builder with a short reason
+
+- [ ] **TASK-34 · Card Drop System**
+  Replace guaranteed card reward screen with a chance-based drop on enemy defeat:
+  - Each `EnemyData` has a `dropChance` (float 0–1) and `dropRarity` tier
+  - On enemy death, roll against `dropChance`; on success, pick a random card of the appropriate rarity from a global card pool
+  - Dropped card goes into `GameManager.CardCollection` (new list, separate from the active deck)
+  - No UI shown immediately — victory screen just notes "1 card dropped" if applicable
+  - Boss always drops a Rare (100%)
+
+- [ ] **TASK-35 · Deck Builder Screen**
+  New screen accessible at Rest Stops and level transitions:
+  - Left column: active deck (cards currently in the 15-card deck)
+  - Right column: collection pool (dropped cards not yet in deck)
+  - Click a collection card to add it to deck (subject to composition limits)
+  - Click an active deck card to move it back to collection
+  - Show rarity counts and deck size in a header
+  - "Done" button closes the screen and continues flow
+
+---
+
 ## MILESTONE 6 — Polish
 
 - [x] **TASK-25 · Card Animations & Visual Feedback**
