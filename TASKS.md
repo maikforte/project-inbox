@@ -121,6 +121,18 @@ Each task is sized to be a single prompt session.
 - [x] **TASK-22 · Main Menu / Run Start Screen**
   Title screen: game name, "Start Run" button, brief flavour text. Loads into Floor 1 Room 1 combat.
 
+- [x] **TASK-29 · Main Menu Expanded**
+  Redesign main menu with four buttons: Continue (greyed — no save system), New Game, Options (placeholder overlay), Exit (quits app / stops Play in editor).
+
+- [x] **TASK-30 · Inbox as Hub — Run Flow Redesign**
+  Replace the between-combat floor map with the Gmail-style Inbox screen as the primary navigation hub.
+  - On New Game: show the Inbox screen populated with all enemies for Level 1 as email rows
+  - Each email row = one encounter (combat or rest stop); player clicks a row to enter it
+  - After combat victory + card reward: return to the Inbox with that email removed
+  - After a rest stop: remove the row and return to Inbox immediately
+  - When all rows are cleared: show "LEVEL X CLEARED", award relic if applicable, load Level 2 Inbox
+  - `FloorMapScreen` (already Gmail-styled) becomes the persistent hub — retire its current behavior of showing only 2–3 random options between fights; instead populate it with all encounters for the level at level start
+
 - [x] **TASK-23 · Game Over Screen**
   On HP ≤ 0: show "RUN TERMINATED" screen, floor reached, prompt to restart. Returns to main menu.
 
@@ -151,4 +163,10 @@ All panel and container Image components use a single 9-sliced sprite as a place
 
 ---
 
-*Last updated: 2026-03-14*
+*Last updated: 2026-03-15*
+
+---
+
+## Design Change Log
+
+- **2026-03-15 · Inbox as Hub**: The between-combat floor map (2–3 random options) is replaced by a persistent Gmail-style Inbox screen. The Inbox shows all encounters for the current level upfront; the player chooses the order. "Floors" are now "Levels" in all UI text. See TASK-30.

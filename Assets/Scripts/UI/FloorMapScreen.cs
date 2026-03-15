@@ -17,9 +17,9 @@ namespace InboxZero.UI
         [Header("Font")]
         public TMP_FontAsset uiFont;
 
-        public UnityEvent OnCombatSelected   = new UnityEvent();
-        public UnityEvent OnRestStopSelected = new UnityEvent();
-        public UnityEvent OnFloorComplete    = new UnityEvent();
+        public UnityEvent<RoomOption> OnCombatSelected   = new UnityEvent<RoomOption>();
+        public UnityEvent<RoomOption> OnRestStopSelected = new UnityEvent<RoomOption>();
+        public UnityEvent             OnFloorComplete    = new UnityEvent();
 
         Canvas     _canvas;
         GameObject _panel;
@@ -50,12 +50,9 @@ namespace InboxZero.UI
 
         // ── Public API ────────────────────────────────────────────────────────
 
-        public void Show()
+        public void Show(List<RoomOption> options)
         {
-            bool floorDone = FloorMapManager.Instance.AdvanceRoom();
-            if (floorDone) { OnFloorComplete.Invoke(); return; }
-
-            var options = FloorMapManager.Instance.GenerateNextOptions();
+            if (_panel != null) Destroy(_panel);
             Build(options);
         }
 
@@ -313,9 +310,9 @@ namespace InboxZero.UI
         {
             Hide();
             if (opt.type == RoomType.Combat)
-                OnCombatSelected.Invoke();
+                OnCombatSelected.Invoke(opt);
             else
-                OnRestStopSelected.Invoke();
+                OnRestStopSelected.Invoke(opt);
         }
 
         // ── Layout helpers ────────────────────────────────────────────────────

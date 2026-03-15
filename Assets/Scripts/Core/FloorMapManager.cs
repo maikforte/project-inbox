@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using InboxZero.Data;
 using UnityEngine;
 
 namespace InboxZero.Core
@@ -14,30 +15,19 @@ namespace InboxZero.Core
         public string senderName;
         public string subjectLine;
         public string previewText;
+        // Enemy reference — null for rest stops
+        public EnemyData enemyData;
     }
 
-    /// Generates room options and advances run state when a room is selected.
+    /// Generates all encounters for a level upfront (inbox-as-hub model).
     public class FloorMapManager : MonoBehaviour
     {
         public static FloorMapManager Instance { get; private set; }
 
-        public const int RoomsPerFloor = 4;
-
-        [Tooltip("How many options to offer (excluding forced Room 4).")]
-        [Range(2, 3)] public int optionCount = 2;
-
-        [Tooltip("Probability (0–1) that any given option is a Rest Stop.")]
+        [Tooltip("Probability (0–1) that a rest stop row is added per enemy in the pool.")]
         [Range(0f, 1f)] public float restStopChance = 0.30f;
 
         // ── Flavor text tables ────────────────────────────────────────────────
-
-        static readonly string[][] SendersByFloor =
-        {
-            new[] { "Newsletter Flood", "Calendar Invite", "Mailing List" },
-            new[] { "Reply-All Demon", "Auto-CC Manager", "Thread Hijacker" },
-            new[] { "Out-of-Office Loop", "Passive-Aggressive Karen" },
-            new[] { "The Thread That Never Ends" },
-        };
 
         static readonly string[][] SubjectsByFloor =
         {
@@ -45,14 +35,6 @@ namespace InboxZero.Core
             new[] { "Re: Re: Re: That Thing", "FYI (no action needed)", "Following Up..." },
             new[] { "Per My Last Email", "As Previously Stated", "URGENT: Please Advise" },
             new[] { "Re: Re: Fw: Re: Fw: Re: Friday Lunch?" },
-        };
-
-        static readonly string[] PreviewsByFloor =
-        {
-            "5-7 dmg/turn",
-            "8-9 dmg/turn",
-            "10-11 dmg/turn  *  REGEN",
-            "14 dmg/turn  *  5 HP REGEN  *  FINAL BOSS",
         };
 
         static readonly string[] RestSubjects =
@@ -69,42 +51,52 @@ namespace InboxZero.Core
             Instance = this;
         }
 
-        // ── Option generation ─────────────────────────────────────────────────
+        // ── Level encounter generation ────────────────────────────────────────
 
-        /// Returns the options available for the room AFTER the current one.
-        public List<RoomOption> GenerateNextOptions()
+        /// Returns all encounters for the current level — one row per enemy in
+        /// the pool, plus rest stops sprinkled in based on restStopChance.
+        public List<RoomOption> GenerateAllLevelEncounters(List<EnemyData> enemyPool)
         {
-            int nextRoom = GameManager.Instance.CurrentRoom + 1;
             int floorIdx = Mathf.Clamp(GameManager.Instance.CurrentFloor - 1, 0, 3);
+            var options  = new List<RoomOption>();
 
-            // Room 4 is always a forced combat — no choice.
-            if (nextRoom >= RoomsPerFloor)
-                return new List<RoomOption> { MakeCombatOption(floorIdx) };
+            foreach (var enemy in enemyPool)
+                options.Add(MakeCombatOption(floorIdx, enemy));
 
-            var options = new List<RoomOption>();
-            bool hasRest = false;
+            // Sprinkle rest stops proportionally to pool size
+            int restCount = Mathf.RoundToInt(enemyPool.Count * restStopChance);
+            for (int i = 0; i < restCount; i++)
+                options.Add(MakeRestOption());
 
-            for (int i = 0; i < optionCount; i++)
+            // Fisher-Yates shuffle
+            for (int i = options.Count - 1; i > 0; i--)
             {
-                bool offerRest = !hasRest && Random.value < restStopChance;
-                options.Add(offerRest ? MakeRestOption() : MakeCombatOption(floorIdx));
-                if (offerRest) hasRest = true;
+                int j   = Random.Range(0, i + 1);
+                var tmp = options[i];
+                options[i] = options[j];
+                options[j] = tmp;
             }
 
             return options;
         }
 
-        RoomOption MakeCombatOption(int floorIdx)
+        // ── Option factories ─────────────────────────────────────────────────
+
+        RoomOption MakeCombatOption(int floorIdx, EnemyData enemy)
         {
-            var senders  = SendersByFloor[floorIdx];
             var subjects = SubjectsByFloor[floorIdx];
+
+            string preview = $"{enemy.maxHP} HP  *  {enemy.damagePerTurn} DMG/TURN";
+            if (enemy.regenPerTurn > 0) preview += "  *  REGEN";
+
             return new RoomOption
             {
                 type        = RoomType.Combat,
                 label       = "COMBAT",
-                senderName  = senders[Random.Range(0, senders.Length)],
+                senderName  = enemy.enemyName,
                 subjectLine = subjects[Random.Range(0, subjects.Length)],
-                previewText = PreviewsByFloor[floorIdx],
+                previewText = preview,
+                enemyData   = enemy,
             };
         }
 
@@ -116,14 +108,5 @@ namespace InboxZero.Core
             subjectLine = RestSubjects[Random.Range(0, RestSubjects.Length)],
             previewText = "Restore 15 HP.",
         };
-
-        // ── Progression ───────────────────────────────────────────────────────
-
-        /// Advances CurrentRoom and returns whether the floor is now complete.
-        public bool AdvanceRoom()
-        {
-            GameManager.Instance.CurrentRoom++;
-            return GameManager.Instance.CurrentRoom > RoomsPerFloor;
-        }
     }
 }

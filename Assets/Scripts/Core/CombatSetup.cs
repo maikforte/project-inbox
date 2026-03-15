@@ -10,8 +10,8 @@ using UnityEngine.UI;
 namespace InboxZero.Core
 {
     /// Bootstraps the Combat scene: wires all UnityEvent chains and initialises
-    /// run state. Enemies are drawn from per-floor pools; add EnemyData SOs to
-    /// each list in the inspector as floors are implemented.
+    /// run state. The Inbox screen is the hub — all level encounters are generated
+    /// upfront and the player picks which email to fight.
     public class CombatSetup : MonoBehaviour
     {
         [Header("Enemy Pools — one list per floor")]
@@ -30,6 +30,14 @@ namespace InboxZero.Core
         [SerializeField] EnemyController enemyController;
         [SerializeField] CombatResultManager combatResultManager;
         [SerializeField] Button endTurnButton;
+
+        // ── Inbox state ───────────────────────────────────────────────────────
+
+        List<RoomOption> _inbox        = new List<RoomOption>();
+        RoomOption       _activeOption;       // combat currently being fought
+        RoomOption       _pendingRestOpt;     // rest stop row waiting to be removed
+
+        // ── Lifecycle ─────────────────────────────────────────────────────────
 
         void Start()
         {
@@ -53,29 +61,28 @@ namespace InboxZero.Core
             if (endTurnButton != null)
                 endTurnButton.onClick.AddListener(TurnManager.Instance.EndPlayerTurn);
 
-            // Victory → Card Reward screen (or Floor Map if reward screen absent)
+            // Victory → Card Reward screen
             combatResultManager.OnVictoryContinued.AddListener(OnVictoryContinued);
 
-            // Card reward done → Floor Map
+            // Card reward done → Inbox
             if (CardRewardScreen.Instance != null)
                 CardRewardScreen.Instance.OnComplete.AddListener(OnRewardDone);
 
-            // Floor Map → room choices
+            // Inbox row clicked → combat or rest stop
             if (FloorMapScreen.Instance != null)
             {
                 FloorMapScreen.Instance.OnCombatSelected.AddListener(BeginNextCombat);
                 FloorMapScreen.Instance.OnRestStopSelected.AddListener(OnRestStopSelected);
-                FloorMapScreen.Instance.OnFloorComplete.AddListener(OnFloorComplete);
             }
 
-            // Rest Stop → Floor Map
+            // Rest Stop done → Inbox
             if (RestStopScreen.Instance != null)
                 RestStopScreen.Instance.OnComplete.AddListener(OnRestStopDone);
 
-            // Floor Transition → next floor or game victory
+            // Floor Transition → next level's Inbox or game victory
             if (FloorTransitionScreen.Instance != null)
             {
-                FloorTransitionScreen.Instance.OnNextFloorReady.AddListener(BeginNextCombat);
+                FloorTransitionScreen.Instance.OnNextFloorReady.AddListener(OnNextFloorReady);
                 FloorTransitionScreen.Instance.OnGameVictory.AddListener(ReturnToMenu);
             }
 
@@ -84,7 +91,7 @@ namespace InboxZero.Core
             combatResultManager.OnGameVictory.AddListener(ReturnToMenu);
         }
 
-        // ── Combat lifecycle ──────────────────────────────────────────────────
+        // ── Run start ─────────────────────────────────────────────────────────
 
         public void StartRun()
         {
@@ -95,69 +102,96 @@ namespace InboxZero.Core
                 GameManager.Instance.ActiveRelics.Add(startingRelic);
                 RelicManager.Instance?.OnRelicAcquired(startingRelic);
             }
-            BeginNextCombat();
+            BuildInboxForFloor(GameManager.Instance.CurrentFloor);
+            ShowInbox();
         }
 
-        void BeginNextCombat()
+        // ── Inbox helpers ─────────────────────────────────────────────────────
+
+        void BuildInboxForFloor(int floor)
         {
-            TurnManager.Instance.IsCombatEnded = false;
-            var enemy = PickEnemyForFloor(GameManager.Instance.CurrentFloor);
-            if (enemy == null)
+            var pool = GetPoolForFloor(floor);
+            _inbox = FloorMapManager.Instance.GenerateAllLevelEncounters(pool);
+        }
+
+        void ShowInbox()
+        {
+            if (_inbox.Count == 0)
             {
-                Debug.LogError($"[CombatSetup] No enemy data for floor {GameManager.Instance.CurrentFloor}. Add entries to the floor pool in the inspector.");
+                OnLevelCleared();
                 return;
             }
-            enemyController.Init(enemy);
-            combatResultManager.RegisterEnemy(enemyController);
-            TurnManager.Instance.BeginCombat();
+            if (FloorMapScreen.Instance != null)
+                FloorMapScreen.Instance.Show(_inbox);
         }
 
-        EnemyData PickEnemyForFloor(int floor)
+        List<EnemyData> GetPoolForFloor(int floor) => floor switch
         {
-            var pool = floor switch
+            1 => floor1Enemies,
+            2 => floor2Enemies,
+            3 => floor3Enemies,
+            4 => floor4Enemies,
+            _ => floor1Enemies,
+        };
+
+        // ── Combat lifecycle ──────────────────────────────────────────────────
+
+        void BeginNextCombat(RoomOption opt)
+        {
+            _activeOption = opt;
+            TurnManager.Instance.IsCombatEnded = false;
+
+            if (opt.enemyData == null)
             {
-                1 => floor1Enemies,
-                2 => floor2Enemies,
-                3 => floor3Enemies,
-                4 => floor4Enemies,
-                _ => floor1Enemies,
-            };
-            if (pool == null || pool.Count == 0) return null;
-            return pool[Random.Range(0, pool.Count)];
+                Debug.LogError("[CombatSetup] RoomOption has null enemyData.");
+                return;
+            }
+
+            enemyController.Init(opt.enemyData);
+            combatResultManager.RegisterEnemy(enemyController);
+            TurnManager.Instance.BeginCombat();
         }
 
         // ── Flow callbacks ────────────────────────────────────────────────────
 
         void OnVictoryContinued()
         {
+            _inbox.Remove(_activeOption);
+            GameManager.Instance.CurrentRoom++;
+
             if (CardRewardScreen.Instance != null)
                 CardRewardScreen.Instance.Show(GameManager.Instance.CurrentFloor);
-            else if (FloorMapScreen.Instance != null)
-                FloorMapScreen.Instance.Show();
+            else
+                ShowInbox();
         }
 
-        void OnRewardDone()
-        {
-            if (FloorMapScreen.Instance != null)
-                FloorMapScreen.Instance.Show();
-        }
+        void OnRewardDone() => ShowInbox();
 
-        void OnRestStopSelected()
+        void OnRestStopSelected(RoomOption opt)
         {
+            _pendingRestOpt = opt;
             if (RestStopScreen.Instance != null)
                 RestStopScreen.Instance.Show();
         }
 
         void OnRestStopDone()
         {
-            if (FloorMapScreen.Instance != null)
-                FloorMapScreen.Instance.Show();
+            _inbox.Remove(_pendingRestOpt);
+            GameManager.Instance.CurrentRoom++;
+            ShowInbox();
         }
 
-        void OnFloorComplete()
+        void OnLevelCleared()
         {
             if (FloorTransitionScreen.Instance != null)
                 FloorTransitionScreen.Instance.Show();
+        }
+
+        void OnNextFloorReady()
+        {
+            // CurrentFloor and CurrentRoom already advanced by FloorTransitionScreen.OnContinue
+            BuildInboxForFloor(GameManager.Instance.CurrentFloor);
+            ShowInbox();
         }
 
         static void ReturnToMenu()

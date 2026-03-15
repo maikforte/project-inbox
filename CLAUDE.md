@@ -22,9 +22,9 @@
 
 ### Milestone 2 — Run structure (TASK-10 to 13B)
 - Kill the enemy → **Victory panel** appears ("INBOX CLEARED"). Click **Continue** → panel hides, card reward screen appears.
-- Pick a card or skip → floor map appears with 2–3 room options.
-- Pick Combat → new combat starts. Pick Rest Stop → rest screen heals HP and shows flavour text, then returns to floor map.
-- After Room 4 → floor transition screen shows "FLOOR X CLEARED". Click Continue → next floor combat starts.
+- Pick a card or skip → **Inbox screen** appears showing remaining emails for this level.
+- Click a Combat email → new combat starts. Click a Rest Stop email → rest screen heals HP, returns to Inbox.
+- After all emails cleared → level transition screen shows "LEVEL X CLEARED". Click Continue → next level's Inbox loads.
 - Let HP reach 0 → game over panel appears. Click Restart → combat resets.
 
 ### Milestone 3 — Status effects & starter cards (TASK-14 to 15)
@@ -57,18 +57,18 @@
 
 ## Overview
 
-**INBOX//ZERO** is a single-player roguelite card game where every run simulates a single workday's battle against your email inbox. You build a deck of response actions, fight email monsters floor by floor, collect relics, and attempt to reach the mythical state of Inbox Zero.
+**INBOX//ZERO** is a single-player roguelite card game where every run simulates a single workday's battle against your email inbox. You build a deck of response actions, fight email monsters level by level, collect relics, and attempt to reach the mythical state of Inbox Zero.
 
 Each run is fresh. Each run will probably kill you.
 
 | Stat | Value |
 |---|---|
-| Floors | 4 |
-| Rooms per Floor | 4 |
+| Inbox Levels | 4 |
+| Emails per Level | 4 |
 | Starting HP | 50 |
 | Starting AP per turn | 3 |
 | Starting Hand Size | 5 |
-| Win Condition | Defeat the Final Boss on Floor 4 |
+| Win Condition | Defeat the Final Boss on Level 4 |
 | Lose Condition | HP reaches 0 |
 
 ---
@@ -103,16 +103,18 @@ END OF TURN
     → Loop back to Start of Turn
 ```
 
-### The Room Structure
+### The Inbox Structure
 
-After winning a combat encounter, you:
-1. See a **card reward screen** — choose 1 of 3 cards to permanently add to your deck (or skip)
-2. See the **floor map** — choose your next encounter from 2–3 options
-3. Occasionally encounter a **Rest Stop** (restore 15 HP, no combat)
+The **Inbox screen** (Gmail-style) is the primary navigation hub. On starting a new game and after every combat:
+1. The Inbox screen is shown — all emails for the current level are listed as rows (sender, subject, preview)
+2. The player clicks any email to fight that enemy
+3. After winning → **card reward screen** — choose 1 of 3 cards to add (or skip) → return to Inbox
+4. Rest Stop emails appear in the list too; clicking one heals 15 HP and removes it from the Inbox
+5. When all emails in the Inbox are cleared → level complete, relic drop if applicable, next level's Inbox loads
 
-### The Floor Structure
+### The Level Structure
 
-| Floor | Theme | Difficulty | Relic Drop? |
+| Level | Theme | Difficulty | Relic Drop? |
 |---|---|---|---|
 | 1 | The Inbox | Easy | No |
 | 2 | The Threads | Medium | Yes |
