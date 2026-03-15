@@ -13,6 +13,7 @@ namespace InboxZero.UI
 
         [Header("References")]
         public RectTransform cardContainer;
+        public CardView cardPrefab;
 
         [Tooltip("Panel shown on hover. Assign in inspector.")]
         public GameObject previewPanel;
@@ -20,21 +21,13 @@ namespace InboxZero.UI
         public TextMeshProUGUI previewCost;
         public TextMeshProUGUI previewEffect;
 
-        [Header("Sprites")]
-        public Sprite cardBackground;
-
-        [Header("Font")]
-        public TMP_FontAsset cardFont;
-
         readonly List<CardView> _cards = new List<CardView>();
         bool _started;
 
-        const float TypeBarHeight = 8f;
-        const float Padding       = 4f;
-        const float CardW         = 90f;
-        const float CardH         = 110f;
-        const float MaxSpacing    = 94f;  // natural gap: card width + 4px
-        const float MinSpacing    = 30f;  // tightest overlap
+        const float CardWidth   = 90f;
+        const float CardHeight  = 110f;
+        const float MinSpacing  = 30f;  // tightest overlap
+        const float MaxSpacing  = 94f;  // natural gap: card width + 4px
 
         void Awake()
         {
@@ -107,84 +100,31 @@ namespace InboxZero.UI
         void SpawnCard(CardData data, int cardIndex, int totalCards)
         {
             if (data == null || cardContainer == null) return;
+            if (cardPrefab == null)
+            {
+                Debug.LogWarning("[HandDisplay] cardPrefab is not assigned.");
+                return;
+            }
 
-            // Calculate fan position: spread evenly up to MaxSpacing, overlap beyond 5 cards.
+            float cardW = CardWidth;
+
+            // Calculate fan position.
             float containerW = cardContainer.rect.width;
             if (containerW <= 1f) containerW = 500f; // fallback before first layout pass
 
             float spacing   = totalCards <= 1 ? 0f
-                : Mathf.Clamp((containerW - CardW) / (totalCards - 1), MinSpacing, MaxSpacing);
-            float totalSpan = CardW + (totalCards - 1) * spacing;
-            float x         = -totalSpan * 0.5f + CardW * 0.5f + cardIndex * spacing;
+                : Mathf.Clamp((containerW - cardW) / (totalCards - 1), MinSpacing, MaxSpacing);
+            float totalSpan = cardW + (totalCards - 1) * spacing;
+            float x         = -totalSpan * 0.5f + cardW * 0.5f + cardIndex * spacing;
 
-            var go = new GameObject(data.cardName, typeof(RectTransform));
-            go.layer = 5;
-            var rt = go.GetComponent<RectTransform>();
-            rt.SetParent(cardContainer, false);
+            var view = Instantiate(cardPrefab, cardContainer);
+            var rt   = (RectTransform)view.transform;
             rt.anchorMin        = new Vector2(0.5f, 0.5f);
             rt.anchorMax        = new Vector2(0.5f, 0.5f);
-            rt.pivot            = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta        = new Vector2(CardW, CardH);
+            rt.sizeDelta        = new Vector2(CardWidth, CardHeight);
             rt.anchoredPosition = new Vector2(x, 0);
 
-            // Background
-            var bg = go.AddComponent<Image>();
-            if (cardBackground != null)
-            {
-                bg.sprite = cardBackground;
-                bg.type   = Image.Type.Sliced;
-            }
-            bg.color = Color.white;
-
-            go.AddComponent<GraphicRaycaster>();
-
-            // Type bar (top strip)
-            var barGo = new GameObject("TypeBar", typeof(RectTransform));
-            barGo.layer = 5;
-            var barRt = barGo.GetComponent<RectTransform>();
-            barRt.SetParent(rt, false);
-            barRt.anchorMin        = new Vector2(0, 1);
-            barRt.anchorMax        = new Vector2(1, 1);
-            barRt.pivot            = new Vector2(0.5f, 1f);
-            barRt.sizeDelta        = new Vector2(0, TypeBarHeight);
-            barRt.anchoredPosition = Vector2.zero;
-            var barImg = barGo.AddComponent<Image>();
-
-            // Cost badge (top-left)
-            var costGo = MakeText("CostBadge", rt,
-                anchorMin: new Vector2(0, 1), anchorMax: new Vector2(0, 1),
-                pivot: new Vector2(0, 1),
-                anchoredPos: new Vector2(Padding, -TypeBarHeight - 1),
-                size: new Vector2(16, 14),
-                text: "?", fontSize: 14);
-
-            // Card name
-            var nameGo = MakeText("CardName", rt,
-                anchorMin: new Vector2(0, 1), anchorMax: new Vector2(1, 1),
-                pivot: new Vector2(0.5f, 1f),
-                anchoredPos: new Vector2(0, -TypeBarHeight - Padding),
-                size: new Vector2(0, 16),
-                text: "NAME", fontSize: 14);
-            nameGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-
-            // Effect text
-            var effectGo = MakeText("EffectText", rt,
-                anchorMin: new Vector2(0, 0), anchorMax: new Vector2(1, 1),
-                pivot: new Vector2(0.5f, 0.5f),
-                anchoredPos: new Vector2(0, -20),
-                size: new Vector2(-8, -TypeBarHeight - 24),
-                text: "", fontSize: 14);
-            var effectTmp = effectGo.GetComponent<TextMeshProUGUI>();
-            effectTmp.alignment          = TextAlignmentOptions.TopLeft;
-            effectTmp.enableWordWrapping = true;
-
-            var view = go.AddComponent<CardView>();
-            view.SetReferences(bg, barImg,
-                nameGo.GetComponent<TextMeshProUGUI>(),
-                costGo.GetComponent<TextMeshProUGUI>(),
-                effectTmp);
             view.Populate(data);
-
             _cards.Add(view);
         }
 
@@ -202,31 +142,6 @@ namespace InboxZero.UI
         public void HidePreview()
         {
             if (previewPanel != null) previewPanel.SetActive(false);
-        }
-
-        // ── Helpers ───────────────────────────────────────────────────────────
-
-        GameObject MakeText(string name, RectTransform parent,
-            Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-            Vector2 anchoredPos, Vector2 size, string text, int fontSize)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.layer = 5;
-            var rt = go.GetComponent<RectTransform>();
-            rt.SetParent(parent, false);
-            rt.anchorMin        = anchorMin;
-            rt.anchorMax        = anchorMax;
-            rt.pivot            = pivot;
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta        = size;
-
-            var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text     = text;
-            tmp.fontSize = fontSize;
-            tmp.color    = Color.white;
-            if (cardFont != null) tmp.font = cardFont;
-
-            return go;
         }
     }
 }

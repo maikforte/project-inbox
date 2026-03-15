@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dadbdd62fead75b47bd71cad811c13ea
+guid: 3a6a15174514abc4f844d9aaa84eb1c7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4690656104529194450
-    second: card-template_0
+      213: -2683511848900098573
+    second: rare-card-badge_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 32
-  spriteBorder: {x: 4, y: 4, z: 4, w: 4}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: card-template_0
+      name: rare-card-badge_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 90
-        height: 110
+        width: 16
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e221506002177eeb0800000000000000
-      internalID: -4690656104529194450
+      spriteID: 3f502c7f03042cad0800000000000000
+      internalID: -2683511848900098573
       vertices: []
       indices: 
       edges: []
@@ -139,7 +139,7 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      card-template_0: -4690656104529194450
+      rare-card-badge_0: -2683511848900098573
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

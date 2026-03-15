@@ -9,44 +9,49 @@ using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
+    [System.Serializable]
+    public struct RarityVisuals
+    {
+        public Sprite bg;
+        public Sprite badgeBg;
+    }
+
     public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         public CardData Data { get; private set; }
 
-        Image _bg;
-        Image _typeBar;
-        TextMeshProUGUI _nameText;
-        TextMeshProUGUI _costText;
-        TextMeshProUGUI _effectText;
+        [SerializeField] Image _bg;
+        [SerializeField] Image _badgeBg;
+        [SerializeField] TextMeshProUGUI _nameText;
+        [SerializeField] TextMeshProUGUI _costText;
+        [SerializeField] TextMeshProUGUI _costTextShadow;
+        [SerializeField] TextMeshProUGUI _effectText;
 
-        static readonly Color AttackColor  = new Color(0.85f, 0.18f, 0.18f);
-        static readonly Color DefendColor  = new Color(0.18f, 0.75f, 0.25f);
-        static readonly Color SpecialColor = new Color(0.55f, 0.18f, 0.80f);
+        [Header("Rarity Visuals")]
+        [SerializeField] RarityVisuals _starter;
+        [SerializeField] RarityVisuals _common;
+        [SerializeField] RarityVisuals _uncommon;
+        [SerializeField] RarityVisuals _rare;
 
         public void Populate(CardData data)
         {
             Data = data;
 
-            _typeBar.color = data.cardType switch
+            RarityVisuals visuals = data.rarity switch
             {
-                CardType.Attack  => AttackColor,
-                CardType.Defend  => DefendColor,
-                _                => SpecialColor,
+                CardRarity.Common   => _common,
+                CardRarity.Uncommon => _uncommon,
+                CardRarity.Rare     => _rare,
+                _                   => _starter,
             };
 
-            _nameText.text   = data.cardName.ToUpper();
-            _costText.text   = data.apCost.ToString();
-            _effectText.text = data.effectDescription;
-        }
+            if (_bg      != null && visuals.bg      != null) _bg.sprite      = visuals.bg;
+            if (_badgeBg != null && visuals.badgeBg != null) _badgeBg.sprite = visuals.badgeBg;
 
-        public void SetReferences(Image bg, Image typeBar,
-            TextMeshProUGUI nameText, TextMeshProUGUI costText, TextMeshProUGUI effectText)
-        {
-            _bg         = bg;
-            _typeBar    = typeBar;
-            _nameText   = nameText;
-            _costText   = costText;
-            _effectText = effectText;
+            if (_nameText       != null) _nameText.text       = data.cardName.ToUpper();
+            if (_costText       != null) _costText.text       = data.apCost.ToString();
+            if (_costTextShadow != null) _costTextShadow.text = data.apCost.ToString();
+            if (_effectText     != null) _effectText.text     = data.effectDescription;
         }
 
         // ── Input handlers ────────────────────────────────────────────────────
@@ -72,13 +77,6 @@ namespace InboxZero.UI
 
         IEnumerator AnimatePlayAndDestroy()
         {
-            // Reparent to canvas root so the card can move freely above the hand container.
-            var canvas = GetComponentInParent<Canvas>()?.rootCanvas;
-            if (canvas == null) { Destroy(gameObject); yield break; }
-
-            transform.SetParent(canvas.transform, worldPositionStays: true);
-            transform.SetAsLastSibling();
-
             var rt = (RectTransform)transform;
             var startPos = rt.anchoredPosition;
 
