@@ -38,6 +38,10 @@ namespace InboxZero.Core
         public int CardsPlayed;
         public int DamageDealt;
 
+        [Header("Card Collection")]
+        [Tooltip("Cards dropped during the run but not yet in the active deck.")]
+        public List<CardData> CardCollection = new List<CardData>();
+
         void Awake()
         {
             if (Instance != null && Instance != this)
@@ -81,6 +85,7 @@ namespace InboxZero.Core
             Hand.Clear();
             DiscardPile.Clear();
             ActiveRelics.Clear();
+            CardCollection.Clear();
             CardsPlayed = 0;
             DamageDealt = 0;
         }

@@ -159,14 +159,14 @@ Each task is sized to be a single prompt session.
   - UI: highlight hand cards, clicking one discards it and completes the draw
   - If no overflow, draw proceeds normally
 
-- [ ] **TASK-33 · Deck Composition Limits**
+- [x] **TASK-33 · Deck Composition Limits**
   Enforce rarity caps in the deck builder:
   - Track Uncommon count (max 4) and Rare count (max 2) in the active deck
   - Track Rare duplicates (max 1 copy of any specific Rare)
   - Track total deck size (max 15)
   - Cards that would violate a limit are greyed out in the deck builder with a short reason
 
-- [ ] **TASK-34 · Card Drop System**
+- [x] **TASK-34 · Card Drop System**
   Replace guaranteed card reward screen with a chance-based drop on enemy defeat:
   - Each `EnemyData` has a `dropChance` (float 0–1) and `dropRarity` tier
   - On enemy death, roll against `dropChance`; on success, pick a random card of the appropriate rarity from a global card pool
@@ -174,7 +174,7 @@ Each task is sized to be a single prompt session.
   - No UI shown immediately — victory screen just notes "1 card dropped" if applicable
   - Boss always drops a Rare (100%)
 
-- [ ] **TASK-35 · Deck Builder Screen**
+- [x] **TASK-35 · Deck Builder Screen (Logic)**
   New screen accessible at Rest Stops and level transitions:
   - Left column: active deck (cards currently in the 15-card deck)
   - Right column: collection pool (dropped cards not yet in deck)
@@ -182,6 +182,18 @@ Each task is sized to be a single prompt session.
   - Click an active deck card to move it back to collection
   - Show rarity counts and deck size in a header
   - "Done" button closes the screen and continues flow
+
+- [ ] **TASK-36 · Deck Builder UI Polish**
+  Replace the code-built DeckBuilderScreen with a proper scene-designed layout:
+  - Build the panel as a Canvas child in the scene (not spawned in code) — set inactive by default
+  - Left panel: scrollable list of active deck cards using a VerticalLayoutGroup + Card Row prefab
+  - Right panel: scrollable list of collection cards using the same Card Row prefab
+  - Card Row prefab: type-color left bar, card name, rarity badge (color-coded), AP cost pip, hover highlight
+  - Header bar: deck size counter, uncommon counter, rare counter — update live on each swap
+  - Composition limit violations: flash the header red with the reason for 1.5s instead of blocking silently
+  - "DONE" button styled consistently with rest of UI (Graybox2D sprite, Micro5 font)
+  - `DeckBuilderScreen.cs` becomes a thin controller: references scene objects, no BuildPanel() code
+  - Accessible from Rest Stop scene flow and level transition flow (same as TASK-35)
 
 ---
 
@@ -207,7 +219,7 @@ All panel and container Image components use a single 9-sliced sprite as a place
 
 ---
 
-*Last updated: 2026-03-15*
+*Last updated: 2026-03-16*
 
 ---
 

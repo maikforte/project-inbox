@@ -2102,6 +2102,7 @@ MonoBehaviour:
   CurrentRoom: 0
   CardsPlayed: 0
   DamageDealt: 0
+  CardCollection: []
 --- !u!4 &3004
 Transform:
   m_ObjectHideFlags: 0
@@ -2146,6 +2147,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d425edf870e392c46b0e9712df05cba1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnCombatStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOverflowDiscard:
+    m_PersistentCalls:
+      m_Calls: []
   OnPlayerTurnStart:
     m_PersistentCalls:
       m_Calls: []
@@ -2246,7 +2253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a1a8c4452593514c957c9eb2152825b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  optionCount: 2
   restStopChance: 0.3
 --- !u!4 &3304
 Transform:
@@ -2294,6 +2300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardContainer: {fileID: 1414}
   cardPrefab: {fileID: 6554047385065318624, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+  uiFont: {fileID: 0}
   previewPanel: {fileID: 7500}
   previewName: {fileID: 7515}
   previewCost: {fileID: 7525}
@@ -5787,7 +5794,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5a2c6f1e4b8d5a2c6f1e4b8d5a2c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPlay: {fileID: 0}
+  battleMusic: {fileID: 8300000, guid: f3f7a6f688614744d8e237b8e21134b4, type: 3}
+  musicVolume: 0.5
+  cardPlay: {fileID: 8300000, guid: d7e655c89f5303e4299a3631945758c1, type: 3}
   damageHit: {fileID: 0}
   shieldBlock: {fileID: 0}
   enemyDeath: {fileID: 0}

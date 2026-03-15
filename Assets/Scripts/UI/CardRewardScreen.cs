@@ -152,6 +152,8 @@ namespace InboxZero.UI
 
         GameObject BuildRewardCard(RectTransform parent, CardData data)
         {
+            var (canAdd, reason) = DeckCompositionChecker.CanAdd(data);
+
             var go = new GameObject(data.cardName, typeof(RectTransform));
             go.layer = 5;
             var rt = go.GetComponent<RectTransform>();
@@ -162,7 +164,9 @@ namespace InboxZero.UI
 
             var bgImg = go.AddComponent<Image>();
             if (cardBackground != null) bgImg.sprite = cardBackground;
-            bgImg.color = new Color(0.18f, 0.18f, 0.28f);
+            bgImg.color = canAdd
+                ? new Color(0.18f, 0.18f, 0.28f)
+                : new Color(0.12f, 0.12f, 0.12f);   // dim bg when locked
             go.AddComponent<GraphicRaycaster>();
 
             // Type bar
@@ -175,7 +179,10 @@ namespace InboxZero.UI
             barRt.pivot = new Vector2(0.5f, 1f);
             barRt.sizeDelta = new Vector2(0, TypeBarHeight);
             barRt.anchoredPosition = Vector2.zero;
-            barGo.AddComponent<Image>().color = TypeColor(data.cardType);
+            var typeBarColor = TypeColor(data.cardType);
+            barGo.AddComponent<Image>().color = canAdd
+                ? typeBarColor
+                : new Color(typeBarColor.r * 0.4f, typeBarColor.g * 0.4f, typeBarColor.b * 0.4f);
 
             // Cost
             MakeText("Cost", rt,
@@ -195,19 +202,47 @@ namespace InboxZero.UI
                 data.cardName.ToUpper(), 14);
             nameGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
-            // Effect text
+            // Effect text — fixed-size rect to avoid TMP word-wrap recursion on first frame
             var effectGo = MakeText("Effect", rt,
-                new Vector2(0, 0), new Vector2(1, 1), new Vector2(0.5f, 0.5f),
-                new Vector2(0, -TypeBarHeight - 26), new Vector2(-8, -TypeBarHeight - 30),
+                new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(Padding, -(TypeBarHeight + 26)),
+                new Vector2(CardWidth - Padding * 2, CardHeight - TypeBarHeight - 36),
                 data.effectDescription, 14);
             var effectTmp = effectGo.GetComponent<TextMeshProUGUI>();
-            effectTmp.alignment  = TextAlignmentOptions.TopLeft;
+            effectTmp.alignment          = TextAlignmentOptions.TopLeft;
             effectTmp.enableWordWrapping = true;
 
-            // Click handler
+            if (!canAdd)
+            {
+                // Dark overlay to visually lock the card
+                var overlayGo = new GameObject("LockedOverlay", typeof(RectTransform));
+                overlayGo.layer = 5;
+                var overlayRt = overlayGo.GetComponent<RectTransform>();
+                overlayRt.SetParent(rt, false);
+                overlayRt.anchorMin = Vector2.zero;
+                overlayRt.anchorMax = Vector2.one;
+                overlayRt.offsetMin = Vector2.zero;
+                overlayRt.offsetMax = Vector2.zero;
+                overlayGo.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
+
+                // Reason label centred on the card
+                var reasonGo = MakeText("Reason", rt,
+                    new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0.5f),
+                    Vector2.zero, new Vector2(0, 28), reason, 14);
+                var reasonTmp = reasonGo.GetComponent<TextMeshProUGUI>();
+                reasonTmp.alignment         = TextAlignmentOptions.Center;
+                reasonTmp.enableWordWrapping = true;
+                reasonTmp.color             = new Color(1f, 0.35f, 0.35f);
+            }
+
+            // Click handler — only active when card is addable
             var btn = go.AddComponent<Button>();
-            var captured = data;
-            btn.onClick.AddListener(() => OnPick(captured));
+            btn.interactable = canAdd;
+            if (canAdd)
+            {
+                var captured = data;
+                btn.onClick.AddListener(() => OnPick(captured));
+            }
 
             return go;
         }

@@ -36,6 +36,7 @@ namespace InboxZero.Core
         List<RoomOption> _inbox        = new List<RoomOption>();
         RoomOption       _activeOption;       // combat currently being fought
         RoomOption       _pendingRestOpt;     // rest stop row waiting to be removed
+        System.Action    _afterDeckBuilder;   // what to do once deck builder closes
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -64,9 +65,7 @@ namespace InboxZero.Core
             // Victory → Card Reward screen
             combatResultManager.OnVictoryContinued.AddListener(OnVictoryContinued);
 
-            // Card reward done → Inbox
-            if (CardRewardScreen.Instance != null)
-                CardRewardScreen.Instance.OnComplete.AddListener(OnRewardDone);
+            // Card reward screen is retired — drops are now automatic (see CardDropManager).
 
             // Inbox row clicked → combat or rest stop
             if (FloorMapScreen.Instance != null)
@@ -85,6 +84,10 @@ namespace InboxZero.Core
                 FloorTransitionScreen.Instance.OnNextFloorReady.AddListener(OnNextFloorReady);
                 FloorTransitionScreen.Instance.OnGameVictory.AddListener(ReturnToMenu);
             }
+
+            // Deck Builder → continues flow after player is done editing
+            if (InboxZero.UI.DeckBuilderScreen.Instance != null)
+                InboxZero.UI.DeckBuilderScreen.Instance.OnComplete.AddListener(OnDeckBuilderDone);
 
             // Game Over / Victory → return to main menu
             combatResultManager.OnGameOverRestarted.AddListener(ReturnToMenu);
@@ -158,14 +161,8 @@ namespace InboxZero.Core
         {
             _inbox.Remove(_activeOption);
             GameManager.Instance.CurrentRoom++;
-
-            if (CardRewardScreen.Instance != null)
-                CardRewardScreen.Instance.Show(GameManager.Instance.CurrentFloor);
-            else
-                ShowInbox();
+            ShowInbox();
         }
-
-        void OnRewardDone() => ShowInbox();
 
         void OnRestStopSelected(RoomOption opt)
         {
@@ -178,7 +175,7 @@ namespace InboxZero.Core
         {
             _inbox.Remove(_pendingRestOpt);
             GameManager.Instance.CurrentRoom++;
-            ShowInbox();
+            ShowDeckBuilderOrContinue(ShowInbox);
         }
 
         void OnLevelCleared()
@@ -191,7 +188,28 @@ namespace InboxZero.Core
         {
             // CurrentFloor and CurrentRoom already advanced by FloorTransitionScreen.OnContinue
             BuildInboxForFloor(GameManager.Instance.CurrentFloor);
-            ShowInbox();
+            ShowDeckBuilderOrContinue(ShowInbox);
+        }
+
+        void OnDeckBuilderDone()
+        {
+            _afterDeckBuilder?.Invoke();
+            _afterDeckBuilder = null;
+        }
+
+        /// Shows the deck builder if there are cards in the collection, else calls <paramref name="onContinue"/> directly.
+        void ShowDeckBuilderOrContinue(System.Action onContinue)
+        {
+            if (GameManager.Instance.CardCollection.Count > 0 &&
+                InboxZero.UI.DeckBuilderScreen.Instance != null)
+            {
+                _afterDeckBuilder = onContinue;
+                InboxZero.UI.DeckBuilderScreen.Instance.Show();
+            }
+            else
+            {
+                onContinue();
+            }
         }
 
         static void ReturnToMenu()

@@ -1,4 +1,5 @@
 using InboxZero.Core;
+using InboxZero.Data;
 using InboxZero.Enemies;
 using TMPro;
 using UnityEngine;
@@ -59,6 +60,11 @@ namespace InboxZero.Combat
             TurnManager.Instance.IsCombatEnded = true;
             if (InboxZero.UI.HandDisplay.Instance != null) InboxZero.UI.HandDisplay.Instance.HidePreview();
 
+            // Roll for a card drop before showing the victory panel.
+            CardData dropped = null;
+            if (CardDropManager.Instance != null && Enemy?.Data != null)
+                dropped = CardDropManager.Instance.RollDrop(Enemy.Data);
+
             if (victoryPanel != null) victoryPanel.SetActive(true);
 
             if (GameManager.Instance.CurrentFloor >= 4)
@@ -69,7 +75,10 @@ namespace InboxZero.Combat
             }
             else
             {
-                if (victoryText != null) victoryText.text = "INBOX CLEARED";
+                string dropLine = dropped != null
+                    ? $"\n\n+ {dropped.cardName.ToUpper()}\nADDED TO COLLECTION"
+                    : "\n\nNO DROP";
+                if (victoryText != null) victoryText.text = "INBOX CLEARED" + dropLine;
             }
         }
 
