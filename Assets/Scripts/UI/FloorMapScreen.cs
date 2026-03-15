@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
+    /// Gmail-style inbox list that replaces the old button-grid room selector.
+    /// Public API is identical to the original FloorMapScreen — CombatSetup
+    /// requires no changes.
     public class FloorMapScreen : MonoBehaviour
     {
         public static FloorMapScreen Instance { get; private set; }
@@ -14,21 +17,35 @@ namespace InboxZero.UI
         [Header("Font")]
         public TMP_FontAsset uiFont;
 
-        // Fires when player picks a Combat room. Caller starts a new combat encounter.
-        public UnityEvent OnCombatSelected  = new UnityEvent();
-        // Fires when player picks a Rest Stop.
+        public UnityEvent OnCombatSelected   = new UnityEvent();
         public UnityEvent OnRestStopSelected = new UnityEvent();
-        // Fires after Room 4 is selected — TASK-13 (floor transition) listens here.
-        public UnityEvent OnFloorComplete   = new UnityEvent();
+        public UnityEvent OnFloorComplete    = new UnityEvent();
 
-        Canvas _canvas;
+        Canvas     _canvas;
         GameObject _panel;
+
+        // ── Gmail colour palette ──────────────────────────────────────────────
+        static readonly Color C_Bg         = new Color(1.00f, 1.00f, 1.00f);          // white
+        static readonly Color C_TopBar     = new Color(0.97f, 0.97f, 0.97f);          // #F8F9FA
+        static readonly Color C_Sidebar    = new Color(0.96f, 0.97f, 0.98f);          // #F6F8FC
+        static readonly Color C_SbActive   = new Color(0.84f, 0.89f, 0.98f);          // inbox highlight
+        static readonly Color C_Accent     = new Color(0.10f, 0.45f, 0.91f);          // #1A73E8 blue
+        static readonly Color C_TextDark   = new Color(0.13f, 0.13f, 0.14f);          // #202124
+        static readonly Color C_TextMid    = new Color(0.37f, 0.39f, 0.41f);          // #5F6368
+        static readonly Color C_TextLight  = new Color(0.62f, 0.64f, 0.67f);
+        static readonly Color C_Sep        = new Color(0.88f, 0.88f, 0.88f);
+        static readonly Color C_RowHover   = new Color(0.93f, 0.95f, 0.99f);
+        static readonly Color C_RowPressed = new Color(0.86f, 0.91f, 0.98f);
+
+        // ── Sidebar items ─────────────────────────────────────────────────────
+        static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "SPAM" };
+        static readonly string[] SbCounts = { "22", "",    "",    "",         "",     "",       "5921" };
 
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-            _canvas = FindObjectOfType<Canvas>();
+            _canvas  = FindObjectOfType<Canvas>();
         }
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -36,15 +53,10 @@ namespace InboxZero.UI
         public void Show()
         {
             bool floorDone = FloorMapManager.Instance.AdvanceRoom();
-
-            if (floorDone)
-            {
-                OnFloorComplete.Invoke();
-                return;
-            }
+            if (floorDone) { OnFloorComplete.Invoke(); return; }
 
             var options = FloorMapManager.Instance.GenerateNextOptions();
-            BuildPanel(options);
+            Build(options);
         }
 
         public void Hide()
@@ -53,98 +65,326 @@ namespace InboxZero.UI
             _panel = null;
         }
 
-        // ── Panel construction ────────────────────────────────────────────────
+        // ── Layout construction ───────────────────────────────────────────────
 
-        void BuildPanel(List<RoomOption> options)
+        void Build(List<RoomOption> options)
         {
-            var canvas = _canvas;
-            if (canvas == null) { Debug.LogError("[FloorMapScreen] No Canvas found."); return; }
+            if (_canvas == null) { Debug.LogError("[FloorMapScreen] No Canvas."); return; }
 
-            _panel = new GameObject("FloorMapPanel", typeof(RectTransform));
+            // Root — full-screen white panel
+            _panel = Stretch("InboxPanel", _canvas.transform, 0, 0, 0, 0);
             _panel.layer = 5;
-            var panelRt = _panel.GetComponent<RectTransform>();
-            panelRt.SetParent(canvas.transform, false);
-            panelRt.anchorMin = Vector2.zero;
-            panelRt.anchorMax = Vector2.one;
-            panelRt.offsetMin = Vector2.zero;
-            panelRt.offsetMax = Vector2.zero;
+            _panel.AddComponent<Image>().color = C_Bg;
+            var root = RT(_panel);
 
-            _panel.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.88f);
+            // Top chrome bar (28 px tall)
+            BuildTopBar(root);
 
-            // Floor / Room header
+            // Body below chrome (fills remaining height)
+            var body = Stretch("Body", root, 0, 28, 0, 0);
+            body.layer = 5;
+            var bodyRt = RT(body);
+
+            // Sidebar (80 px wide, full height)
+            BuildSidebar(bodyRt);
+
+            // Email list (fills right of sidebar)
+            var listArea = Stretch("ListArea", bodyRt, 80, 0, 0, 0);
+            listArea.layer = 5;
+            BuildEmailList(RT(listArea), options);
+        }
+
+        // ── Top bar ───────────────────────────────────────────────────────────
+
+        void BuildTopBar(RectTransform parent)
+        {
+            var bar = TopStrip("TopBar", parent, 28);
+            bar.layer = 5;
+            bar.AddComponent<Image>().color = C_TopBar;
+            var barRt = RT(bar);
+
+            // Bottom border
+            var border = BottomLine("TopBorder", barRt);
+            border.AddComponent<Image>().color = C_Sep;
+
+            // Logo — left
+            Label("Logo", barRt,
+                new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+                new Vector2(10, 0), new Vector2(130, 14),
+                "INBOX // ZERO", C_Accent, TextAlignmentOptions.MidlineLeft);
+
+            // Search bar — decorative centre
+            var srBg = Fixed("SearchBg", barRt,
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                Vector2.zero, new Vector2(200, 16));
+            srBg.AddComponent<Image>().color = new Color(0.93f, 0.94f, 0.96f);
+            Label("SearchTxt", RT(srBg),
+                Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero,
+                "Search mail", C_TextLight, TextAlignmentOptions.Center);
+
+            // Floor / room info — right
             var gm = GameManager.Instance;
-            MakeLabel("Header", panelRt,
-                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -24), new Vector2(300, 16),
-                $"FLOOR {gm.CurrentFloor}  //  ROOM {gm.CurrentRoom}", 14);
+            Label("FloorInfo", barRt,
+                new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+                new Vector2(-10, 0), new Vector2(100, 14),
+                $"FL {gm.CurrentFloor}  RM {gm.CurrentRoom + 1}", C_TextMid,
+                TextAlignmentOptions.MidlineRight);
+        }
 
-            MakeLabel("SubHeader", panelRt,
-                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -44), new Vector2(300, 14),
-                "CHOOSE YOUR NEXT ENCOUNTER", 14);
+        // ── Sidebar ───────────────────────────────────────────────────────────
 
-            // Option buttons
-            float totalWidth  = options.Count * 120f + (options.Count - 1) * 24f;
-            float startX      = -totalWidth / 2f + 60f;
+        void BuildSidebar(RectTransform parent)
+        {
+            var sb = Fixed("Sidebar", parent,
+                new Vector2(0, 0), new Vector2(0, 1),
+                Vector2.zero, new Vector2(80, 0));
+            sb.AddComponent<Image>().color = C_Sidebar;
+            var sbRt = RT(sb);
 
-            for (int i = 0; i < options.Count; i++)
+            // Right border
+            var border = new GameObject("SbBorder", typeof(RectTransform));
+            border.layer = 5;
+            var bRt = border.GetComponent<RectTransform>();
+            bRt.SetParent(sbRt, false);
+            bRt.anchorMin = new Vector2(1, 0);
+            bRt.anchorMax = new Vector2(1, 1);
+            bRt.offsetMin = new Vector2(-1, 0);
+            bRt.offsetMax = new Vector2(0, 0);
+            border.AddComponent<Image>().color = C_Sep;
+
+            for (int i = 0; i < SbLabels.Length; i++)
             {
-                var opt = options[i];
-                float xPos = startX + i * 144f;
-                BuildOptionButton(panelRt, opt, xPos);
+                float y = -8 - i * 22f;
+                bool active = i == 0;
+
+                if (active)
+                {
+                    var hl = Fixed($"SbHl{i}", sbRt,
+                        new Vector2(0, 1), new Vector2(1, 1),
+                        new Vector2(0, y - 1), new Vector2(0, 20));
+                    hl.AddComponent<Image>().color = C_SbActive;
+                }
+
+                string txt = SbLabels[i];
+                if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
+                Label($"Sb{i}", sbRt,
+                    new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
+                    new Vector2(8, y), new Vector2(-8, 14),
+                    txt, active ? C_Accent : C_TextMid,
+                    TextAlignmentOptions.MidlineLeft);
             }
         }
 
-        void BuildOptionButton(RectTransform parent, RoomOption option, float xPos)
+        // ── Email list ────────────────────────────────────────────────────────
+
+        void BuildEmailList(RectTransform parent, List<RoomOption> options)
         {
-            var go = new GameObject(option.label, typeof(RectTransform));
-            go.layer = 5;
-            var rt = go.GetComponent<RectTransform>();
-            rt.SetParent(parent, false);
-            rt.anchorMin        = new Vector2(0.5f, 0.5f);
-            rt.anchorMax        = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta        = new Vector2(120f, 80f);
-            rt.anchoredPosition = new Vector2(xPos, 0);
+            // Tab bar (20 px)
+            BuildTabBar(parent);
 
-            var bg = go.AddComponent<Image>();
-            bg.color = option.type == RoomType.Combat
-                ? new Color(0.45f, 0.10f, 0.10f)
-                : new Color(0.10f, 0.35f, 0.15f);
+            // Separator under tabs
+            var tabSep = TopStrip("TabSep", parent, 1);
+            tabSep.layer = 5;
+            tabSep.AddComponent<Image>().color = C_Sep;
+            var tabSepRt = RT(tabSep);
+            tabSepRt.anchoredPosition = new Vector2(0, -20);
 
-            // Icon row (placeholder text symbol)
-            string icon = option.type == RoomType.Combat ? "[!]" : "[+]";
-            var iconGo = MakeLabel("Icon", rt,
-                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -10), new Vector2(80, 24), icon, 14);
-            iconGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-
-            // Label
-            var labelGo = MakeLabel("Label", rt,
-                new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0, 10), new Vector2(110, 14), option.label, 14);
-            labelGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-
-            var btn = go.AddComponent<Button>();
-            var captured = option;
-            btn.onClick.AddListener(() => OnOptionPicked(captured));
+            // Email rows (stacked below tabs + separator)
+            float rowY = -21f;
+            for (int i = 0; i < options.Count; i++)
+            {
+                BuildEmailRow(parent, options[i], rowY);
+                rowY -= 32f;
+                // Row separator
+                var rs = TopStrip($"RowSep{i}", parent, 1);
+                rs.layer = 5;
+                rs.AddComponent<Image>().color = C_Sep;
+                RT(rs).anchoredPosition = new Vector2(0, rowY);
+            }
         }
 
-        // ── Handlers ──────────────────────────────────────────────────────────
+        void BuildTabBar(RectTransform parent)
+        {
+            var bar = TopStrip("TabBar", parent, 20);
+            bar.layer = 5;
+            var barRt = RT(bar);
 
-        void OnOptionPicked(RoomOption option)
+            string[] tabs   = { "PRIMARY", "PROMOTIONS", "SOCIAL", "FORUMS" };
+            float    xOff   = 10f;
+            float[]  widths = { 70f, 90f, 68f, 64f };
+
+            for (int i = 0; i < tabs.Length; i++)
+            {
+                bool   active  = i == 0;
+                var    lbl     = Label($"Tab{i}", barRt,
+                    new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
+                    new Vector2(xOff, -3), new Vector2(widths[i], 14),
+                    tabs[i], active ? C_Accent : C_TextMid,
+                    TextAlignmentOptions.MidlineLeft);
+
+                if (active)
+                {
+                    // Blue underline
+                    var ul = Fixed("Underline", RT(lbl),
+                        new Vector2(0, 0), new Vector2(1, 0),
+                        new Vector2(0, -1), new Vector2(0, 2));
+                    ul.AddComponent<Image>().color = C_Accent;
+                }
+                xOff += widths[i] + 6f;
+            }
+        }
+
+        void BuildEmailRow(RectTransform parent, RoomOption opt, float yOffset)
+        {
+            bool isUnread = opt.type == RoomType.Combat;
+
+            // Row background (button)
+            var row = TopStrip($"Row_{opt.type}_{yOffset}", parent, 32);
+            row.layer = 5;
+            RT(row).anchoredPosition = new Vector2(0, yOffset);
+            var rowImg = row.AddComponent<Image>();
+            rowImg.color = Color.white;
+            var rowRt = RT(row);
+
+            // Unread blue dot
+            if (isUnread)
+            {
+                var dot = Fixed("Dot", rowRt,
+                    new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+                    new Vector2(7, 0), new Vector2(5, 5));
+                dot.AddComponent<Image>().color = C_Accent;
+            }
+
+            // Sender name (fixed 110 px column)
+            Color senderCol = isUnread ? C_TextDark : C_TextMid;
+            var senderLbl = Label("Sender", rowRt,
+                new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+                new Vector2(17, 0), new Vector2(110, 14),
+                opt.senderName, senderCol, TextAlignmentOptions.MidlineLeft);
+            senderLbl.GetComponent<TextMeshProUGUI>().overflowMode = TextOverflowModes.Ellipsis;
+
+            // Subject + preview (rich text, horizontal stretch)
+            string subjectHex = ColorUtility.ToHtmlStringRGB(senderCol);
+            string previewHex = ColorUtility.ToHtmlStringRGB(C_TextMid);
+            string bodyText   = $"<color=#{subjectHex}>{opt.subjectLine}</color>" +
+                                $"<color=#{previewHex}>  -  {opt.previewText}</color>";
+            var subjectGo  = new GameObject("Body", typeof(RectTransform));
+            subjectGo.layer = 5;
+            var subjectRt  = subjectGo.GetComponent<RectTransform>();
+            subjectRt.SetParent(rowRt, false);
+            subjectRt.anchorMin = Vector2.zero;
+            subjectRt.anchorMax = Vector2.one;
+            subjectRt.offsetMin = new Vector2(134, 5);
+            subjectRt.offsetMax = new Vector2(-62, -5);
+            var subjectTmp = subjectGo.AddComponent<TextMeshProUGUI>();
+            subjectTmp.text               = bodyText;
+            subjectTmp.fontSize           = 14;
+            subjectTmp.color              = C_TextMid;
+            subjectTmp.alignment          = TextAlignmentOptions.MidlineLeft;
+            subjectTmp.enableWordWrapping = false;
+            subjectTmp.overflowMode       = TextOverflowModes.Ellipsis;
+            if (uiFont != null) subjectTmp.font = uiFont;
+
+            // Date (right-aligned, 50 px)
+            var gm       = GameManager.Instance;
+            int day      = 14 - (4 - gm.CurrentFloor) * 2 - gm.CurrentRoom;
+            string date  = $"Mar {day}";
+            Label("Date", rowRt,
+                new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+                new Vector2(-8, 0), new Vector2(50, 14),
+                date, isUnread ? C_TextDark : C_TextLight,
+                TextAlignmentOptions.MidlineRight);
+
+            // Clickable button
+            var btn    = row.AddComponent<Button>();
+            var colors = btn.colors;
+            colors.normalColor    = Color.white;
+            colors.highlightedColor = C_RowHover;
+            colors.pressedColor   = C_RowPressed;
+            colors.selectedColor  = Color.white;
+            btn.colors = colors;
+
+            var captured = opt;
+            btn.onClick.AddListener(() => OnRowClicked(captured));
+        }
+
+        void OnRowClicked(RoomOption opt)
         {
             Hide();
-            if (option.type == RoomType.Combat)
+            if (opt.type == RoomType.Combat)
                 OnCombatSelected.Invoke();
             else
                 OnRestStopSelected.Invoke();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // ── Layout helpers ────────────────────────────────────────────────────
 
-        GameObject MakeLabel(string name, RectTransform parent,
+        /// Full-stretch rect inset by pixel offsets from each edge.
+        static GameObject Stretch(string name, Transform parent,
+            float left, float top, float right, float bottom)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.layer = 5;
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(left, bottom);
+            rt.offsetMax = new Vector2(-right, -top);
+            return go;
+        }
+
+        /// Full-width strip anchored to the top of parent, with a fixed pixel height.
+        static GameObject TopStrip(string name, RectTransform parent, float height)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.layer = 5;
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.anchorMin        = new Vector2(0, 1);
+            rt.anchorMax        = new Vector2(1, 1);
+            rt.pivot            = new Vector2(0, 1);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta        = new Vector2(0, height);
+            return go;
+        }
+
+        /// Fixed-size rect anchored at a specific point.
+        static GameObject Fixed(string name, RectTransform parent,
+            Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.layer = 5;
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.anchorMin        = anchorMin;
+            rt.anchorMax        = anchorMax;
+            rt.pivot            = anchorMin;      // pivot matches anchorMin for simplicity
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta        = size;
+            return go;
+        }
+
+        /// 1-px horizontal line at the bottom of parent.
+        static GameObject BottomLine(string name, RectTransform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.layer = 5;
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 0);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 1);
+            return go;
+        }
+
+        /// TMP label with explicit anchor/pivot/position/size.
+        GameObject Label(string name, RectTransform parent,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-            Vector2 anchoredPos, Vector2 size, string text, int fontSize)
+            Vector2 anchoredPos, Vector2 size, string text,
+            Color color, TextAlignmentOptions align)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.layer = 5;
@@ -157,12 +397,17 @@ namespace InboxZero.UI
             rt.sizeDelta        = size;
 
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text     = text;
-            tmp.fontSize = fontSize;
-            tmp.color    = Color.white;
+            tmp.text               = text;
+            tmp.fontSize           = 14;
+            tmp.color              = color;
+            tmp.alignment          = align;
+            tmp.enableWordWrapping = false;
+            tmp.overflowMode       = TextOverflowModes.Overflow;
             if (uiFont != null) tmp.font = uiFont;
 
             return go;
         }
+
+        static RectTransform RT(GameObject go) => go.GetComponent<RectTransform>();
     }
 }
