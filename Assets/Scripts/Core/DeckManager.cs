@@ -53,7 +53,15 @@ namespace InboxZero.Core
             gm.CardsPlayed++;
         }
 
-        // Discard entire hand (end of turn).
+        // Discard a single card from hand (overflow discard).
+        public void DiscardCard(CardData card)
+        {
+            var gm = GameManager.Instance;
+            gm.Hand.Remove(card);
+            gm.DiscardPile.Add(card);
+        }
+
+        // Discard entire hand (called at combat start to clear previous fight's leftovers).
         public void DiscardHand()
         {
             var gm = GameManager.Instance;

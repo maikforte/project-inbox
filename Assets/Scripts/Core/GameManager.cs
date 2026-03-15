@@ -17,6 +17,7 @@ namespace InboxZero.Core
         public int MaxAP = 3;
         public int CurrentAP;
         public int HandSize = 5;
+        public const int MaxHandSize = 7;
 
         [Header("Deck State")]
         public List<CardData> DrawPile = new List<CardData>();

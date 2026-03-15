@@ -143,7 +143,7 @@ Each task is sized to be a single prompt session.
 
 ## MILESTONE 5B — Card Mechanics Redesign
 
-- [ ] **TASK-31 · Persistent Hand & Draw-1 System**
+- [x] **TASK-31 · Persistent Hand & Draw-1 System**
   Rework `DeckManager` and `TurnManager` to implement the new hand rules:
   - Combat start: draw 5 cards (opening hand only)
   - Each turn start: draw 1 card (not 5)
@@ -152,7 +152,7 @@ Each task is sized to be a single prompt session.
   - Deck exhaustion: when draw pile empties, reshuffle discard only (exclude current hand) into draw pile
   - `HandDisplay.RefreshHand()` must no longer wipe and respawn all cards each turn — only append the newly drawn card(s)
 
-- [ ] **TASK-32 · Max Hand Size & Overflow Discard**
+- [x] **TASK-32 · Max Hand Size & Overflow Discard**
   Enforce a max hand size of 7:
   - Before drawing, check if `Hand.Count >= 7`
   - If so, prompt the player to choose a card from hand to discard before the new card is drawn
