@@ -23,8 +23,10 @@ namespace InboxZero.UI
         public UnityEvent             OnDraftsSelected   = new UnityEvent();
         public UnityEvent             OnAllMailSelected  = new UnityEvent();
 
-        Canvas     _canvas;
-        GameObject _panel;
+        Canvas           _canvas;
+        GameObject       _panel;
+        RectTransform    _listAreaRt;
+        List<RoomOption> _lastOptions;
 
         // ── Gmail colour palette ──────────────────────────────────────────────
         static readonly Color C_Bg         = new Color(1.00f, 1.00f, 1.00f);          // white
@@ -90,7 +92,9 @@ namespace InboxZero.UI
             // Email list (fills right of sidebar)
             var listArea = Stretch("ListArea", bodyRt, 80, 0, 0, 0);
             listArea.layer = 5;
-            BuildEmailList(RT(listArea), options);
+            _listAreaRt  = RT(listArea);
+            _lastOptions = options;
+            BuildEmailList(_listAreaRt, options);
         }
 
         // ── Top bar ───────────────────────────────────────────────────────────
@@ -375,8 +379,25 @@ namespace InboxZero.UI
 
         void OnAllMailClicked()
         {
-            Hide();
-            OnAllMailSelected.Invoke();
+            if (_listAreaRt == null || AllMailScreen.Instance == null) return;
+
+            // Clear the email list, keep the top bar and sidebar
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+
+            AllMailScreen.Instance.OnClose.AddListener(RestoreEmailList);
+            AllMailScreen.Instance.ShowInContent(_listAreaRt);
+        }
+
+        void RestoreEmailList()
+        {
+            AllMailScreen.Instance.OnClose.RemoveListener(RestoreEmailList);
+            if (_listAreaRt == null || _lastOptions == null) return;
+
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+
+            BuildEmailList(_listAreaRt, _lastOptions);
         }
 
         // ── Layout helpers ────────────────────────────────────────────────────

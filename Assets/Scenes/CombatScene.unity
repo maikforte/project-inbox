@@ -6043,7 +6043,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 379cbea24e20b0b469fef77c0542076b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.AllMailScreen
-  uiFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
+  panelPrefab: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
+  cardRowPrefab: {fileID: 3108210510614133440, guid: 652e8164e2922b54583c35fd65ebe00a, type: 3}
   registry: {fileID: 11400000, guid: d81fadb0368a9404ba14bd11c1a6b561, type: 2}
   OnClose:
     m_PersistentCalls:
