@@ -6104,7 +6104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.DeckBuilderScreen
   uiFont: {fileID: 0}
   pagePrefab: {fileID: 2637796914160857714, guid: 25946120138806643b56ae14d17c8320, type: 3}
-  cardRowPrefab: {fileID: 3108210510614133440, guid: 652e8164e2922b54583c35fd65ebe00a, type: 3}
+  cardRowPrefab: {fileID: 1965962914969342138, guid: cf8904a48e701564285163afa1c5698a, type: 3}
   OnComplete:
     m_PersistentCalls:
       m_Calls: []
