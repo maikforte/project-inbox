@@ -183,17 +183,26 @@ Each task is sized to be a single prompt session.
   - Show rarity counts and deck size in a header
   - "Done" button closes the screen and continues flow
 
-- [ ] **TASK-36 · Deck Builder UI Polish**
-  Replace the code-built DeckBuilderScreen with a proper scene-designed layout:
-  - Build the panel as a Canvas child in the scene (not spawned in code) — set inactive by default
-  - Left panel: scrollable list of active deck cards using a VerticalLayoutGroup + Card Row prefab
-  - Right panel: scrollable list of collection cards using the same Card Row prefab
-  - Card Row prefab: type-color left bar, card name, rarity badge (color-coded), AP cost pip, hover highlight
-  - Header bar: deck size counter, uncommon counter, rare counter — update live on each swap
-  - Composition limit violations: flash the header red with the reason for 1.5s instead of blocking silently
-  - "DONE" button styled consistently with rest of UI (Graybox2D sprite, Micro5 font)
-  - `DeckBuilderScreen.cs` becomes a thin controller: references scene objects, no BuildPanel() code
-  - Accessible from Rest Stop scene flow and level transition flow (same as TASK-35)
+- [x] **TASK-36 · Deck Builder UI Polish — DRAFTS**
+  Gmail-themed deck builder accessible from the DRAFTS item in the inbox sidebar:
+  - DRAFTS sidebar item in FloorMapScreen is now a clickable button (Google-blue label)
+  - Shows live card count badge: "DRAFTS  3" when collection has cards, "DRAFTS" when empty
+  - Clicking DRAFTS hides the inbox and opens DeckBuilderScreen; Done returns to the inbox
+  - Also opens automatically after rest stops and level transitions when collection is non-empty
+  - DeckBuilderScreen uses Gmail palette: near-white bg, pale-blue top bar, Google-blue accent, row hover tint
+  - Two-column layout: ACTIVE DECK (left) / COLLECTION (right) with live header counts
+  - Card rows styled as email rows: type-color dot, name, effect preview, rarity, AP cost
+
+- [x] **TASK-37 · All Mail — Full Card Compendium**
+  Add an "ALL MAIL" tab/screen showing every card in the game, grouped by rarity.
+  - Accessible as a new sidebar item in FloorMapScreen below DRAFTS, labelled "ALL MAIL"
+  - Lists all cards from a global registry (`AllCardsRegistry` ScriptableObject — a `List<CardData>` of every card SO)
+  - Cards the player has acquired (in active deck OR collection) are shown normally
+  - Cards not yet acquired are shown greyed out (50% alpha) with effect text replaced by "???"
+  - No interaction — read-only reference view; clicking a greyed card does nothing, clicking an owned card does nothing
+  - Header row: "ALL MAIL  N / TOTAL" showing how many distinct cards the player has seen
+  - Same Gmail row style as DeckBuilderScreen: type-color dot, name, effect/???, rarity badge, AP cost
+  - "CLOSE" pill button (Google-blue) returns to inbox
 
 ---
 

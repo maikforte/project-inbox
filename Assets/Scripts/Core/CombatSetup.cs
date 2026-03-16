@@ -67,12 +67,18 @@ namespace InboxZero.Core
 
             // Card reward screen is retired — drops are now automatic (see CardDropManager).
 
-            // Inbox row clicked → combat or rest stop
+            // Inbox row clicked → combat or rest stop; DRAFTS → deck builder
             if (FloorMapScreen.Instance != null)
             {
                 FloorMapScreen.Instance.OnCombatSelected.AddListener(BeginNextCombat);
                 FloorMapScreen.Instance.OnRestStopSelected.AddListener(OnRestStopSelected);
+                FloorMapScreen.Instance.OnDraftsSelected.AddListener(OnDraftsSelected);
+                FloorMapScreen.Instance.OnAllMailSelected.AddListener(OnAllMailSelected);
             }
+
+            // All Mail → return to inbox on close
+            if (InboxZero.UI.AllMailScreen.Instance != null)
+                InboxZero.UI.AllMailScreen.Instance.OnClose.AddListener(ShowInbox);
 
             // Rest Stop done → Inbox
             if (RestStopScreen.Instance != null)
@@ -189,6 +195,31 @@ namespace InboxZero.Core
             // CurrentFloor and CurrentRoom already advanced by FloorTransitionScreen.OnContinue
             BuildInboxForFloor(GameManager.Instance.CurrentFloor);
             ShowDeckBuilderOrContinue(ShowInbox);
+        }
+
+        void OnDraftsSelected()
+        {
+            // Always open deck builder from the sidebar; return to inbox when done.
+            if (InboxZero.UI.DeckBuilderScreen.Instance == null)
+            {
+                // Deck builder not in scene — just return to inbox so the player isn't stranded.
+                Debug.LogWarning("[CombatSetup] DeckBuilderScreen not found. Add it to the scene.");
+                ShowInbox();
+                return;
+            }
+            _afterDeckBuilder = ShowInbox;
+            InboxZero.UI.DeckBuilderScreen.Instance.Show();
+        }
+
+        void OnAllMailSelected()
+        {
+            if (InboxZero.UI.AllMailScreen.Instance == null)
+            {
+                Debug.LogWarning("[CombatSetup] AllMailScreen not found. Add it to the scene.");
+                ShowInbox();
+                return;
+            }
+            InboxZero.UI.AllMailScreen.Instance.Show();
         }
 
         void OnDeckBuilderDone()

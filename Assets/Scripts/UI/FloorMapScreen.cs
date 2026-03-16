@@ -20,6 +20,8 @@ namespace InboxZero.UI
         public UnityEvent<RoomOption> OnCombatSelected   = new UnityEvent<RoomOption>();
         public UnityEvent<RoomOption> OnRestStopSelected = new UnityEvent<RoomOption>();
         public UnityEvent             OnFloorComplete    = new UnityEvent();
+        public UnityEvent             OnDraftsSelected   = new UnityEvent();
+        public UnityEvent             OnAllMailSelected  = new UnityEvent();
 
         Canvas     _canvas;
         GameObject _panel;
@@ -38,8 +40,8 @@ namespace InboxZero.UI
         static readonly Color C_RowPressed = new Color(0.86f, 0.91f, 0.98f);
 
         // ── Sidebar items ─────────────────────────────────────────────────────
-        static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "SPAM" };
-        static readonly string[] SbCounts = { "22", "",    "",    "",         "",     "",       "5921" };
+        static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "ALL MAIL", "SPAM" };
+        static readonly string[] SbCounts = { "22",    "",        "",         "",          "",     "",        "",         "5921" };
 
         void Awake()
         {
@@ -150,10 +152,15 @@ namespace InboxZero.UI
             bRt.offsetMax = new Vector2(0, 0);
             border.AddComponent<Image>().color = C_Sep;
 
+            const int DraftsIndex  = 5;
+            const int AllMailIndex = 6;
+
             for (int i = 0; i < SbLabels.Length; i++)
             {
-                float y = -8 - i * 22f;
-                bool active = i == 0;
+                float y         = -8 - i * 22f;
+                bool  active    = i == 0;
+                bool  isDrafts  = i == DraftsIndex;
+                bool  isAllMail = i == AllMailIndex;
 
                 if (active)
                 {
@@ -163,13 +170,58 @@ namespace InboxZero.UI
                     hl.AddComponent<Image>().color = C_SbActive;
                 }
 
-                string txt = SbLabels[i];
-                if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
-                Label($"Sb{i}", sbRt,
+                // DRAFTS: show live CardCollection count; other items use static counts
+                string txt;
+                if (isDrafts)
+                {
+                    int n = GameManager.Instance != null
+                        ? GameManager.Instance.CardCollection.Count
+                        : 0;
+                    txt = n > 0 ? $"DRAFTS  {n}" : "DRAFTS";
+                }
+                else
+                {
+                    txt = SbLabels[i];
+                    if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
+                }
+
+                Color labelColor = (isDrafts || isAllMail) ? C_Accent : (active ? C_Accent : C_TextMid);
+
+                var lbl = Label($"Sb{i}", sbRt,
                     new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
                     new Vector2(8, y), new Vector2(-8, 14),
-                    txt, active ? C_Accent : C_TextMid,
+                    txt, labelColor,
                     TextAlignmentOptions.MidlineLeft);
+
+                // Make DRAFTS and ALL MAIL clickable buttons
+                if (isDrafts || isAllMail)
+                {
+                    // Full-width hit area over the label row.
+                    // Uses a near-invisible Image (0.01 alpha) — Color.clear can
+                    // silently fail to block raycasts in some Unity 6 configurations.
+                    string btnName = isDrafts ? "SbDraftsBtn" : "SbAllMailBtn";
+                    var hitGo = new GameObject(btnName, typeof(RectTransform));
+                    hitGo.layer = 5;
+                    var hitRt   = hitGo.GetComponent<RectTransform>();
+                    hitRt.SetParent(sbRt, false);
+                    hitRt.anchorMin        = new Vector2(0, 1);
+                    hitRt.anchorMax        = new Vector2(1, 1);
+                    hitRt.pivot            = new Vector2(0, 1);
+                    hitRt.anchoredPosition = new Vector2(0, y - 1);
+                    hitRt.sizeDelta        = new Vector2(0, 20);
+
+                    var hitImg            = hitGo.AddComponent<Image>();
+                    hitImg.color          = new Color(1f, 1f, 1f, 0.01f);
+                    hitImg.raycastTarget  = true;
+
+                    var btn = hitGo.AddComponent<Button>();
+                    var cb  = btn.colors;
+                    cb.normalColor      = Color.white;
+                    cb.highlightedColor = C_SbActive;
+                    cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
+                    btn.colors          = cb;
+                    btn.onClick.AddListener(isDrafts ? (UnityEngine.Events.UnityAction)OnDraftsClicked : OnAllMailClicked);
+                }
             }
         }
 
@@ -313,6 +365,18 @@ namespace InboxZero.UI
                 OnCombatSelected.Invoke(opt);
             else
                 OnRestStopSelected.Invoke(opt);
+        }
+
+        void OnDraftsClicked()
+        {
+            Hide();
+            OnDraftsSelected.Invoke();
+        }
+
+        void OnAllMailClicked()
+        {
+            Hide();
+            OnAllMailSelected.Invoke();
         }
 
         // ── Layout helpers ────────────────────────────────────────────────────
