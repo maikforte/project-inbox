@@ -2407,6 +2407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6ce7ebc139d494496b52e7e758dbfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layoutPrefab: {fileID: 1124569793158738346, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
   uiFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
   OnCombatSelected:
     m_PersistentCalls:
@@ -6101,7 +6102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: deb145a7d55c69b4d9f670cbdc7f7eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.DeckBuilderScreen
-  uiFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
+  uiFont: {fileID: 0}
+  pagePrefab: {fileID: 2637796914160857714, guid: 25946120138806643b56ae14d17c8320, type: 3}
+  cardRowPrefab: {fileID: 3108210510614133440, guid: 652e8164e2922b54583c35fd65ebe00a, type: 3}
   OnComplete:
     m_PersistentCalls:
       m_Calls: []

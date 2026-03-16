@@ -14,6 +14,9 @@ namespace InboxZero.UI
     {
         public static FloorMapScreen Instance { get; private set; }
 
+        [Header("Prefab")]
+        public GameObject layoutPrefab;  // InboxLayout.prefab
+
         [Header("Font")]
         public TMP_FontAsset uiFont;
 
@@ -72,24 +75,56 @@ namespace InboxZero.UI
         {
             if (_canvas == null) { Debug.LogError("[FloorMapScreen] No Canvas."); return; }
 
-            // Root — full-screen white panel
+            if (layoutPrefab != null)
+                BuildFromPrefab(options);
+            else
+                BuildProgrammatic(options);
+        }
+
+        void BuildFromPrefab(List<RoomOption> options)
+        {
+            _panel = Instantiate(layoutPrefab, _canvas.transform, false);
+            var view = _panel.GetComponent<LayoutView>();
+            if (view == null) { Debug.LogError("[FloorMapScreen] layoutPrefab missing LayoutView."); return; }
+
+            // Wire nav buttons
+            if (view.inboxButton   != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
+            if (view.draftsButton  != null) view.draftsButton.onClick.AddListener(OnDraftsClicked);
+            if (view.allMailButton != null) view.allMailButton.onClick.AddListener(OnAllMailClicked);
+
+            // Update dynamic labels
+            if (view.floorInfoLabel != null)
+            {
+                var gm = GameManager.Instance;
+                view.floorInfoLabel.text = $"FL {gm.CurrentFloor}  RM {gm.CurrentRoom + 1}";
+            }
+            if (view.draftsLabel != null)
+            {
+                int n = GameManager.Instance?.CardCollection.Count ?? 0;
+                view.draftsLabel.text = n > 0 ? $"DRAFTS  {n}" : "DRAFTS";
+            }
+
+            _listAreaRt  = view.contentArea;
+            _lastOptions = options;
+            BuildEmailList(_listAreaRt, options);
+        }
+
+        void BuildProgrammatic(List<RoomOption> options)
+        {
+            // Fallback: build entirely in code (no prefab assigned)
             _panel = Stretch("InboxPanel", _canvas.transform, 0, 0, 0, 0);
             _panel.layer = 5;
             _panel.AddComponent<Image>().color = C_Bg;
             var root = RT(_panel);
 
-            // Top chrome bar (28 px tall)
             BuildTopBar(root);
 
-            // Body below chrome (fills remaining height)
             var body = Stretch("Body", root, 0, 28, 0, 0);
             body.layer = 5;
             var bodyRt = RT(body);
 
-            // Sidebar (80 px wide, full height)
             BuildSidebar(bodyRt);
 
-            // Email list (fills right of sidebar)
             var listArea = Stretch("ListArea", bodyRt, 80, 0, 0, 0);
             listArea.layer = 5;
             _listAreaRt  = RT(listArea);
@@ -156,6 +191,7 @@ namespace InboxZero.UI
             bRt.offsetMax = new Vector2(0, 0);
             border.AddComponent<Image>().color = C_Sep;
 
+            const int InboxIndex   = 0;
             const int DraftsIndex  = 5;
             const int AllMailIndex = 6;
 
@@ -163,6 +199,7 @@ namespace InboxZero.UI
             {
                 float y         = -8 - i * 22f;
                 bool  active    = i == 0;
+                bool  isInbox   = i == InboxIndex;
                 bool  isDrafts  = i == DraftsIndex;
                 bool  isAllMail = i == AllMailIndex;
 
@@ -197,13 +234,13 @@ namespace InboxZero.UI
                     txt, labelColor,
                     TextAlignmentOptions.MidlineLeft);
 
-                // Make DRAFTS and ALL MAIL clickable buttons
-                if (isDrafts || isAllMail)
+                // Make INBOX, DRAFTS, and ALL MAIL clickable
+                if (isInbox || isDrafts || isAllMail)
                 {
                     // Full-width hit area over the label row.
                     // Uses a near-invisible Image (0.01 alpha) — Color.clear can
                     // silently fail to block raycasts in some Unity 6 configurations.
-                    string btnName = isDrafts ? "SbDraftsBtn" : "SbAllMailBtn";
+                    string btnName = isInbox ? "SbInboxBtn" : isDrafts ? "SbDraftsBtn" : "SbAllMailBtn";
                     var hitGo = new GameObject(btnName, typeof(RectTransform));
                     hitGo.layer = 5;
                     var hitRt   = hitGo.GetComponent<RectTransform>();
@@ -224,7 +261,8 @@ namespace InboxZero.UI
                     cb.highlightedColor = C_SbActive;
                     cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
                     btn.colors          = cb;
-                    btn.onClick.AddListener(isDrafts ? (UnityEngine.Events.UnityAction)OnDraftsClicked : OnAllMailClicked);
+                    UnityEngine.Events.UnityAction handler = isInbox ? OnInboxClicked : isDrafts ? (UnityEngine.Events.UnityAction)OnDraftsClicked : OnAllMailClicked;
+                    btn.onClick.AddListener(handler);
                 }
             }
         }
@@ -371,10 +409,40 @@ namespace InboxZero.UI
                 OnRestStopSelected.Invoke(opt);
         }
 
+        void OnInboxClicked()
+        {
+            // Clean up any active page listeners before restoring the email list
+            InboxZero.UI.DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreEmailList);
+
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+
+            if (_lastOptions != null)
+                BuildEmailList(_listAreaRt, _lastOptions);
+        }
+
         void OnDraftsClicked()
         {
-            Hide();
-            OnDraftsSelected.Invoke();
+            var db = InboxZero.UI.DeckBuilderScreen.Instance;
+            if (db == null || _listAreaRt == null) return;
+
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreEmailList);
+
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+
+            db.OnComplete.AddListener(OnDraftsDone);
+            db.ShowInContent(_listAreaRt);
+        }
+
+        void OnDraftsDone()
+        {
+            InboxZero.UI.DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
+            if (_listAreaRt == null || _lastOptions == null) return;
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+            BuildEmailList(_listAreaRt, _lastOptions);
         }
 
         void OnAllMailClicked()

@@ -18,6 +18,10 @@ namespace InboxZero.UI
         [Header("Font")]
         public TMP_FontAsset uiFont;
 
+        [Header("Prefabs")]
+        public GameObject pagePrefab;     // DraftsPage.prefab — layout for ShowInContent
+        public GameObject cardRowPrefab;  // CardRow.prefab — shared with AllMailScreen
+
         /// Fired when the player clicks Done.
         public UnityEvent OnComplete = new UnityEvent();
 
@@ -76,6 +80,27 @@ namespace InboxZero.UI
         {
             if (_panel != null) Destroy(_panel);
             BuildPanel();
+        }
+
+        /// Show inside a specific content area (SPA style — used by FloorMapScreen sidebar).
+        public void ShowInContent(RectTransform contentArea)
+        {
+            if (_panel != null) Destroy(_panel);
+            if (contentArea == null)   { Debug.LogError("[DeckBuilderScreen] No content area.");           return; }
+            if (pagePrefab == null)    { Debug.LogError("[DeckBuilderScreen] pagePrefab missing.");        return; }
+            if (cardRowPrefab == null) { Debug.LogError("[DeckBuilderScreen] cardRowPrefab missing.");     return; }
+
+            _panel = Instantiate(pagePrefab, contentArea, false);
+            var view = _panel.GetComponent<DraftsPageView>();
+            if (view == null) { Debug.LogError("[DeckBuilderScreen] pagePrefab missing DraftsPageView."); return; }
+
+            _statsLabel   = view.statsLabel;
+            _deckHdrLabel = view.deckHeaderLabel;
+            _collHdrLabel = view.collHeaderLabel;
+            _deckContent  = view.deckContent;
+            _collContent  = view.collContent;
+
+            PopulateColumns();
         }
 
         public void Hide()
@@ -263,11 +288,29 @@ namespace InboxZero.UI
             RefreshHeaders();
         }
 
+        float RowUnitHeight => cardRowPrefab != null
+            ? cardRowPrefab.GetComponent<RectTransform>().sizeDelta.y
+            : RowH + RowGap;
+
         void AddCardRow(RectTransform parent, CardData card, int index, bool isDeckCard)
         {
-            float yPos = -index * (RowH + RowGap);
+            float yPos = -index * RowUnitHeight;
 
-            var rowGo = new GameObject(card.cardName, typeof(RectTransform));
+            GameObject rowGo;
+            if (cardRowPrefab != null)
+            {
+                rowGo = Instantiate(cardRowPrefab, parent, false);
+                rowGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, yPos);
+                rowGo.GetComponent<CardRowView>()?.Bind(card, true);
+
+                var prefabBtn      = rowGo.AddComponent<Button>();
+                var prefabCaptured = card;
+                prefabBtn.onClick.AddListener(isDeckCard ? () => OnRemoveCard(prefabCaptured) : () => OnAddCard(prefabCaptured));
+                SetButtonColors(prefabBtn, Color.white, RowHoverColor, new Color(0.85f, 0.90f, 0.98f));
+                return;
+            }
+
+            rowGo = new GameObject(card.cardName, typeof(RectTransform));
             rowGo.layer = 5;
             var rowRt = rowGo.GetComponent<RectTransform>();
             rowRt.SetParent(parent, false);
@@ -337,8 +380,7 @@ namespace InboxZero.UI
 
         void SetContentHeight(RectTransform content, int rowCount)
         {
-            float h = rowCount * (RowH + RowGap);
-            content.sizeDelta = new Vector2(0, Mathf.Max(h, 0));
+            content.sizeDelta = new Vector2(0, Mathf.Max(rowCount * RowUnitHeight, 0));
         }
 
         // ── Swap actions ──────────────────────────────────────────────────────
