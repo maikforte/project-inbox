@@ -64,6 +64,7 @@ namespace InboxZero.UI
         TextMeshProUGUI  _statsLabel;
         TextMeshProUGUI  _deckHdrLabel;
         TextMeshProUGUI  _collHdrLabel;
+        Color            _statsBaseColor;
 
         float _flashTimer;
 
@@ -94,11 +95,12 @@ namespace InboxZero.UI
             var view = _panel.GetComponent<DraftsPageView>();
             if (view == null) { Debug.LogError("[DeckBuilderScreen] pagePrefab missing DraftsPageView."); return; }
 
-            _statsLabel   = view.statsLabel;
-            _deckHdrLabel = view.deckHeaderLabel;
-            _collHdrLabel = view.collHeaderLabel;
-            _deckContent  = view.deckContent;
-            _collContent  = view.collContent;
+            _statsLabel      = view.statsLabel;
+            _deckHdrLabel    = view.deckHeaderLabel;
+            _collHdrLabel    = view.collHeaderLabel;
+            _deckContent     = view.deckContent;
+            _collContent     = view.collContent;
+            _statsBaseColor  = view.statsLabel != null ? view.statsLabel.color : TextMedium;
 
             PopulateColumns();
         }
@@ -143,7 +145,8 @@ namespace InboxZero.UI
                 new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(230, 0),
                 BuildStatsText(), 14, TextAlignmentOptions.Center, TextMedium);
-            _statsLabel = statsGo.GetComponent<TextMeshProUGUI>();
+            _statsLabel     = statsGo.GetComponent<TextMeshProUGUI>();
+            _statsBaseColor = TextMedium;
 
             // DONE button (top-right, Google-blue pill)
             var doneBtnGo = new GameObject("DoneButton", typeof(RectTransform));
@@ -272,6 +275,12 @@ namespace InboxZero.UI
 
         void PopulateColumns()
         {
+            if (_deckContent == null || _collContent == null)
+            {
+                Debug.LogError("[DeckBuilderScreen] deckContent or collContent is null — check DraftsPageView fields on the prefab.");
+                return;
+            }
+
             foreach (Transform c in _deckContent) Destroy(c.gameObject);
             foreach (Transform c in _collContent)  Destroy(c.gameObject);
 
@@ -445,7 +454,7 @@ namespace InboxZero.UI
         {
             if (_statsLabel == null) return;
             _statsLabel.text  = BuildStatsText();
-            _statsLabel.color = TextMedium;
+            _statsLabel.color = _statsBaseColor;
         }
 
         static string BuildStatsText()
