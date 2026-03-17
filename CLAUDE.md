@@ -12,6 +12,7 @@
 - **Scripts folder:** All game scripts go in `Assets/Scripts/`. Organize by subfolder: `Core/`, `Combat/`, `UI/`, `Data/`, `Cards/`, `Enemies/`, `Relics/`.
 - **ScriptableObjects:** Card, Enemy, and Relic data are ScriptableObjects stored in `Assets/Data/`.
 - **Asset GUIDs:** When writing `.asset` files and their `.meta` files manually, Unity may regenerate the `.meta` with a new GUID on first import. Always read the `.meta` file back after Ctrl+R and update any scene YAML references that used the pre-assigned GUID. Symptoms of a stale GUID: null entries in inspector lists, NullReferenceException from code that iterates those lists.
+- **Inbox UI architecture (SPA pattern):** The inbox screen uses a single-page-app pattern. `InboxLayout.prefab` provides the persistent chrome (top bar + sidebar). Each sidebar nav item swaps a *page prefab* into the `ContentArea` `RectTransform`. Current pages: `DraftsPage.prefab` (deck builder, shown by `DeckBuilderScreen.ShowInContent`), `AllMailPanel.prefab` (card compendium, shown by `AllMailScreen`). Each prefab has a *View component* (`DraftsPageView`, `AllMailPanelView`, `LayoutView`) that exposes serialized child references — scripts read these refs at runtime instead of using `GetComponentInChildren`. **Never run a builder MenuItem (`InboxZero → Rebuild … Prefab`) on a prefab that has been customized in the inspector — it will wipe those customizations.** Only run builders to create a prefab from scratch.
 
 ## How to Test After Each Task
 

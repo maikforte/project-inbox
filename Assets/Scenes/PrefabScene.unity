@@ -575,14 +575,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1004}
     m_Modifications:
-    - target: {fileID: 2394826531006206223, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2394826531006206223, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
       propertyPath: m_Name
       value: AllMailPanel
@@ -767,30 +759,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3500951940611685860, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3975339611723991855, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3975339611723991855, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4446039765245436411, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_Type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8024658152188231333, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_Type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8652708917296346783, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8652708917296346783, guid: 25946120138806643b56ae14d17c8320, type: 3}
-      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
