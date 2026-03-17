@@ -7,9 +7,9 @@ using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
-    /// Gmail-style inbox list that replaces the old button-grid room selector.
-    /// Public API is identical to the original FloorMapScreen — CombatSetup
-    /// requires no changes.
+    /// Gmail-style inbox chrome (top bar + sidebar + content area).
+    /// Delegates email-list rendering to InboxScreen, deck builder to DeckBuilderScreen,
+    /// and card compendium to AllMailScreen — all swapped into the ContentArea.
     public class FloorMapScreen : MonoBehaviour
     {
         public static FloorMapScreen Instance { get; private set; }
@@ -32,17 +32,14 @@ namespace InboxZero.UI
         List<RoomOption> _lastOptions;
 
         // ── Gmail colour palette ──────────────────────────────────────────────
-        static readonly Color C_Bg         = new Color(1.00f, 1.00f, 1.00f);          // white
-        static readonly Color C_TopBar     = new Color(0.97f, 0.97f, 0.97f);          // #F8F9FA
-        static readonly Color C_Sidebar    = new Color(0.96f, 0.97f, 0.98f);          // #F6F8FC
-        static readonly Color C_SbActive   = new Color(0.84f, 0.89f, 0.98f);          // inbox highlight
-        static readonly Color C_Accent     = new Color(0.10f, 0.45f, 0.91f);          // #1A73E8 blue
-        static readonly Color C_TextDark   = new Color(0.13f, 0.13f, 0.14f);          // #202124
-        static readonly Color C_TextMid    = new Color(0.37f, 0.39f, 0.41f);          // #5F6368
-        static readonly Color C_TextLight  = new Color(0.62f, 0.64f, 0.67f);
-        static readonly Color C_Sep        = new Color(0.88f, 0.88f, 0.88f);
-        static readonly Color C_RowHover   = new Color(0.93f, 0.95f, 0.99f);
-        static readonly Color C_RowPressed = new Color(0.86f, 0.91f, 0.98f);
+        static readonly Color C_Bg        = new Color(1.00f, 1.00f, 1.00f);
+        static readonly Color C_TopBar    = new Color(0.97f, 0.97f, 0.97f);
+        static readonly Color C_Sidebar   = new Color(0.96f, 0.97f, 0.98f);
+        static readonly Color C_SbActive  = new Color(0.84f, 0.89f, 0.98f);
+        static readonly Color C_Accent    = new Color(0.10f, 0.45f, 0.91f);
+        static readonly Color C_TextMid   = new Color(0.37f, 0.39f, 0.41f);
+        static readonly Color C_TextLight = new Color(0.62f, 0.64f, 0.67f);
+        static readonly Color C_Sep       = new Color(0.88f, 0.88f, 0.88f);
 
         // ── Sidebar items ─────────────────────────────────────────────────────
         static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "ALL MAIL", "SPAM" };
@@ -106,7 +103,18 @@ namespace InboxZero.UI
 
             _listAreaRt  = view.contentArea;
             _lastOptions = options;
-            BuildEmailList(_listAreaRt, options);
+
+            // Wire InboxScreen events → FloorMapScreen events
+            var inbox = InboxScreen.Instance;
+            if (inbox != null)
+            {
+                inbox.OnCombatSelected.RemoveAllListeners();
+                inbox.OnRestStopSelected.RemoveAllListeners();
+                inbox.OnCombatSelected.AddListener(OnInboxCombatSelected);
+                inbox.OnRestStopSelected.AddListener(OnInboxRestStopSelected);
+            }
+
+            ShowInboxPage(options);
         }
 
         void BuildProgrammatic(List<RoomOption> options)
@@ -129,7 +137,17 @@ namespace InboxZero.UI
             listArea.layer = 5;
             _listAreaRt  = RT(listArea);
             _lastOptions = options;
-            BuildEmailList(_listAreaRt, options);
+
+            var inbox = InboxScreen.Instance;
+            if (inbox != null)
+            {
+                inbox.OnCombatSelected.RemoveAllListeners();
+                inbox.OnRestStopSelected.RemoveAllListeners();
+                inbox.OnCombatSelected.AddListener(OnInboxCombatSelected);
+                inbox.OnRestStopSelected.AddListener(OnInboxRestStopSelected);
+            }
+
+            ShowInboxPage(options);
         }
 
         // ── Top bar ───────────────────────────────────────────────────────────
@@ -141,17 +159,14 @@ namespace InboxZero.UI
             bar.AddComponent<Image>().color = C_TopBar;
             var barRt = RT(bar);
 
-            // Bottom border
             var border = BottomLine("TopBorder", barRt);
             border.AddComponent<Image>().color = C_Sep;
 
-            // Logo — left
             Label("Logo", barRt,
                 new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
                 new Vector2(10, 0), new Vector2(130, 14),
                 "INBOX // ZERO", C_Accent, TextAlignmentOptions.MidlineLeft);
 
-            // Search bar — decorative centre
             var srBg = Fixed("SearchBg", barRt,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(200, 16));
@@ -161,7 +176,6 @@ namespace InboxZero.UI
                 Vector2.zero, Vector2.zero,
                 "Search mail", C_TextLight, TextAlignmentOptions.Center);
 
-            // Floor / room info — right
             var gm = GameManager.Instance;
             Label("FloorInfo", barRt,
                 new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
@@ -180,7 +194,6 @@ namespace InboxZero.UI
             sb.AddComponent<Image>().color = C_Sidebar;
             var sbRt = RT(sb);
 
-            // Right border
             var border = new GameObject("SbBorder", typeof(RectTransform));
             border.layer = 5;
             var bRt = border.GetComponent<RectTransform>();
@@ -211,7 +224,6 @@ namespace InboxZero.UI
                     hl.AddComponent<Image>().color = C_SbActive;
                 }
 
-                // DRAFTS: show live CardCollection count; other items use static counts
                 string txt;
                 if (isDrafts)
                 {
@@ -228,18 +240,13 @@ namespace InboxZero.UI
 
                 Color labelColor = (isDrafts || isAllMail) ? C_Accent : (active ? C_Accent : C_TextMid);
 
-                var lbl = Label($"Sb{i}", sbRt,
+                Label($"Sb{i}", sbRt,
                     new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
                     new Vector2(8, y), new Vector2(-8, 14),
-                    txt, labelColor,
-                    TextAlignmentOptions.MidlineLeft);
+                    txt, labelColor, TextAlignmentOptions.MidlineLeft);
 
-                // Make INBOX, DRAFTS, and ALL MAIL clickable
                 if (isInbox || isDrafts || isAllMail)
                 {
-                    // Full-width hit area over the label row.
-                    // Uses a near-invisible Image (0.01 alpha) — Color.clear can
-                    // silently fail to block raycasts in some Unity 6 configurations.
                     string btnName = isInbox ? "SbInboxBtn" : isDrafts ? "SbDraftsBtn" : "SbAllMailBtn";
                     var hitGo = new GameObject(btnName, typeof(RectTransform));
                     hitGo.layer = 5;
@@ -251,9 +258,9 @@ namespace InboxZero.UI
                     hitRt.anchoredPosition = new Vector2(0, y - 1);
                     hitRt.sizeDelta        = new Vector2(0, 20);
 
-                    var hitImg            = hitGo.AddComponent<Image>();
-                    hitImg.color          = new Color(1f, 1f, 1f, 0.01f);
-                    hitImg.raycastTarget  = true;
+                    var hitImg           = hitGo.AddComponent<Image>();
+                    hitImg.color         = new Color(1f, 1f, 1f, 0.01f);
+                    hitImg.raycastTarget = true;
 
                     var btn = hitGo.AddComponent<Button>();
                     var cb  = btn.colors;
@@ -267,167 +274,30 @@ namespace InboxZero.UI
             }
         }
 
-        // ── Email list ────────────────────────────────────────────────────────
+        // ── Page switching ────────────────────────────────────────────────────
 
-        void BuildEmailList(RectTransform parent, List<RoomOption> options)
+        void ShowInboxPage(List<RoomOption> options)
         {
-            // Tab bar (20 px)
-            BuildTabBar(parent);
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
 
-            // Separator under tabs
-            var tabSep = TopStrip("TabSep", parent, 1);
-            tabSep.layer = 5;
-            tabSep.AddComponent<Image>().color = C_Sep;
-            var tabSepRt = RT(tabSep);
-            tabSepRt.anchoredPosition = new Vector2(0, -20);
-
-            // Email rows (stacked below tabs + separator)
-            float rowY = -21f;
-            for (int i = 0; i < options.Count; i++)
-            {
-                BuildEmailRow(parent, options[i], rowY);
-                rowY -= 32f;
-                // Row separator
-                var rs = TopStrip($"RowSep{i}", parent, 1);
-                rs.layer = 5;
-                rs.AddComponent<Image>().color = C_Sep;
-                RT(rs).anchoredPosition = new Vector2(0, rowY);
-            }
-        }
-
-        void BuildTabBar(RectTransform parent)
-        {
-            var bar = TopStrip("TabBar", parent, 20);
-            bar.layer = 5;
-            var barRt = RT(bar);
-
-            string[] tabs   = { "PRIMARY", "PROMOTIONS", "SOCIAL", "FORUMS" };
-            float    xOff   = 10f;
-            float[]  widths = { 70f, 90f, 68f, 64f };
-
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                bool   active  = i == 0;
-                var    lbl     = Label($"Tab{i}", barRt,
-                    new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
-                    new Vector2(xOff, -3), new Vector2(widths[i], 14),
-                    tabs[i], active ? C_Accent : C_TextMid,
-                    TextAlignmentOptions.MidlineLeft);
-
-                if (active)
-                {
-                    // Blue underline
-                    var ul = Fixed("Underline", RT(lbl),
-                        new Vector2(0, 0), new Vector2(1, 0),
-                        new Vector2(0, -1), new Vector2(0, 2));
-                    ul.AddComponent<Image>().color = C_Accent;
-                }
-                xOff += widths[i] + 6f;
-            }
-        }
-
-        void BuildEmailRow(RectTransform parent, RoomOption opt, float yOffset)
-        {
-            bool isUnread = opt.type == RoomType.Combat;
-
-            // Row background (button)
-            var row = TopStrip($"Row_{opt.type}_{yOffset}", parent, 32);
-            row.layer = 5;
-            RT(row).anchoredPosition = new Vector2(0, yOffset);
-            var rowImg = row.AddComponent<Image>();
-            rowImg.color = Color.white;
-            var rowRt = RT(row);
-
-            // Unread blue dot
-            if (isUnread)
-            {
-                var dot = Fixed("Dot", rowRt,
-                    new Vector2(0, 0.5f), new Vector2(0, 0.5f),
-                    new Vector2(7, 0), new Vector2(5, 5));
-                dot.AddComponent<Image>().color = C_Accent;
-            }
-
-            // Sender name (fixed 110 px column)
-            Color senderCol = isUnread ? C_TextDark : C_TextMid;
-            var senderLbl = Label("Sender", rowRt,
-                new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
-                new Vector2(17, 0), new Vector2(110, 14),
-                opt.senderName, senderCol, TextAlignmentOptions.MidlineLeft);
-            senderLbl.GetComponent<TextMeshProUGUI>().overflowMode = TextOverflowModes.Ellipsis;
-
-            // Subject + preview (rich text, horizontal stretch)
-            string subjectHex = ColorUtility.ToHtmlStringRGB(senderCol);
-            string previewHex = ColorUtility.ToHtmlStringRGB(C_TextMid);
-            string bodyText   = $"<color=#{subjectHex}>{opt.subjectLine}</color>" +
-                                $"<color=#{previewHex}>  -  {opt.previewText}</color>";
-            var subjectGo  = new GameObject("Body", typeof(RectTransform));
-            subjectGo.layer = 5;
-            var subjectRt  = subjectGo.GetComponent<RectTransform>();
-            subjectRt.SetParent(rowRt, false);
-            subjectRt.anchorMin = Vector2.zero;
-            subjectRt.anchorMax = Vector2.one;
-            subjectRt.offsetMin = new Vector2(134, 5);
-            subjectRt.offsetMax = new Vector2(-62, -5);
-            var subjectTmp = subjectGo.AddComponent<TextMeshProUGUI>();
-            subjectTmp.text               = bodyText;
-            subjectTmp.fontSize           = 14;
-            subjectTmp.color              = C_TextMid;
-            subjectTmp.alignment          = TextAlignmentOptions.MidlineLeft;
-            subjectTmp.enableWordWrapping = false;
-            subjectTmp.overflowMode       = TextOverflowModes.Ellipsis;
-            if (uiFont != null) subjectTmp.font = uiFont;
-
-            // Date (right-aligned, 50 px)
-            var gm       = GameManager.Instance;
-            int day      = 14 - (4 - gm.CurrentFloor) * 2 - gm.CurrentRoom;
-            string date  = $"Mar {day}";
-            Label("Date", rowRt,
-                new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-                new Vector2(-8, 0), new Vector2(50, 14),
-                date, isUnread ? C_TextDark : C_TextLight,
-                TextAlignmentOptions.MidlineRight);
-
-            // Clickable button
-            var btn    = row.AddComponent<Button>();
-            var colors = btn.colors;
-            colors.normalColor    = Color.white;
-            colors.highlightedColor = C_RowHover;
-            colors.pressedColor   = C_RowPressed;
-            colors.selectedColor  = Color.white;
-            btn.colors = colors;
-
-            var captured = opt;
-            btn.onClick.AddListener(() => OnRowClicked(captured));
-        }
-
-        void OnRowClicked(RoomOption opt)
-        {
-            Hide();
-            if (opt.type == RoomType.Combat)
-                OnCombatSelected.Invoke(opt);
-            else
-                OnRestStopSelected.Invoke(opt);
+            InboxScreen.Instance?.ShowInContent(_listAreaRt, options);
         }
 
         void OnInboxClicked()
         {
-            // Clean up any active page listeners before restoring the email list
-            InboxZero.UI.DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreEmailList);
-
-            foreach (Transform child in _listAreaRt)
-                Destroy(child.gameObject);
-
-            if (_lastOptions != null)
-                BuildEmailList(_listAreaRt, _lastOptions);
+            DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
+            if (_lastOptions != null) ShowInboxPage(_lastOptions);
         }
 
         void OnDraftsClicked()
         {
-            var db = InboxZero.UI.DeckBuilderScreen.Instance;
+            var db = DeckBuilderScreen.Instance;
             if (db == null || _listAreaRt == null) return;
 
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreEmailList);
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
+            InboxScreen.Instance?.Hide();
 
             foreach (Transform child in _listAreaRt)
                 Destroy(child.gameObject);
@@ -436,41 +306,49 @@ namespace InboxZero.UI
             db.ShowInContent(_listAreaRt);
         }
 
-        void OnDraftsDone()
-        {
-            InboxZero.UI.DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
-            if (_listAreaRt == null || _lastOptions == null) return;
-            foreach (Transform child in _listAreaRt)
-                Destroy(child.gameObject);
-            BuildEmailList(_listAreaRt, _lastOptions);
-        }
-
         void OnAllMailClicked()
         {
             if (_listAreaRt == null || AllMailScreen.Instance == null) return;
 
-            // Clear the email list, keep the top bar and sidebar
+            InboxScreen.Instance?.Hide();
+
             foreach (Transform child in _listAreaRt)
                 Destroy(child.gameObject);
 
-            AllMailScreen.Instance.OnClose.AddListener(RestoreEmailList);
+            AllMailScreen.Instance.OnClose.AddListener(RestoreInbox);
             AllMailScreen.Instance.ShowInContent(_listAreaRt);
         }
 
-        void RestoreEmailList()
+        void OnDraftsDone()
         {
-            AllMailScreen.Instance.OnClose.RemoveListener(RestoreEmailList);
+            DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
             if (_listAreaRt == null || _lastOptions == null) return;
+            ShowInboxPage(_lastOptions);
+        }
 
-            foreach (Transform child in _listAreaRt)
-                Destroy(child.gameObject);
+        void RestoreInbox()
+        {
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
+            if (_listAreaRt == null || _lastOptions == null) return;
+            ShowInboxPage(_lastOptions);
+        }
 
-            BuildEmailList(_listAreaRt, _lastOptions);
+        // ── InboxScreen event forwarding ──────────────────────────────────────
+
+        void OnInboxCombatSelected(RoomOption opt)
+        {
+            Hide();
+            OnCombatSelected.Invoke(opt);
+        }
+
+        void OnInboxRestStopSelected(RoomOption opt)
+        {
+            Hide();
+            OnRestStopSelected.Invoke(opt);
         }
 
         // ── Layout helpers ────────────────────────────────────────────────────
 
-        /// Full-stretch rect inset by pixel offsets from each edge.
         static GameObject Stretch(string name, Transform parent,
             float left, float top, float right, float bottom)
         {
@@ -485,7 +363,6 @@ namespace InboxZero.UI
             return go;
         }
 
-        /// Full-width strip anchored to the top of parent, with a fixed pixel height.
         static GameObject TopStrip(string name, RectTransform parent, float height)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -500,7 +377,6 @@ namespace InboxZero.UI
             return go;
         }
 
-        /// Fixed-size rect anchored at a specific point.
         static GameObject Fixed(string name, RectTransform parent,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size)
         {
@@ -510,13 +386,12 @@ namespace InboxZero.UI
             rt.SetParent(parent, false);
             rt.anchorMin        = anchorMin;
             rt.anchorMax        = anchorMax;
-            rt.pivot            = anchorMin;      // pivot matches anchorMin for simplicity
+            rt.pivot            = anchorMin;
             rt.anchoredPosition = anchoredPos;
             rt.sizeDelta        = size;
             return go;
         }
 
-        /// 1-px horizontal line at the bottom of parent.
         static GameObject BottomLine(string name, RectTransform parent)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -530,7 +405,6 @@ namespace InboxZero.UI
             return go;
         }
 
-        /// TMP label with explicit anchor/pivot/position/size.
         GameObject Label(string name, RectTransform parent,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
             Vector2 anchoredPos, Vector2 size, string text,
@@ -554,7 +428,6 @@ namespace InboxZero.UI
             tmp.enableWordWrapping = false;
             tmp.overflowMode       = TextOverflowModes.Overflow;
             if (uiFont != null) tmp.font = uiFont;
-
             return go;
         }
 
