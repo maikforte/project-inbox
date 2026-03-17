@@ -12,7 +12,7 @@ namespace InboxZero.Core
         public static GameManager Instance { get; private set; }
 
         [Header("Player Stats")]
-        public int MaxHP = 50;
+        public int MaxHP = 100;
         public int CurrentHP;
         public int MaxAP = 3;
         public int CurrentAP;
