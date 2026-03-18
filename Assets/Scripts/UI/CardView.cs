@@ -13,7 +13,6 @@ namespace InboxZero.UI
     public struct RarityVisuals
     {
         public Sprite bg;
-        public Sprite badgeBg;
     }
 
     public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
@@ -21,10 +20,8 @@ namespace InboxZero.UI
         public CardData Data { get; private set; }
 
         [SerializeField] Image _bg;
-        [SerializeField] Image _badgeBg;
         [SerializeField] TextMeshProUGUI _nameText;
         [SerializeField] TextMeshProUGUI _costText;
-        [SerializeField] TextMeshProUGUI _costTextShadow;
         [SerializeField] TextMeshProUGUI _effectText;
 
         [Header("Rarity Visuals")]
@@ -32,6 +29,7 @@ namespace InboxZero.UI
         [SerializeField] RarityVisuals _common;
         [SerializeField] RarityVisuals _uncommon;
         [SerializeField] RarityVisuals _rare;
+        [SerializeField] RarityVisuals _legendary;
 
         public void Populate(CardData data)
         {
@@ -39,19 +37,18 @@ namespace InboxZero.UI
 
             RarityVisuals visuals = data.rarity switch
             {
-                CardRarity.Common   => _common,
-                CardRarity.Uncommon => _uncommon,
-                CardRarity.Rare     => _rare,
-                _                   => _starter,
+                CardRarity.Common     => _common,
+                CardRarity.Uncommon   => _uncommon,
+                CardRarity.Rare       => _rare,
+                CardRarity.Legendary  => _legendary,
+                _                     => _starter,
             };
 
-            if (_bg      != null && visuals.bg      != null) _bg.sprite      = visuals.bg;
-            if (_badgeBg != null && visuals.badgeBg != null) _badgeBg.sprite = visuals.badgeBg;
+            if (_bg != null && visuals.bg != null) _bg.sprite = visuals.bg;
 
-            if (_nameText       != null) _nameText.text       = data.cardName.ToUpper();
-            if (_costText       != null) _costText.text       = data.apCost.ToString();
-            if (_costTextShadow != null) _costTextShadow.text = data.apCost.ToString();
-            if (_effectText     != null) _effectText.text     = data.effectDescription;
+            if (_nameText   != null) _nameText.text   = data.cardName.ToUpper();
+            if (_costText   != null) _costText.text   = data.apCost.ToString();
+            if (_effectText != null) _effectText.text = data.effectDescription;
         }
 
         // ── Input handlers ────────────────────────────────────────────────────

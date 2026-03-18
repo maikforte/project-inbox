@@ -2,7 +2,7 @@ namespace InboxZero.Data
 {
     public enum CardType { Attack, Defend, Special }
 
-    public enum CardRarity { Starter, Common, Uncommon, Rare }
+    public enum CardRarity { Starter, Common, Uncommon, Rare, Legendary }
 
     public enum CardEffectType
     {
