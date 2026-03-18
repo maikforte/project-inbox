@@ -23,6 +23,8 @@ namespace InboxZero.Core
         [Header("Starter Deck & Relic")]
         [Tooltip("Cards added to the player deck at run start.")]
         [SerializeField] List<CardData> starterCards = new List<CardData>();
+        [Tooltip("Cards available in the collection pool from the very start of the run.")]
+        [SerializeField] List<CardData> unlockedCards = new List<CardData>();
         [Tooltip("Relic the player starts every run with (e.g. Paperclip).")]
         [SerializeField] RelicData startingRelic;
 
@@ -106,6 +108,7 @@ namespace InboxZero.Core
         {
             GameManager.Instance.InitRun();
             DeckManager.Instance.InitDeck(new List<CardData>(starterCards));
+            GameManager.Instance.CardCollection.AddRange(unlockedCards);
             if (startingRelic != null)
             {
                 GameManager.Instance.ActiveRelics.Add(startingRelic);
