@@ -175,8 +175,8 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.17777778
-    width: 2.9890625
+    y: 0
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -480,6 +480,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Card
       objectReference: {fileID: 0}
+    - target: {fileID: 344596488029881549, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1350326413667507213, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -736,15 +740,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2394826531006206223, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2394826531006206223, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
       propertyPath: m_Name
       value: AllMailPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8906167711580134375, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
       propertyPath: m_Pivot.x
@@ -836,6 +844,41 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8906167711580134375, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
   m_PrefabInstance: {fileID: 354744707}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &398861499 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8836141952453430002, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+  m_PrefabInstance: {fileID: 855412880}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &398861504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398861499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.84, g: 0.89, b: 0.98, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &485660305
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -847,6 +890,10 @@ PrefabInstance:
     - target: {fileID: 2637796914160857714, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_Name
       value: DraftsPage
+      objectReference: {fileID: 0}
+    - target: {fileID: 2637796914160857714, guid: 25946120138806643b56ae14d17c8320, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3500951940611685860, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_Pivot.x
@@ -930,19 +977,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3975339611723991855, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3975339611723991855, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8652708917296346783, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8652708917296346783, guid: 25946120138806643b56ae14d17c8320, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -965,6 +1012,10 @@ PrefabInstance:
     - target: {fileID: 1001, guid: 29653a1b251e4d54183557573c53728f, type: 3}
       propertyPath: m_Name
       value: MainMenuPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: 29653a1b251e4d54183557573c53728f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1002, guid: 29653a1b251e4d54183557573c53728f, type: 3}
       propertyPath: m_Pivot.x
@@ -1276,6 +1327,14 @@ PrefabInstance:
       value: InboxLayout
       objectReference: {fileID: 0}
     - target: {fileID: 1355600293187687570, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355600293187687570, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355600293187687570, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
@@ -1323,6 +1382,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2362460890453099118, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2362460890453099118, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Color.b
+      value: 0.98
+      objectReference: {fileID: 0}
+    - target: {fileID: 2362460890453099118, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Color.g
+      value: 0.89
+      objectReference: {fileID: 0}
+    - target: {fileID: 2362460890453099118, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Color.r
+      value: 0.84
+      objectReference: {fileID: 0}
     - target: {fileID: 4197053730904403559, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1346,6 +1421,18 @@ PrefabInstance:
     - target: {fileID: 4197053730904403559, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6162535823437324401, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_CellSize.x
+      value: 65
+      objectReference: {fileID: 0}
+    - target: {fileID: 6162535823437324401, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_Padding.m_Top
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7181372137468377439, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7592941205288885129, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1427,10 +1514,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0.31723022
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5491759822578407683, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8836141952453430002, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 398861504}
   m_SourcePrefab: {fileID: 100100000, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
 --- !u!224 &855412881 stripped
 RectTransform:
@@ -1448,6 +1539,10 @@ PrefabInstance:
     - target: {fileID: 1001, guid: e7f3b1c4d8a2596012345678abcdef90, type: 3}
       propertyPath: m_Name
       value: EmailRow
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e7f3b1c4d8a2596012345678abcdef90, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1002, guid: e7f3b1c4d8a2596012345678abcdef90, type: 3}
       propertyPath: m_Pivot.x
@@ -1580,6 +1675,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: InboxPage
       objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: 7b4a8e2f1c3d56901234567890abcdef, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1002, guid: 7b4a8e2f1c3d56901234567890abcdef, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1670,11 +1769,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 14002, guid: 7b4a8e2f1c3d56901234567890abcdef, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 14002, guid: 7b4a8e2f1c3d56901234567890abcdef, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
