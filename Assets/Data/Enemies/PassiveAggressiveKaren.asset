@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0dabb40cbdc3554439d9844471f936ed, type: 3}
   m_Name: PassiveAggressiveKaren
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   enemyName: Passive-Aggressive Karen
   enemyType: ELITE THREAT
   maxHP: 45
@@ -21,3 +21,9 @@ MonoBehaviour:
   statusDuration: 0
   rewardTier: 2
   flavorText: Per my last email...
+  dropChance: 0.5
+  dropRarity: 1
+  intentDeck:
+  - {fileID: 11400000, guid: e001000000000000000000000000ba01, type: 2}
+  - {fileID: 11400000, guid: e001000000000000000000000000ba01, type: 2}
+  - {fileID: 11400000, guid: e001000000000000000000000000ca01, type: 2}

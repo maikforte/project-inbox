@@ -12,7 +12,8 @@ namespace InboxZero.Data
         GainAP,
         ApplyStatusToEnemy,
         ApplyStatusToPlayer,
-        RestoreHP
+        RestoreHP,
+        HealSelf
     }
 
     public enum StatusEffectType { None, Unread, Guilt, AwaitingReply }

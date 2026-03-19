@@ -38,6 +38,15 @@ namespace InboxZero.Enemies
         float _fillTarget;
         float _fillDisplay;
 
+        int _currentShield;
+
+        // Intent deck state
+        readonly List<CardData> _intentDeck    = new List<CardData>();
+        readonly List<CardData> _intentDiscard = new List<CardData>();
+
+        /// The card telegraphed to the player — will be played on the enemy's next turn.
+        public CardData CurrentIntentCard { get; private set; }
+
         const int GuiltDamagePerTurn = 2;
 
         // ── Initialisation ────────────────────────────────────────────────────
@@ -50,7 +59,22 @@ namespace InboxZero.Enemies
             _statuses.Clear();
             _fillTarget = _fillDisplay = 1f;
 
+            _currentShield = 0;
+
             CardEffectResolver.ActiveTarget = this;
+            CardEffectResolver.ActiveEnemy  = this;
+
+            // Set up intent deck — shuffle a copy so the source asset is never mutated.
+            _intentDeck.Clear();
+            _intentDiscard.Clear();
+            CurrentIntentCard = null;
+            if (data.intentDeck != null && data.intentDeck.Count > 0)
+            {
+                _intentDeck.AddRange(data.intentDeck);
+                Shuffle(_intentDeck);
+                DrawNextIntent();
+            }
+            EnemyHandDisplay.Instance?.Refresh(Data.intentDeck != null ? Data.intentDeck.Count : 0);
 
             UpdateUI();
 
@@ -68,11 +92,27 @@ namespace InboxZero.Enemies
         public void TakeDamage(int amount)
         {
             if (IsDead) return;
-            CurrentHP -= amount;
+            int absorbed = Mathf.Min(_currentShield, amount);
+            _currentShield -= absorbed;
+            int net = amount - absorbed;
+            CurrentHP -= net;
             UpdateUI();
-            FloatingText.Spawn($"-{amount}", hpBarFill?.rectTransform, new Color(1f, 0.35f, 0.35f));
+            FloatingText.Spawn($"-{net}", hpBarFill?.rectTransform, new Color(1f, 0.35f, 0.35f));
             AudioManager.Instance?.PlayDamageHit();
             CheckDeath();
+        }
+
+        public void GainShield(int amount)
+        {
+            _currentShield += amount;
+            UpdateUI();
+        }
+
+        public void Heal(int amount)
+        {
+            if (IsDead) return;
+            CurrentHP = Mathf.Min(CurrentHP + amount, Data.maxHP);
+            UpdateUI();
         }
 
         public void ApplyStatus(StatusEffectType type, int duration)
@@ -125,13 +165,32 @@ namespace InboxZero.Enemies
             bool frozen = _statuses.TryGetValue(StatusEffectType.Unread, out int unread) && unread > 0;
             if (!frozen)
             {
-                // Attack player — GameManager.TakeDamage handles shield absorption.
-                GameManager.Instance.TakeDamage(Data.damagePerTurn);
+                if (CurrentIntentCard != null)
+                {
+                    // Animate the card sliding down and flipping to reveal itself.
+                    Debug.Log($"[EnemyController] About to animate card: {CurrentIntentCard.cardName} | EnemyHandDisplay.Instance={EnemyHandDisplay.Instance != null}");
+                    if (EnemyHandDisplay.Instance != null)
+                        yield return EnemyHandDisplay.Instance.PlayCardAnimation(CurrentIntentCard);
 
-                // Apply status to player if this enemy has one.
-                if (Data.statusAppliedOnAttack != StatusEffectType.None)
-                    ApplyStatusToPlayer(Data.statusAppliedOnAttack, Data.statusDuration);
+                    // Card-driven attack.
+                    CardEffectResolver.Resolve(CurrentIntentCard, EffectExecutor.Enemy);
+                }
+                else
+                {
+                    // Legacy flat-damage fallback (no intent deck assigned).
+                    GameManager.Instance.TakeDamage(Data.damagePerTurn);
+                    if (Data.statusAppliedOnAttack != StatusEffectType.None)
+                        ApplyStatusToPlayer(Data.statusAppliedOnAttack, Data.statusDuration);
+                }
             }
+
+            // Discard the played card and draw next intent for the player to see.
+            if (CurrentIntentCard != null)
+            {
+                _intentDiscard.Add(CurrentIntentCard);
+                CurrentIntentCard = null;
+            }
+            DrawNextIntent();
 
             yield return new WaitForSeconds(actionDelay);
 
@@ -142,10 +201,40 @@ namespace InboxZero.Enemies
                 UpdateUI();
             }
 
+            // Shield resets at end of enemy turn (mirrors player shield reset).
+            _currentShield = 0;
+
             // Tick all status durations down by 1, remove expired.
             TickStatuses();
 
             TurnManager.Instance.EndEnemyTurn();
+        }
+
+        // ── Intent deck ───────────────────────────────────────────────────────
+
+        void DrawNextIntent()
+        {
+            if (_intentDeck.Count == 0 && _intentDiscard.Count == 0) return;
+
+            if (_intentDeck.Count == 0)
+            {
+                _intentDeck.AddRange(_intentDiscard);
+                _intentDiscard.Clear();
+                Shuffle(_intentDeck);
+            }
+
+            CurrentIntentCard = _intentDeck[0];
+            _intentDeck.RemoveAt(0);
+            Debug.Log($"[EnemyController] Intent: {CurrentIntentCard.cardName}");
+        }
+
+        static void Shuffle<T>(List<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
@@ -169,6 +258,7 @@ namespace InboxZero.Enemies
             IsDead    = true;
             UpdateUI();
             TurnManager.Instance.OnEnemyTurnStart.RemoveListener(OnEnemyTurnStart);
+            EnemyHandDisplay.Instance?.Hide();
             AudioManager.Instance?.PlayEnemyDeath();
             OnDeath.Invoke();
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace InboxZero.Data
@@ -18,5 +19,9 @@ namespace InboxZero.Data
         [Header("Card Drop")]
         [Range(0f, 1f)] public float dropChance = 0.5f;
         public CardRarity dropRarity = CardRarity.Common;
+
+        [Header("Intent Deck")]
+        [Tooltip("Cards this enemy cycles through on its turns. Leave empty to use legacy flat damage.")]
+        public List<CardData> intentDeck = new List<CardData>();
     }
 }

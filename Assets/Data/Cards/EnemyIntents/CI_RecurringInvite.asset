@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
+  m_Name: CI_RecurringInvite
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.Data.CardData
+  cardName: Recurring Invite
+  cardType: 0
+  rarity: 0
+  apCost: 0
+  effectDescription: Deal 7 damage. Apply AWAITING REPLY (1 turn).
+  effects:
+  - effectType: 0
+    value: 7
+    statusType: 0
+    statusDuration: 0
+  - effectType: 5
+    value: 0
+    statusType: 3
+    statusDuration: 1
