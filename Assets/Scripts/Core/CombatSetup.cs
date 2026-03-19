@@ -184,7 +184,7 @@ namespace InboxZero.Core
         {
             _inbox.Remove(_pendingRestOpt);
             GameManager.Instance.CurrentRoom++;
-            ShowDeckBuilderOrContinue(ShowInbox);
+            ShowInbox();
         }
 
         void OnLevelCleared()
@@ -197,7 +197,7 @@ namespace InboxZero.Core
         {
             // CurrentFloor and CurrentRoom already advanced by FloorTransitionScreen.OnContinue
             BuildInboxForFloor(GameManager.Instance.CurrentFloor);
-            ShowDeckBuilderOrContinue(ShowInbox);
+            ShowInbox();
         }
 
         void OnDraftsSelected()

@@ -175,8 +175,8 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 1
+    y: 0.17777778
+    width: 2.9890625
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -1464,7 +1464,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 5088316998373936774, guid: 1ee146ed1902a0b4a86e71ea96314aea, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4722,7 +4722,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3f8a1c2e4b7d3f8a1c2e4b7d3f8a1c2, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.MainMenuScreen
   panelPrefab: {fileID: 1001, guid: 29653a1b251e4d54183557573c53728f, type: 3}
 --- !u!4 &9404
