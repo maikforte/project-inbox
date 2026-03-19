@@ -4722,9 +4722,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3f8a1c2e4b7d3f8a1c2e4b7d3f8a1c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.MainMenuScreen
+  panelPrefab: {fileID: 1001, guid: 29653a1b251e4d54183557573c53728f, type: 3}
 --- !u!4 &9404
 Transform:
   m_ObjectHideFlags: 0
