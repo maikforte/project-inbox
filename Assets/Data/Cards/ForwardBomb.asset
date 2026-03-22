@@ -11,12 +11,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: ForwardBomb
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Forward Bomb
   cardType: 0
   rarity: 2
   apCost: 2
-  effectDescription: Deal 10 damage. Apply UNREAD (2 turns) — enemy skips attacks.
+  effectDescription: "Deal 10 damage. Apply UNREAD (2 turns) \u2014 enemy skips attacks."
   effects:
   - effectType: 0
     value: 10
@@ -26,3 +26,4 @@ MonoBehaviour:
     value: 0
     statusType: 1
     statusDuration: 2
+  icon: {fileID: -6131311403240233488, guid: 4264e980f5439eb4a8cdc5291f648de4, type: 3}

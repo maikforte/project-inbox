@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cfe30698056794641b52561ec647e943
+guid: c0c8f7bef722f624ea9f46c742de954c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1783955752748283623
-    second: common-card-badge_0
+      213: -4907276057661496305
+    second: CCTheCEO_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: common-card-badge_0
+      name: CCTheCEO_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 3
         y: 0
-        width: 16
-        height: 16
+        width: 24
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9198c66d1bd1e37e0800000000000000
-      internalID: -1783955752748283623
+      spriteID: f04ae48ec6ad5ebb0800000000000000
+      internalID: -4907276057661496305
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      common-card-badge_0: -1783955752748283623
+      CCTheCEO_0: -4907276057661496305
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -21,5 +21,6 @@ namespace InboxZero.Data
         public int apCost;
         [TextArea] public string effectDescription;
         public List<CardEffect> effects;
+        public Sprite icon;
     }
 }

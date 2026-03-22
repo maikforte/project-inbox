@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3a6a15174514abc4f844d9aaa84eb1c7
+guid: 306cae1a5546ae546b54452403cbc1db
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2683511848900098573
-    second: rare-card-badge_0
+      213: 8725218637780951959
+    second: Sprite-0009_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rare-card-badge_0
+      name: Sprite-0009_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 16
-        height: 16
+        x: 3
+        y: 1
+        width: 29
+        height: 30
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3f502c7f03042cad0800000000000000
-      internalID: -2683511848900098573
+      spriteID: 7932d847f14361970800000000000000
+      internalID: 8725218637780951959
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rare-card-badge_0: -2683511848900098573
+      Sprite-0009_0: 8725218637780951959
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

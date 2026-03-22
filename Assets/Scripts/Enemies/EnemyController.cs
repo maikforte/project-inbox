@@ -74,8 +74,6 @@ namespace InboxZero.Enemies
                 Shuffle(_intentDeck);
                 DrawNextIntent();
             }
-            EnemyHandDisplay.Instance?.Refresh(Data.intentDeck != null ? Data.intentDeck.Count : 0);
-
             UpdateUI();
 
             TurnManager.Instance.OnEnemyTurnStart.AddListener(OnEnemyTurnStart);
@@ -97,7 +95,11 @@ namespace InboxZero.Enemies
             int net = amount - absorbed;
             CurrentHP -= net;
             UpdateUI();
-            FloatingText.Spawn($"-{net}", hpBarFill?.rectTransform, new Color(1f, 0.35f, 0.35f));
+            if (net > 0)
+            {
+                FloatingText.Spawn($"-{net}", hpBarFill?.rectTransform, new Color(1f, 0.35f, 0.35f));
+                CombatFX.Instance?.EnemyHit();
+            }
             AudioManager.Instance?.PlayDamageHit();
             CheckDeath();
         }
@@ -163,6 +165,7 @@ namespace InboxZero.Enemies
 
             // Unread: enemy skips attack this turn.
             bool frozen = _statuses.TryGetValue(StatusEffectType.Unread, out int unread) && unread > 0;
+            if (frozen) EnemyIntentWidget.Instance?.ShowFrozen();
             if (!frozen)
             {
                 if (CurrentIntentCard != null)
@@ -226,6 +229,7 @@ namespace InboxZero.Enemies
             CurrentIntentCard = _intentDeck[0];
             _intentDeck.RemoveAt(0);
             Debug.Log($"[EnemyController] Intent: {CurrentIntentCard.cardName}");
+            EnemyIntentWidget.Instance?.ShowIntent(CurrentIntentCard);
         }
 
         static void Shuffle<T>(List<T> list)
@@ -259,6 +263,7 @@ namespace InboxZero.Enemies
             UpdateUI();
             TurnManager.Instance.OnEnemyTurnStart.RemoveListener(OnEnemyTurnStart);
             EnemyHandDisplay.Instance?.Hide();
+            EnemyIntentWidget.Instance?.Hide();
             AudioManager.Instance?.PlayEnemyDeath();
             OnDeath.Invoke();
         }

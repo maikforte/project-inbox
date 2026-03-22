@@ -60,12 +60,16 @@ namespace InboxZero.Core
                 amount = Mathf.Max(0, amount - RelicManager.Instance.GetDamageReduction());
             int absorbed = Mathf.Min(CurrentShield, amount);
             CurrentShield -= absorbed;
-            CurrentHP -= amount - absorbed;
+            int net = amount - absorbed;
+            CurrentHP -= net;
 
             if (absorbed > 0)
                 AudioManager.Instance?.PlayShieldBlock();
-            else if (amount > 0)
+            else if (net > 0)
                 AudioManager.Instance?.PlayDamageHit();
+
+            if (net > 0)
+                InboxZero.UI.CombatFX.Instance?.PlayerHit();
 
             if (CurrentHP <= 0)
             {

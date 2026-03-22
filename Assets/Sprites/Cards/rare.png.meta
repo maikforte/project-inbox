@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0d52c8ccc74e03c46ae26d5620dfdff4
+guid: 73541f3d51bfd244fa76dbf9f7f398e5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4505909245690428606
-    second: starter-card-badge_0
+      213: -5648912583701459738
+    second: rare_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: starter-card-badge_0
+      name: rare_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 16
+        width: 110
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 24349741a6bc771c0800000000000000
-      internalID: -4505909245690428606
+      spriteID: 6ec8d313fe70b91b0800000000000000
+      internalID: -5648912583701459738
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      starter-card-badge_0: -4505909245690428606
+      rare_0: -5648912583701459738
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

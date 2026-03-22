@@ -20,6 +20,7 @@ namespace InboxZero.UI
         public CardData Data { get; private set; }
 
         [SerializeField] Image _bg;
+        [SerializeField] Image _icon;
         [SerializeField] TextMeshProUGUI _nameText;
         [SerializeField] TextMeshProUGUI _costText;
         [SerializeField] TextMeshProUGUI _effectText;
@@ -46,6 +47,7 @@ namespace InboxZero.UI
 
             if (_bg != null && visuals.bg != null) _bg.sprite = visuals.bg;
 
+            if (_icon       != null) { _icon.sprite = data.icon; _icon.enabled = data.icon != null; }
             if (_nameText   != null) _nameText.text   = data.cardName.ToUpper();
             if (_costText   != null) _costText.text   = data.apCost.ToString();
             if (_effectText != null) _effectText.text = data.effectDescription;

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5a671613b0e2395419732e0e13f443a7
+guid: 4264e980f5439eb4a8cdc5291f648de4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6729145161441452596
-    second: uncommon-card-frame_0
+      213: -6131311403240233488
+    second: ForwardBomb_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: uncommon-card-frame_0
+      name: ForwardBomb_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 5
         y: 0
-        width: 90
-        height: 110
+        width: 20
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 432a1cd2fd9b26d50800000000000000
-      internalID: 6729145161441452596
+      spriteID: 0f5609a83c439eaa0800000000000000
+      internalID: -6131311403240233488
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      uncommon-card-frame_0: 6729145161441452596
+      ForwardBomb_0: -6131311403240233488
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: c421735ce58b4b44f906d8694704a0d1
+guid: b0d8f6360331f374190b2363d326e965
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8520397886782749779
-    second: uncommon-card-badge_0
+      213: -8721432773681634264
+    second: Thrusts 1 SpriteSheet_0
+  - first:
+      213: 6900825656599686042
+    second: Thrusts 1 SpriteSheet_1
+  - first:
+      213: 1831146204881770394
+    second: Thrusts 1 SpriteSheet_2
+  - first:
+      213: 2473031894494701021
+    second: Thrusts 1 SpriteSheet_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +55,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,23 +122,111 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: uncommon-card-badge_0
+      name: thrusts_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 16
-        height: 16
+        y: 160
+        width: 64
+        height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 35cbcaa2cb88e3670800000000000000
-      internalID: 8520397886782749779
+      spriteID: d58d6a9ae489d8b4c97c8dddd5c6654e
+      internalID: -918435082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thrusts_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 128
+        width: 64
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd56922aa3d7d4d4098da36dd9f229fe
+      internalID: 1833017003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thrusts_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 96
+        width: 64
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e6d764f5880b32438e7c03a86018e5e
+      internalID: -1703386998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thrusts_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 64
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad6704664ac756e40875b3ee49d574b4
+      internalID: -1660621262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thrusts_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 64
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1482d1acd57aa10439fdb3d0c161ee8d
+      internalID: 93158779
       vertices: []
       indices: 
       edges: []
@@ -146,9 +243,15 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":6.0},"gridSpriteSize":{"x":64.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      uncommon-card-badge_0: 8520397886782749779
+      thrusts_0: -918435082
+      thrusts_1: 1833017003
+      thrusts_2: -1703386998
+      thrusts_3: -1660621262
+      thrusts_4: 93158779
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
