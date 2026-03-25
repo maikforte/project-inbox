@@ -18,8 +18,10 @@ namespace InboxZero.Data
         public string cardName;
         public CardType cardType;
         public CardRarity rarity;
+        public CardCharacter character;
         public int apCost;
         [TextArea] public string effectDescription;
+        [TextArea] public string flavorText;
         public List<CardEffect> effects;
         public Sprite icon;
     }

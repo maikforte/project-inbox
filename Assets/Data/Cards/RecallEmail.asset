@@ -11,12 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: RecallEmail
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Recall Email
   cardType: 2
   rarity: 3
+  character: 0
   apCost: 1
   effectDescription: Restore 5 HP. Draw 1 card.
+  flavorText: Unsent. Unseen. Unhinged.
   effects:
   - effectType: 6
     value: 5
@@ -26,3 +28,4 @@ MonoBehaviour:
     value: 1
     statusType: 0
     statusDuration: 0
+  icon: {fileID: 0}

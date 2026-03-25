@@ -15,8 +15,10 @@ MonoBehaviour:
   cardName: CC the CEO
   cardType: 0
   rarity: 2
+  character: 0
   apCost: 2
   effectDescription: Deal 18 damage.
+  flavorText: Suddenly everyone is very available.
   effects:
   - effectType: 0
     value: 18

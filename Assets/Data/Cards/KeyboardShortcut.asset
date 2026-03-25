@@ -11,14 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: KeyboardShortcut
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Keyboard Shortcut
   cardType: 2
   rarity: 2
+  character: 0
   apCost: 0
   effectDescription: Gain 2 AP this turn.
+  flavorText: Ctrl+Alt+Survive.
   effects:
   - effectType: 3
     value: 2
     statusType: 0
     statusDuration: 0
+  icon: {fileID: 0}

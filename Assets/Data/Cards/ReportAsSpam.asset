@@ -11,18 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: ReportAsSpam
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Report as Spam
   cardType: 0
   rarity: 2
+  character: 0
   apCost: 1
-  effectDescription: Deal 8 damage. Apply GUILT (3 stacks) — enemy takes 2 dmg/stack per turn.
+  effectDescription: Deal 8 damage. Apply 1 Guilt stack to enemy.
+  flavorText: Problem solved. Ethically questionable.
   effects:
   - effectType: 0
     value: 8
     statusType: 0
     statusDuration: 0
   - effectType: 4
-    value: 0
+    value: 1
     statusType: 2
-    statusDuration: 3
+    statusDuration: 1
+  icon: {fileID: 0}

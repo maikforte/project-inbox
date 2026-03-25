@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
+  m_Name: BeginnersLuck
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.Data.CardData
+  cardName: Beginner's Luck
+  cardType: 0
+  rarity: 1
+  character: 1
+  apCost: 1
+  effectDescription: Deal 6-18 damage (random).
+  flavorText: They either loved it or said nothing. Same thing.
+  effects:
+  - effectType: 0
+    value: 12
+    statusType: 0
+    statusDuration: 0
+  icon: {fileID: 0}

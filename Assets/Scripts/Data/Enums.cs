@@ -20,6 +20,8 @@ namespace InboxZero.Data
 
     public enum RewardTier { Common, Uncommon, Rare }
 
+    public enum CardCharacter { All, Intern, Manager, Lawyer, Dev, Ghost }
+
     public enum RelicEffectType
     {
         BonusAPOnCombatStart,

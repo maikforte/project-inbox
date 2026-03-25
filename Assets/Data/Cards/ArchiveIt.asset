@@ -15,8 +15,10 @@ MonoBehaviour:
   cardName: Archive It
   cardType: 1
   rarity: 0
+  character: 0
   apCost: 1
   effectDescription: Gain 8 shield.
+  flavorText: Out of sight, out of mind.
   effects:
   - effectType: 1
     value: 8

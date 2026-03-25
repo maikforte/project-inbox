@@ -14,11 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.Data.CardData
   cardName: Reply All
   cardType: 0
-  rarity: 0
-  apCost: 0
-  effectDescription: Deal 9 damage.
+  rarity: 2
+  character: 0
+  apCost: 1
+  effectDescription: Deal 6 damage. Apply 1 Awaiting Reply to the enemy.
+  flavorText: The chaos was intentional.
   effects:
   - effectType: 0
-    value: 9
+    value: 6
     statusType: 0
     statusDuration: 0
+  - effectType: 4
+    value: 1
+    statusType: 3
+    statusDuration: 1
+  icon: {fileID: 0}

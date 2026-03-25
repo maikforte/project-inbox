@@ -11,14 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: ReplyPolitely
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Reply Politely
   cardType: 0
   rarity: 0
+  character: 0
   apCost: 1
   effectDescription: Deal 6 damage.
+  flavorText: Professionally seething.
   effects:
   - effectType: 0
     value: 6
     statusType: 0
     statusDuration: 0
+  icon: {fileID: 0}

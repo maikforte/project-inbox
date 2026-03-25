@@ -15,15 +15,17 @@ MonoBehaviour:
   cardName: Forward Bomb
   cardType: 0
   rarity: 2
+  character: 0
   apCost: 2
-  effectDescription: "Deal 10 damage. Apply UNREAD (2 turns) \u2014 enemy skips attacks."
+  effectDescription: Deal 10 damage. Apply Unread (2 turns) to the enemy.
+  flavorText: Forwarded to 40 people. Watch it burn.
   effects:
   - effectType: 0
     value: 10
     statusType: 0
     statusDuration: 0
   - effectType: 4
-    value: 0
+    value: 1
     statusType: 1
     statusDuration: 2
   icon: {fileID: 21300000, guid: 4264e980f5439eb4a8cdc5291f648de4, type: 3}

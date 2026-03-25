@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
+  m_Name: Synergy
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.Data.CardData
+  cardName: Synergy
+  cardType: 2
+  rarity: 2
+  character: 2
+  apCost: 1
+  effectDescription: Each card played after this one this turn gains +3 damage or
+    +3 shield.
+  flavorText: I want us to really lean into this.
+  effects: []
+  icon: {fileID: 0}

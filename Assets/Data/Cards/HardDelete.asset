@@ -15,8 +15,10 @@ MonoBehaviour:
   cardName: Hard Delete
   cardType: 0
   rarity: 0
+  character: 0
   apCost: 2
   effectDescription: Deal 14 damage.
+  flavorText: Shift+Delete. No recycle bin.
   effects:
   - effectType: 0
     value: 14

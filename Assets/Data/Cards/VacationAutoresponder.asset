@@ -11,12 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: VacationAutoresponder
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Vacation Autoresponder
   cardType: 1
   rarity: 3
+  character: 0
   apCost: 2
   effectDescription: Gain 20 shield. Deal 5 damage.
+  flavorText: Unavailable until further notice. Permanently.
   effects:
   - effectType: 1
     value: 20
@@ -26,3 +28,4 @@ MonoBehaviour:
     value: 5
     statusType: 0
     statusDuration: 0
+  icon: {fileID: 0}
