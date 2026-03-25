@@ -41,6 +41,7 @@ namespace InboxZero.Core
                 }
                 gm.Hand.Add(gm.DrawPile[0]);
                 gm.DrawPile.RemoveAt(0);
+                AudioManager.Instance?.PlayCardDraw();
             }
         }
 

@@ -7078,15 +7078,18 @@ MonoBehaviour:
   enemyHitOverlay: {fileID: 1732384}
   playerHitOverlay: {fileID: 0}
   enemyHitFrames:
-  - {fileID: -918435082, guid: b0d8f6360331f374190b2363d326e965, type: 3}
-  - {fileID: 1833017003, guid: b0d8f6360331f374190b2363d326e965, type: 3}
-  - {fileID: -1703386998, guid: b0d8f6360331f374190b2363d326e965, type: 3}
-  - {fileID: -1660621262, guid: b0d8f6360331f374190b2363d326e965, type: 3}
-  - {fileID: 93158779, guid: b0d8f6360331f374190b2363d326e965, type: 3}
+  - {fileID: 21300000, guid: f305f138551a01d4ba1f0aee6b855463, type: 3}
+  - {fileID: 21300000, guid: 07b6757c7a0f0a94daf2854badd3badd, type: 3}
+  - {fileID: 21300000, guid: 010426583b71b7146b7376f34edd0be3, type: 3}
+  - {fileID: 21300000, guid: a410b2627bcbe074e8cb01b6de52bf3c, type: 3}
+  - {fileID: 21300000, guid: 81176d7b0a56c5e43b3f1763fb37e3f5, type: 3}
+  - {fileID: 21300000, guid: 158d1a227b4e1724aa6573bf488893c5, type: 3}
+  - {fileID: 21300000, guid: 881232082b5de6f448251c050fa63a2f, type: 3}
+  - {fileID: 21300000, guid: 19cf85a531acd97458a92c3601cd9372, type: 3}
   playerHitFrames: []
   panelShakeDuration: 0.22
-  panelShakeMagnitude: 5
-  hitAnimFPS: 18
+  panelShakeMagnitude: 10
+  hitAnimFPS: 12
 --- !u!1 &90000
 GameObject:
   m_ObjectHideFlags: 0
@@ -7194,10 +7197,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1204}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1732384
 MonoBehaviour:
@@ -7219,7 +7222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -918435082, guid: b0d8f6360331f374190b2363d326e965, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f305f138551a01d4ba1f0aee6b855463, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

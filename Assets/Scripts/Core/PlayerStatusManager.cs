@@ -39,6 +39,7 @@ namespace InboxZero.Core
             else
                 _statuses[type] = stacks;
 
+            AudioManager.Instance?.PlayStatusApplied();
             UpdateUI();
         }
 

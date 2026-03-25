@@ -46,7 +46,10 @@ namespace InboxZero.Combat
 
                     case CardEffectType.GainShield:
                         if (executor == EffectExecutor.Player)
+                        {
                             gm.CurrentShield += effect.value;
+                            AudioManager.Instance?.PlayGainShield();
+                        }
                         else
                             ActiveEnemy?.GainShield(effect.value);
                         break;
@@ -77,7 +80,10 @@ namespace InboxZero.Combat
 
                     case CardEffectType.RestoreHP:
                         if (executor == EffectExecutor.Player)
+                        {
                             gm.CurrentHP = Mathf.Min(gm.CurrentHP + effect.value, gm.MaxHP);
+                            AudioManager.Instance?.PlayRestoreHP();
+                        }
                         break;
 
                     case CardEffectType.HealSelf:

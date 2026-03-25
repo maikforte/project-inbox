@@ -139,6 +139,7 @@ namespace InboxZero.Enemies
             {
                 _statuses[type] = duration;
             }
+            AudioManager.Instance?.PlayStatusApplied();
             UpdateUI();
         }
 

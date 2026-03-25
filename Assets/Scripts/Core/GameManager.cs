@@ -74,6 +74,7 @@ namespace InboxZero.Core
             if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
+                AudioManager.Instance?.PlayGameOver();
                 OnPlayerDeath.Invoke();
             }
         }

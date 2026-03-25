@@ -14,9 +14,14 @@ namespace InboxZero.Core
 
         [Header("SFX Clips")]
         public AudioClip cardPlay;
+        public AudioClip cardDraw;
         public AudioClip damageHit;
         public AudioClip shieldBlock;
+        public AudioClip gainShield;
+        public AudioClip restoreHP;
+        public AudioClip statusApplied;
         public AudioClip enemyDeath;
+        public AudioClip gameOver;
         public AudioClip turnEnd;
 
         AudioSource _sfxSource;
@@ -46,11 +51,16 @@ namespace InboxZero.Core
 
         public void StopMusic() => _musicSource.Stop();
 
-        public void PlayCardPlay()    => Play(cardPlay);
-        public void PlayDamageHit()   => Play(damageHit);
-        public void PlayShieldBlock() => Play(shieldBlock);
-        public void PlayEnemyDeath()  => Play(enemyDeath);
-        public void PlayTurnEnd()     => Play(turnEnd);
+        public void PlayCardPlay()      => Play(cardPlay);
+        public void PlayCardDraw()      => Play(cardDraw);
+        public void PlayDamageHit()     => Play(damageHit);
+        public void PlayShieldBlock()   => Play(shieldBlock);
+        public void PlayGainShield()    => Play(gainShield);
+        public void PlayRestoreHP()     => Play(restoreHP);
+        public void PlayStatusApplied() => Play(statusApplied);
+        public void PlayEnemyDeath()    => Play(enemyDeath);
+        public void PlayGameOver()      => Play(gameOver);
+        public void PlayTurnEnd()       => Play(turnEnd);
 
         void Play(AudioClip clip)
         {
