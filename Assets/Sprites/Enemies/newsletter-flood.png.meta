@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 6bbafe6cc7a79a647aa6eb9df40392be
+guid: fda99ab6f7c528c4ab4badc4aba777f1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4178046375966092550
-    second: 4_0
+      213: -6419024824297705333
+    second: newsletter-flood_0
+  - first:
+      213: -5565791491053833475
+    second: newsletter-flood_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,23 +116,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 4_0
+      name: newsletter-flood_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 4
-        width: 16
-        height: 7
+        y: 0
+        width: 256
+        height: 224
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 1, y: 1, z: 1, w: 1}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: af2de6115f89406c0800000000000000
-      internalID: -4178046375966092550
+      spriteID: b8032578eea0be6a0800000000000000
+      internalID: -6419024824297705333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: newsletter-flood_1
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 220
+        width: 11
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df238d1b02652c2b0800000000000000
+      internalID: -5565791491053833475
       vertices: []
       indices: 
       edges: []
@@ -138,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4ab4594f1ca05ae4f96e2443b9c5fac3
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      4_0: -4178046375966092550
+      newsletter-flood_0: -6419024824297705333
+      newsletter-flood_1: -5565791491053833475
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

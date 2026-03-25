@@ -175,8 +175,8 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.17777778
-    width: 2.9875
+    y: 0
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -481,29 +481,33 @@ PrefabInstance:
       propertyPath: m_Name
       value: Card
       objectReference: {fileID: 0}
+    - target: {fileID: 1350326413667507213, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d054ef1141d02884884b0cabc2eee9bd, type: 3}
     - target: {fileID: 1678782708127502451, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 306cae1a5546ae546b54452403cbc1db, type: 3}
+      objectReference: {fileID: 21300000, guid: 10caa0db958392740bdad915057d8128, type: 3}
     - target: {fileID: 1678782708127502451, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
-      propertyPath: m_PreserveAspect
+      propertyPath: m_Color.a
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2630227065039013698, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+    - target: {fileID: 5068379257010091517, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 36
+      objectReference: {fileID: 0}
+    - target: {fileID: 5068379257010091517, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 52
+      objectReference: {fileID: 0}
+    - target: {fileID: 5068379257010091517, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5068379257010091517, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1.4449997
-      objectReference: {fileID: 0}
-    - target: {fileID: 6554047385065318624, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
-      propertyPath: _icon
-      value: 
-      objectReference: {fileID: 1638496894}
-    - target: {fileID: 7207276707097481069, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
-      propertyPath: m_fontSize
-      value: 14
-      objectReference: {fileID: 0}
-    - target: {fileID: 7207276707097481069, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 14
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8124500452025780558, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_Pivot.x
@@ -531,11 +535,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8124500452025780558, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 90
+      value: 48
       objectReference: {fileID: 0}
     - target: {fileID: 8124500452025780558, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 110
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 8124500452025780558, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1528,17 +1532,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: 29653a1b251e4d54183557573c53728f, type: 3}
   m_PrefabInstance: {fileID: 538619469}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1638496894 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1678782708127502451, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
-  m_PrefabInstance: {fileID: 310355891}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &1855972533
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -29,8 +29,8 @@ namespace InboxZero.UI
 
         public bool IsDiscardMode { get; private set; }
 
-        const float CardWidth   = 90f;
-        const float CardHeight  = 110f;
+        const float CardWidth   = 48f;
+        const float CardHeight  = 64f;
         const float MinSpacing  = 30f;
         const float MaxSpacing  = 94f;
 

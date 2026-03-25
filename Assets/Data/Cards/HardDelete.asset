@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a07df9baa64c6854ca7f7971a5d73592, type: 3}
   m_Name: HardDelete
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   cardName: Hard Delete
   cardType: 0
   rarity: 0
@@ -22,3 +22,4 @@ MonoBehaviour:
     value: 14
     statusType: 0
     statusDuration: 0
+  icon: {fileID: 21300000, guid: 10caa0db958392740bdad915057d8128, type: 3}

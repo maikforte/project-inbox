@@ -17,6 +17,7 @@ namespace InboxZero.Enemies
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI hpText;
         public Image hpBarFill;
+        public Image portraitImage;
         public TextMeshProUGUI statusText;
         [SerializeField] InboxZero.UI.StatusChipDisplay statusChipDisplay;
 
@@ -60,6 +61,12 @@ namespace InboxZero.Enemies
             _fillTarget = _fillDisplay = 1f;
 
             _currentShield = 0;
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite  = data.portrait;
+                portraitImage.enabled = data.portrait != null;
+            }
 
             CardEffectResolver.ActiveTarget = this;
             CardEffectResolver.ActiveEnemy  = this;

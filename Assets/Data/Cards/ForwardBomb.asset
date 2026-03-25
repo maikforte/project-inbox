@@ -26,4 +26,4 @@ MonoBehaviour:
     value: 0
     statusType: 1
     statusDuration: 2
-  icon: {fileID: -6131311403240233488, guid: 4264e980f5439eb4a8cdc5291f648de4, type: 3}
+  icon: {fileID: 21300000, guid: 4264e980f5439eb4a8cdc5291f648de4, type: 3}
