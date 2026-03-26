@@ -1319,7 +1319,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 15}
-  m_SizeDelta: {x: -330, y: 90}
+  m_SizeDelta: {x: -232.97, y: 90}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1405
 MonoBehaviour:
@@ -4303,7 +4303,7 @@ MonoBehaviour:
   musicVolume: 0.5
   cardPlay: {fileID: 8300000, guid: d7e655c89f5303e4299a3631945758c1, type: 3}
   cardDraw: {fileID: 8300000, guid: e2d55e60bba72064aab9f50e3970531e, type: 3}
-  damageHit: {fileID: 0}
+  damageHit: {fileID: 8300000, guid: 159bc3ff4e031064aa93e4858ebddb05, type: 3}
   shieldBlock: {fileID: 0}
   gainShield: {fileID: 0}
   restoreHP: {fileID: 0}
@@ -7083,7 +7083,7 @@ MonoBehaviour:
   enemyPanel: {fileID: 1204}
   playerPanel: {fileID: 1304}
   enemyHitOverlay: {fileID: 1732384}
-  playerHitOverlay: {fileID: 0}
+  playerHitOverlay: {fileID: 1904047475}
   enemyHitFrames:
   - {fileID: 21300000, guid: f305f138551a01d4ba1f0aee6b855463, type: 3}
   - {fileID: 21300000, guid: 07b6757c7a0f0a94daf2854badd3badd, type: 3}
@@ -7894,9 +7894,9 @@ RectTransform:
   - {fileID: 1738330648}
   m_Father: {fileID: 1004}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 255.8, y: -65.67}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -15, y: 15}
   m_SizeDelta: {x: 13.630005, y: 18.660004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &263559084
@@ -7932,7 +7932,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 0659da748895e6c46888894d05b0bb27, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

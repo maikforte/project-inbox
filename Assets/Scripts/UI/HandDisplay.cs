@@ -30,8 +30,6 @@ namespace InboxZero.UI
 
         public bool IsDiscardMode { get; private set; }
 
-        const float CardWidth   = 48f;
-        const float CardHeight  = 64f;
         const float MinSpacing  = 30f;
         const float MaxSpacing  = 94f;
 
@@ -248,7 +246,6 @@ namespace InboxZero.UI
             var rt   = (RectTransform)view.transform;
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(CardWidth, CardHeight);
 
             view.Populate(data);
             _cards.Add(view);
@@ -256,18 +253,21 @@ namespace InboxZero.UI
 
         void RepositionAll()
         {
-            int   total      = _cards.Count;
+            int total = _cards.Count;
+            if (total == 0) return;
+
+            float cardW      = ((RectTransform)_cards[0].transform).rect.width;
             float containerW = cardContainer != null ? cardContainer.rect.width : 500f;
             if (containerW <= 1f) containerW = 500f;
 
             float spacing   = total <= 1 ? 0f
-                : Mathf.Clamp((containerW - CardWidth) / (total - 1), MinSpacing, MaxSpacing);
-            float totalSpan = CardWidth + (total - 1) * spacing;
+                : Mathf.Clamp((containerW - cardW) / (total - 1), MinSpacing, MaxSpacing);
+            float totalSpan = cardW + (total - 1) * spacing;
 
             for (int i = 0; i < _cards.Count; i++)
             {
                 if (_cards[i] == null) continue;
-                float x = -totalSpan * 0.5f + CardWidth * 0.5f + i * spacing;
+                float x = -totalSpan * 0.5f + cardW * 0.5f + i * spacing;
                 ((RectTransform)_cards[i].transform).anchoredPosition = new Vector2(x, 0);
             }
         }
