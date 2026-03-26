@@ -146,3 +146,4 @@ Each task is sized to be a single prompt session.
 
 - **2026-03-15 · Inbox as Hub**: Floor map replaced by persistent Gmail-style Inbox screen. All encounters visible upfront. "Floors" → "Levels" in UI.
 - **2026-03-26 · Roguelite Reward Overhaul**: Chance-based drops + collection pool replaced by guaranteed 3-card pick per win. Card unlock system added (enemy-tier gates, signature drops, behavior unlocks). Main menu card pool toggle added.
+- **2026-03-26 · Screen Ownership Split**: Main Menu is now the pre-run config hub (card pool toggle, unlocks, character select). InboxLayout is shown only during an active run. Inbox tabs act as run paths: Inbox = main combat path, other tabs (Spam, Sent, Promotions, etc.) = optional side paths for relics/events/shops. No explicit map node graph — the inbox IS the map.

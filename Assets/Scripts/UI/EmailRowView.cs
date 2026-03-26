@@ -16,10 +16,10 @@ namespace InboxZero.UI
         public Button             button;
 
         // ── Palette (matches FloorMapScreen / InboxScreen) ────────────────────
-        static readonly Color C_TextDark  = new Color(0.13f, 0.13f, 0.14f);
-        static readonly Color C_TextMid   = new Color(0.37f, 0.39f, 0.41f);
-        static readonly Color C_TextLight = new Color(0.62f, 0.64f, 0.67f);
-        static readonly Color C_Accent    = new Color(0.10f, 0.45f, 0.91f);
+        static readonly Color C_TextDark  = new Color(1.00f, 1.00f, 1.00f);   // unread — white
+        static readonly Color C_TextMid   = new Color(0.75f, 0.75f, 0.78f);   // read sender
+        static readonly Color C_TextLight = new Color(0.50f, 0.50f, 0.55f);   // dim / date
+        static readonly Color C_Accent    = new Color(0.10f, 0.45f, 0.91f);   // blue dot
 
         public void Bind(RoomOption opt, int floorDay)
         {

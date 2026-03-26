@@ -19,7 +19,14 @@
 - **Attack card animation:** Attack cards reparent to the canvas root and fly to `enemy.portraitImage.transform.position` (ease-in, 0.14s), then shrink+fade at the impact point (0.14s). `CardEffectResolver.Resolve()` fires **at impact**, not on click. Non-attack cards resolve immediately on click then slide-up-fade in place.
 - **AudioManager SFX:** Methods available — `PlayCardPlay()`, `PlayCardDraw()`, `PlayDamageHit()`, `PlayShieldBlock()`, `PlayGainShield()`, `PlayRestoreHP()`, `PlayStatusApplied()`, `PlayEnemyDeath()`, `PlayGameOver()`. All call sites use null-safe `AudioManager.Instance?.Play…()` pattern.
 - **Panel frame consistency:** All panel and container backgrounds must use the same 9-sliced frame sprite used by `PlayerPanel` (the Image on PlayerPanel itself) and `EnemyPanel > Frame`. Do not introduce new panel styles for new screens. Apply it by swapping the sprite reference on the `Image` component — no layout changes needed.
-- **Inbox UI architecture (SPA pattern):** The inbox screen uses a single-page-app pattern. `InboxLayout.prefab` provides the persistent chrome (top bar + sidebar). Each sidebar nav item swaps a *page prefab* into the `ContentArea` `RectTransform`. Current pages: `DraftsPage.prefab` (deck builder, shown by `DeckBuilderScreen.ShowInContent`), `AllMailPanel.prefab` (card compendium, shown by `AllMailScreen`). Each prefab has a *View component* (`DraftsPageView`, `AllMailPanelView`, `LayoutView`) that exposes serialized child references — scripts read these refs at runtime instead of using `GetComponentInChildren`. **Never run a builder MenuItem (`InboxZero → Rebuild … Prefab`) on a prefab that has been customized in the inspector — it will wipe those customizations.** Only run builders to create a prefab from scratch.
+- **Screen ownership — Main Menu vs. InboxLayout:**
+  - **Main Menu** is the pre-run hub. All configuration that persists across runs lives here: card unlock state (All Mail compendium), card pool enable/disable toggles, character selection, and any future meta-progression options. Nothing in the main menu depends on an active run.
+  - **InboxLayout** is shown *only during an active run*. It is the run's navigation hub — equivalent to Slay the Spire's map, but without a visible map node graph. The inbox tabs act as path selectors:
+    - **Inbox** (primary tab) — the main combat path. Each row is a combat encounter, ordered by encounter sequence.
+    - **Other tabs** (Spam, Sent, Promotions, etc.) — side paths. Each tab represents a different type of detour: relics, events, rest stops, shops, or other future encounter types. Clicking a row in a side tab is the equivalent of taking an optional branch.
+  - The row-click model is universal: any row in any tab can resolve to any encounter type (combat, relic pickup, rest, event, shop). The tab just signals the general *flavour* of what is inside.
+  - This mirrors the Megabonk / Monster Train model: choose your character/loadout before the run, then navigate the run through the inbox UI itself — no separate floor-map screen.
+- **Inbox UI architecture (SPA pattern):** `InboxLayout.prefab` provides the persistent chrome (top bar + sidebar). Each sidebar nav item swaps a *page prefab* into the `ContentArea` `RectTransform`. Current pages: `DraftsPage.prefab` (deck builder, shown by `DeckBuilderScreen.ShowInContent`), `AllMailPanel.prefab` (card compendium, shown by `AllMailScreen`). Each prefab has a *View component* (`DraftsPageView`, `AllMailPanelView`, `LayoutView`) that exposes serialized child references — scripts read these refs at runtime instead of using `GetComponentInChildren`. **Never run a builder MenuItem (`InboxZero → Rebuild … Prefab`) on a prefab that has been customized in the inspector — it will wipe those customizations.** Only run builders to create a prefab from scratch.
 
 ## How to Test After Each Task
 
@@ -207,14 +214,29 @@ Ideas worth considering for later tasks — not yet implemented:
 | **Card Selling** | At rest stops, you can permanently delete a card from the collection pool in exchange for +5 HP ("unsubscribe from the mailing list") |
 | **Forwarded Cards** | Some drops are "forwarded" — they have a one-time use bonus effect the first time they are played, then become a normal card |
 
-### The Inbox Structure
+### Pre-Run Flow (Main Menu)
 
-The **Inbox screen** (Gmail-style) is the primary navigation hub. On starting a new game and after every combat:
-1. The Inbox screen is shown — all emails for the current level are listed as rows (sender, subject, preview)
-2. The player clicks any email to fight that enemy
-3. After winning → **card reward screen** — choose 1 of 3 cards to add (or skip) → return to Inbox
-4. Rest Stop emails appear in the list too; clicking one heals 15 HP and removes it from the Inbox
-5. When all emails in the Inbox are cleared → level complete, relic drop if applicable, next level's Inbox loads
+Before a run begins, the player configures their run from the **Main Menu**:
+1. Select character (future feature — currently one character)
+2. Review and toggle the card pool via **All Mail** (unlocked cards only; Starter cards always on)
+3. Press **Start Run** → InboxLayout loads and the run begins
+
+All configuration that persists across runs (unlock state, card pool toggles) is handled here. Nothing in InboxLayout changes meta-state.
+
+### The Inbox Structure (during a run)
+
+The **InboxLayout** is the run's navigation hub — the equivalent of Slay the Spire's map, but expressed as a Gmail inbox. There is no explicit node graph.
+
+**Tab structure:**
+- **Inbox** — the primary combat path. All main-path encounters are listed here as email rows. Rows resolve in order (the player cannot skip ahead).
+- **Other tabs** (Spam, Sent, Promotions, etc.) — optional side paths. Each tab has a distinct flavour:
+  - *Spam* → ambushes or high-risk/high-reward fights
+  - *Sent* → events or narrative choices
+  - *Promotions* → shops or relic offers
+  - *(Future tabs TBD)* — the system is extensible; new tabs map to new encounter types
+- Clicking a row in *any* tab resolves that encounter (combat, relic, rest, event, shop)
+- Side-tab rows are optional — the player can ignore them and advance through Inbox only
+- When all Inbox rows for a level are cleared → level complete, relic drop if applicable, next level loads
 
 ### The Level Structure
 

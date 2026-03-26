@@ -25,18 +25,18 @@ namespace InboxZero.UI
         /// Fired when the player clicks Done.
         public UnityEvent OnComplete = new UnityEvent();
 
-        // ── Gmail-style colour palette (matches FloorMapScreen) ───────────────
-        static readonly Color BgColor       = new Color(0.961f, 0.961f, 0.961f); // #F5F5F5
-        static readonly Color TopBarColor   = new Color(0.914f, 0.941f, 0.984f); // #E9F0FB
-        static readonly Color ColHeaderBg   = new Color(0.930f, 0.930f, 0.930f); // #EDEDED
-        static readonly Color RowBg         = new Color(0.996f, 0.996f, 0.996f); // near-white
-        static readonly Color RowHoverColor = new Color(0.910f, 0.941f, 0.996f); // #E8F0FE
-        static readonly Color DividerColor  = new Color(0.855f, 0.855f, 0.855f); // #DADADA
-        static readonly Color AccentColor   = new Color(0.102f, 0.451f, 0.910f); // #1A73E8
-        static readonly Color TextDark      = new Color(0.13f,  0.13f,  0.13f);
-        static readonly Color TextMedium    = new Color(0.40f,  0.40f,  0.40f);
-        static readonly Color TextLight     = new Color(0.60f,  0.60f,  0.60f);
-        static readonly Color ErrorColor    = new Color(0.82f,  0.13f,  0.13f);
+        // ── Dark theme palette ────────────────────────────────────────────────
+        static readonly Color BgColor       = new Color(0.08f,  0.06f,  0.10f);
+        static readonly Color TopBarColor   = new Color(0.12f,  0.10f,  0.15f);
+        static readonly Color ColHeaderBg   = new Color(0.15f,  0.13f,  0.18f);
+        static readonly Color RowBg         = new Color(0.10f,  0.08f,  0.12f);
+        static readonly Color RowHoverColor = new Color(0.20f,  0.17f,  0.26f);
+        static readonly Color DividerColor  = new Color(0.22f,  0.20f,  0.25f);
+        static readonly Color AccentColor   = new Color(0.102f, 0.451f, 0.910f);
+        static readonly Color TextDark      = new Color(1.00f,  1.00f,  1.00f);
+        static readonly Color TextMedium    = new Color(0.75f,  0.75f,  0.78f);
+        static readonly Color TextLight     = new Color(0.50f,  0.50f,  0.55f);
+        static readonly Color ErrorColor    = new Color(0.96f,  0.36f,  0.36f);
 
         static readonly Color AttackColor  = new Color(0.83f, 0.18f, 0.18f);
         static readonly Color DefendColor  = new Color(0.20f, 0.66f, 0.32f);
@@ -310,12 +310,12 @@ namespace InboxZero.UI
             {
                 rowGo = Instantiate(cardRowPrefab, parent, false);
                 rowGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, yPos);
-                rowGo.GetComponent<CardRowView>()?.Bind(card, true);
+                rowGo.GetComponent<CardRowView>()?.Bind(card, isUnlocked: true, isEnabled: true, onToggle: null);
 
                 var prefabBtn      = rowGo.AddComponent<Button>();
                 var prefabCaptured = card;
                 prefabBtn.onClick.AddListener(isDeckCard ? () => OnRemoveCard(prefabCaptured) : () => OnAddCard(prefabCaptured));
-                SetButtonColors(prefabBtn, Color.white, RowHoverColor, new Color(0.85f, 0.90f, 0.98f));
+                SetButtonColors(prefabBtn, new Color(0, 0, 0, 0), RowHoverColor, new Color(0.20f, 0.17f, 0.30f));
                 return;
             }
 
@@ -384,7 +384,7 @@ namespace InboxZero.UI
             var btn = rowGo.AddComponent<Button>();
             var captured = card;
             btn.onClick.AddListener(isDeckCard ? () => OnRemoveCard(captured) : () => OnAddCard(captured));
-            SetButtonColors(btn, Color.white, RowHoverColor, new Color(0.85f, 0.90f, 0.98f));
+            SetButtonColors(btn, new Color(0, 0, 0, 0), RowHoverColor, new Color(0.20f, 0.17f, 0.30f));
         }
 
         void SetContentHeight(RectTransform content, int rowCount)

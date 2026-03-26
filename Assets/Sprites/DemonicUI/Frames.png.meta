@@ -768,7 +768,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -2701,13 +2701,13 @@ TextureImporter:
       name: Frames_86
       rect:
         serializedVersion: 2
-        x: 66
-        y: 256
-        width: 45
-        height: 46
+        x: 67
+        y: 257
+        width: 43
+        height: 44
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 4, y: 5, z: 4, w: 5}
       customData: 
       outline: []
       physicsShape: []

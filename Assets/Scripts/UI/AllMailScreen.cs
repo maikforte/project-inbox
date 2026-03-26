@@ -63,10 +63,10 @@ namespace InboxZero.UI
 
         void BuildPanel(Transform parent)
         {
-            if (parent == null)     { Debug.LogError("[AllMailScreen] No parent to render into.");       return; }
-            if (registry == null)   { Debug.LogWarning("[AllMailScreen] No AllCardsRegistry assigned."); return; }
-            if (panelPrefab == null){ Debug.LogError("[AllMailScreen] panelPrefab not assigned.");       return; }
-            if (cardRowPrefab == null){ Debug.LogError("[AllMailScreen] cardRowPrefab not assigned.");   return; }
+            if (parent == null)       { Debug.LogError("[AllMailScreen] No parent to render into.");       return; }
+            if (registry == null)     { Debug.LogWarning("[AllMailScreen] No AllCardsRegistry assigned."); return; }
+            if (panelPrefab == null)  { Debug.LogError("[AllMailScreen] panelPrefab not assigned.");       return; }
+            if (cardRowPrefab == null){ Debug.LogError("[AllMailScreen] cardRowPrefab not assigned.");     return; }
 
             _panel = Instantiate(panelPrefab, parent, false);
 
@@ -77,15 +77,15 @@ namespace InboxZero.UI
             if (view.closeButton != null)
                 view.closeButton.onClick.AddListener(OnCloseClicked);
 
-            // Populate dynamic labels
-            var owned      = GetOwnedCards();
-            int total      = registry.allCards.Count;
-            int ownedCount = 0;
+            // Count unlocked cards for header
+            var um = UnlockManager.Instance;
+            int total         = registry.allCards.Count;
+            int unlockedCount = 0;
             foreach (var c in registry.allCards)
-                if (owned.Contains(c)) ownedCount++;
+                if (um == null || um.IsUnlocked(c)) unlockedCount++;
 
             if (view.statsLabel != null)
-                view.statsLabel.text = $"ALL MAIL  {ownedCount} / {total}";
+                view.statsLabel.text = $"ALL MAIL  {unlockedCount} / {total} UNLOCKED";
             if (view.columnHeaderLabel != null)
                 view.columnHeaderLabel.text = $"ALL CARDS  ({total})";
 
@@ -100,18 +100,21 @@ namespace InboxZero.UI
             // Populate scroll rows
             if (view.scrollContent != null)
             {
-                // Row height comes from the prefab — changing it there changes the layout automatically
                 float rowH = cardRowPrefab.GetComponent<RectTransform>().sizeDelta.y;
 
                 for (int i = 0; i < cards.Count; i++)
                 {
+                    var card   = cards[i];
                     var rowGo  = Instantiate(cardRowPrefab, view.scrollContent, false);
                     var rowRt  = rowGo.GetComponent<RectTransform>();
                     rowRt.anchoredPosition = new Vector2(0, -i * rowH);
 
+                    bool isUnlocked = um == null || um.IsUnlocked(card);
+                    bool isEnabled  = um == null || um.IsEnabled(card);
+
                     var rowView = rowGo.GetComponent<CardRowView>();
                     if (rowView != null)
-                        rowView.Bind(cards[i], owned.Contains(cards[i]));
+                        rowView.Bind(card, isUnlocked, isEnabled, enabled => um?.SetEnabled(card, enabled));
                 }
 
                 view.scrollContent.sizeDelta = new Vector2(0, cards.Count * rowH);
@@ -126,17 +129,5 @@ namespace InboxZero.UI
             OnClose.Invoke();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
-
-        static HashSet<CardData> GetOwnedCards()
-        {
-            var gm    = GameManager.Instance;
-            var owned = new HashSet<CardData>();
-            owned.UnionWith(gm.DrawPile);
-            owned.UnionWith(gm.Hand);
-            owned.UnionWith(gm.DiscardPile);
-            owned.UnionWith(gm.CardCollection);
-            return owned;
-        }
     }
 }
