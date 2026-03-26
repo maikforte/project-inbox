@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using InboxZero.Core;
 using InboxZero.Data;
@@ -83,16 +84,69 @@ namespace InboxZero.UI
         // ── Hand management ───────────────────────────────────────────────────
 
         /// Appends any cards in GameManager.Hand that don't yet have a CardView,
-        /// then repositions all cards. Called every turn start.
+        /// repositions all cards, then animates newly added ones from the deck.
         public void RefreshHand()
         {
             var hand = GameManager.Instance.Hand;
+            int prevCount = _cards.Count;
 
-            // Append views for newly drawn cards (hand grew since last refresh).
-            for (int i = _cards.Count; i < hand.Count; i++)
+            for (int i = prevCount; i < hand.Count; i++)
                 AppendCard(hand[i]);
 
             RepositionAll();
+
+            // Animate newly added cards flying in from the deck.
+            if (DeckWidget.Instance != null)
+            {
+                for (int i = prevCount; i < _cards.Count; i++)
+                {
+                    if (_cards[i] == null) continue;
+                    var rt = (RectTransform)_cards[i].transform;
+                    Vector2 target = rt.anchoredPosition;
+                    StartCoroutine(AnimateCardDraw(rt, target, i - prevCount));
+                }
+            }
+        }
+
+        IEnumerator AnimateCardDraw(RectTransform rt, Vector2 target, int index)
+        {
+            if (rt == null) yield break;
+
+            // Stagger each card slightly so multiple draws feel sequential.
+            if (index > 0) yield return new WaitForSeconds(index * 0.07f);
+            if (rt == null) yield break;
+
+            // Teleport card to deck position (in cardContainer local space).
+            rt.anchoredPosition = GetDeckLocalPos();
+
+            const float Duration = 0.2f;
+            float t = 0f;
+            Vector2 start = rt.anchoredPosition;
+            while (t < Duration)
+            {
+                if (rt == null) yield break;
+                t += Time.deltaTime;
+                float p = 1f - Mathf.Pow(1f - Mathf.Clamp01(t / Duration), 3f); // ease-out cubic
+                rt.anchoredPosition = Vector2.Lerp(start, target, p);
+                yield return null;
+            }
+
+            if (rt != null) rt.anchoredPosition = target;
+        }
+
+        Vector2 GetDeckLocalPos()
+        {
+            var deckRT = DeckWidget.Instance != null
+                ? (RectTransform)DeckWidget.Instance.transform
+                : null;
+            if (deckRT == null || cardContainer == null) return Vector2.zero;
+
+            var canvas = cardContainer.GetComponentInParent<Canvas>();
+            var cam    = canvas != null ? canvas.worldCamera : null;
+
+            Vector2 screen = RectTransformUtility.WorldToScreenPoint(cam, deckRT.position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(cardContainer, screen, cam, out Vector2 local);
+            return local;
         }
 
         public void RemoveCard(CardView view)
