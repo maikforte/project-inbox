@@ -4299,15 +4299,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5a2c6f1e4b8d5a2c6f1e4b8d5a2c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleMusic: {fileID: 8300000, guid: f3f7a6f688614744d8e237b8e21134b4, type: 3}
-  musicVolume: 0.5
+  battleMusic: {fileID: 8300000, guid: 4a5e43a3f2a2dc941a7c59f19ad8b91b, type: 3}
+  musicVolume: 0.3
   cardPlay: {fileID: 8300000, guid: d7e655c89f5303e4299a3631945758c1, type: 3}
   cardDraw: {fileID: 8300000, guid: e2d55e60bba72064aab9f50e3970531e, type: 3}
   damageHit: {fileID: 8300000, guid: 159bc3ff4e031064aa93e4858ebddb05, type: 3}
   shieldBlock: {fileID: 0}
-  gainShield: {fileID: 0}
-  restoreHP: {fileID: 0}
-  statusApplied: {fileID: 0}
+  gainShield: {fileID: 8300000, guid: bfd020a74ab7e9143b3bfea3f380f764, type: 3}
+  restoreHP: {fileID: 8300000, guid: 13fe616bface09b4d9a3bf2e14219179, type: 3}
+  statusApplied: {fileID: 8300000, guid: 705c20544a580874aad306fedd6857fe, type: 3}
   enemyDeath: {fileID: 0}
   gameOver: {fileID: 0}
   turnEnd: {fileID: 0}

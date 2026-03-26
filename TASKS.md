@@ -3,235 +3,146 @@
 Tasks are ordered by priority. Complete the game loop first before content and polish.
 Each task is sized to be a single prompt session.
 
-**Status legend:** `[ ]` todo · `[x]` done · `[~]` in progress
+**Status legend:** `[ ]` todo · `[x]` done · `[~]` in progress · `[!]` superseded
 
 ---
 
-## MILESTONE 1 — Core Combat Loop (Playable Combat)
+## MILESTONE 1 — Core Combat Loop ✓
+- [x] TASK-01 · CardData, EnemyData, RelicData ScriptableObjects
+- [x] TASK-02 · GameManager singleton & run state
+- [x] TASK-03 · Combat scene UI layout (enemy panel, player panel, hand area, end turn button)
+- [x] TASK-04 · DeckManager (shuffle, draw, discard, reshuffle)
+- [x] TASK-05 · TurnManager (player/enemy turn flow, AP system)
+- [x] TASK-06 · Card UI & playing cards (click to play, hover preview)
+- [x] TASK-07 · Basic card effects (DealDamage, GainShield, DrawCards, GainAP)
+- [x] TASK-08 · EnemyController (stats display, attack, regen, death)
+- [x] TASK-09 · Combat win/lose states
 
-- [x] **TASK-01 · Data Models**
-  Define `CardData`, `EnemyData`, and `RelicData` as ScriptableObjects.
-  Fields per spec in CLAUDE.md. No game logic — data only.
+## MILESTONE 2 — Run Structure ✓
+- [x] TASK-10 · Card reward screen
+- [x] TASK-11 · Floor map & room selection
+- [x] TASK-12 · Rest stop room
+- [x] TASK-13 · Floor transition & relic award
+- [x] TASK-13B · Scene wiring & first playtest
 
-- [x] **TASK-02 · Game Manager & Run State**
-  Singleton `GameManager` tracking: current HP, max HP, current AP, deck list, hand, discard, active relics, current floor, current room.
-  No UI — pure state.
+## MILESTONE 3 — Status Effects & Starter Content ✓
+- [x] TASK-14 · Status effects (Unread, Guilt, Awaiting Reply) + UI chips
+- [x] TASK-15 · All 9 starter deck cards
+- [x] TASK-16 · Floor 1 enemies (Newsletter Flood, Calendar Invite)
+- [x] TASK-17 · Floor 2 enemies + Uncommon cards
+- [x] TASK-18 · Floor 3 enemies + Rare cards
+- [x] TASK-19 · Floor 4 boss (The Thread That Never Ends)
 
-- [x] **TASK-03 · Combat Scene UI Layout**
-  Build the combat scene canvas (640×360):
-  - Enemy panel (name, HP bar, status icons area)
-  - Player panel (HP bar, AP pips, shield display)
-  - Hand area (card slots at bottom)
-  - End Turn button
-  Use Graybox2D sprites and Micro5 font. No logic yet — layout only.
+## MILESTONE 4 — Relics ✓
+- [x] TASK-20 · RelicManager + Paperclip relic
+- [x] TASK-21 · All 5 acquirable relics
 
-- [x] **TASK-04 · Deck & Hand System**
-  `DeckManager`: shuffle draw pile, draw N cards into hand, discard hand at end of turn, reshuffle discard into draw pile when empty.
-  Wire up to GameManager.
+## MILESTONE 5 — Game Screens ✓
+- [x] TASK-22 · Main menu (Start Run)
+- [x] TASK-23 · Game Over screen
+- [x] TASK-24 · Victory screen
+- [x] TASK-29 · Main menu expanded (New Game, Options, Exit)
+- [x] TASK-30 · Inbox as hub (Gmail-style, all encounters per level)
 
-- [x] **TASK-05 · Turn & AP System**
-  `TurnManager`: player turn start (draw 5, gain 3 AP), end turn button triggers enemy turn, enemy turn end returns to player.
-  AP spend/refund logic. Block card play when AP insufficient.
+## MILESTONE 5B — Card Mechanics Redesign ✓
+- [x] TASK-31 · Persistent hand & draw-1 system
+- [x] TASK-32 · Max hand size (7) & overflow discard
+- [x] TASK-33 · Deck composition limits (Uncommon ≤4, Rare ≤2, max 15 cards)
+- [!] TASK-34 · Chance-based card drop system → **superseded by TASK-38**
+- [!] TASK-35 · Deck builder at rest stops (collection pool) → **superseded by TASK-38**
+- [!] TASK-36 · DRAFTS inbox sidebar (collection pool UI) → **superseded by TASK-38**
+- [x] TASK-37 · ALL MAIL compendium screen
 
-- [x] **TASK-06 · Card UI & Playing Cards**
-  Instantiate hand cards as UI elements. Card shows name, cost, type color, effect text.
-  Click to play: deduct AP, trigger effect, move card to discard.
-  Hover to preview full card.
+## MILESTONE 6 — Polish ✓
+- [x] TASK-25 · Card animations & visual feedback
+- [x] TASK-26 · SFX (card play, damage, shield, death, draw, heal, status, game over)
 
-- [x] **TASK-07 · Basic Card Effects**
-  Implement effect handlers for: `DealDamage`, `GainShield`, `DrawCards`, `GainAP`.
-  Shield absorbs damage before HP; resets to 0 at end of player turn.
-
-- [x] **TASK-08 · Enemy Combat Logic**
-  `EnemyController`: display enemy stats, attack player each enemy turn (respects shield), apply regen at end of enemy turn, die when HP ≤ 0.
-
-- [x] **TASK-09 · Combat Win / Lose**
-  On enemy death → show "Victory" state, pause for input.
-  On player HP ≤ 0 → trigger Game Over.
-  Both states block further input.
-
----
-
-## MILESTONE 2 — Run Structure (Full Floor Loop)
-
-- [x] **TASK-10 · Card Reward Screen**
-  After combat victory: show 3 random cards drawn from the reward pool (filtered by floor tier). Player picks 1 to add to deck, or skips. Then advance to room selection.
-
-- [x] **TASK-11 · Floor Map & Room Selection**
-  After reward screen: show 2–3 room options for next room (combat, rest stop icons).
-  Player picks one. Track room progress (4 rooms per floor).
-
-- [x] **TASK-12 · Rest Stop Room**
-  Non-combat room: display flavour text, restore 15 HP (capped at max HP), advance to next room.
-
-- [x] **TASK-13 · Floor Transition**
-  After Room 4 of a floor: show floor-cleared message, award a relic (Floors 2 and 3 only), then load next floor.
-  On Floor 4 Room 1 cleared → trigger Victory.
-
-- [x] **TASK-13B · Scene Wiring & First Playtest**
-  Place all manager GameObjects in CombatScene. Create a `CombatSetup` script that wires all UnityEvents in code.
-  Create minimum viable test content: 3 starter cards (SOs) and 1 test enemy (SO).
-  Connect End Turn button. Result: pressing Play runs a real combat encounter end-to-end.
+## MILESTONE 7 — Visual Polish ✓
+- [x] TASK-27 · Status effect label chips
+- [x] TASK-28 · Consistent 9-sliced sprite across all panels
 
 ---
 
-## MILESTONE 3 — Status Effects & Starter Content
+## MILESTONE 8 — Roguelite Reward System
 
-- [x] **TASK-14 · Status Effects System**
-  Implement `Unread` (enemy skips attack, ticks down each enemy turn), `Guilt` (2 dmg/turn to afflicted, stackable), `Awaiting Reply` (player loses 1 AP next turn per stack).
-  Status icon display on enemy/player panel.
+> Replaces the chance-based drop + collection pool model. Every win guarantees a 3-card pick. Cards enter the deck immediately. A meta-unlock system gates which cards can drop.
 
-- [x] **TASK-15 · All Starter Cards**
-  Implement and create ScriptableObjects for all 9 starter deck cards:
-  Reply Politely, Archive It (×2), Hard Delete, Mark as Read (×2), Unsubscribe, Set Filter.
+> **UI convention for all new screens in this milestone and beyond:** All panel/container backgrounds must use the same 9-sliced frame sprite as `PlayerPanel` (Image on the GO itself) and `EnemyPanel > Frame`. Do not introduce new panel styles. Swap the sprite reference on the `Image` component — no layout changes needed.
 
-- [x] **TASK-16 · Floor 1 Enemies**
-  Create EnemyData ScriptableObjects and wire combat for:
-  - Newsletter Flood (28 HP, 5 dmg/turn)
-  - Calendar Invite (22 HP, 7 dmg/turn)
+- [ ] **TASK-38 · Guaranteed 3-Card Reward**
+  Rework the post-combat reward flow:
+  - Every enemy defeat shows exactly 3 cards — pick 1, it enters the active deck immediately
+  - Card rarity offered based on enemy tier: Common → Common only, Uncommon → Common/Uncommon, Rare → Uncommon/Rare, Boss → Rare guaranteed
+  - Remove `GameManager.CardCollection` (collection pool no longer exists)
+  - Remove deck builder screen from rest stops and level transitions (no longer needed)
+  - Deck composition limits from TASK-33 still apply — grey out cards that would violate them
 
-- [x] **TASK-17 · Floor 2 Enemies & Uncommon Cards**
-  Enemies: Reply-All Demon (40 HP, 9 dmg), Auto-CC Manager (35 HP, 8 dmg).
-  Uncommon reward cards: Forward Bomb, Snooze 7 Days, Keyboard Shortcut, CC the CEO, Report as Spam.
+- [ ] **TASK-39 · Card Unlock System**
+  Cards are locked by default and must be unlocked before they can appear as rewards. Unlocks persist across runs (saved to disk).
 
-- [x] **TASK-18 · Floor 3 Enemies & Rare Cards**
-  Enemies: Out-of-Office Loop (50 HP, 10 dmg, applies Awaiting Reply), Passive-Aggressive Karen (45 HP, 11 dmg, 4 regen/turn).
-  Rare reward cards: Vacation Autoresponder, Recall Email, Start New Thread.
+  Implement `UnlockManager` singleton with save/load:
 
-- [x] **TASK-19 · Floor 4 Boss**
-  The Thread That Never Ends (80 HP, 14 dmg/turn, 5 regen/turn).
-  Wire into Floor 4 room 1 as the sole encounter.
+  **Rarity unlocks** — triggered automatically by enemy tier, no floor references:
+  - Starter + Common: always unlocked
+  - Uncommon: unlock on first defeat of any Uncommon-tier enemy
+  - Rare: unlock on first defeat of any Rare-tier enemy
+  - Legendary: unlock on first Boss defeat
 
----
+  **Enemy signature unlocks** — first-kill of specific enemy unlocks its card permanently:
+  - Reply-All Demon → Forward Bomb
+  - Auto-CC Manager → CC the CEO
+  - Out-of-Office Loop → Vacation Autoresponder
+  - Passive-Aggressive Karen → Report as Spam
+  - The Thread That Never Ends → Start New Thread
 
-## MILESTONE 4 — Relics
+  **Character-tier unlocks** — behavior-based, tracked within a run:
+  - Win a run using only Starter + Common cards → Intern cards
+  - Play 10+ cards in a single turn → Dev cards
+  - Win a fight without playing any Attack card → Lawyer cards
+  - End a turn with 0 AP three turns in a row → Manager cards
+  - Win a run after losing to the boss in a prior run → Ghost cards
 
-- [x] **TASK-20 · Relic System & Starting Relic**
-  `RelicManager`: store active relics, trigger hooks (on turn start, on card played, on damage taken, on combat start).
-  Implement Paperclip (+1 AP on first turn of combat). Show relic icons in UI.
+- [ ] **TASK-40 · All Mail Rework — Unlock State & Card Pool Toggle**
+  Rework the existing `AllMail` screen to serve as both the card compendium and the card pool configuration. No separate main menu screen needed.
 
-- [x] **TASK-21 · Acquirable Relics**
-  Implement all 5 acquirable relics with their hooks:
-  Cold Coffee (+3 HP/turn start), Inbox Zero Badge (+2 dmg per attack card), Mechanical Keyboard (+1 draw/turn), Do Not Disturb (-2 incoming dmg), Work Phone Off (+15 max HP on acquire).
+  **Unlock state display:**
+  - Unlocked cards show normally (name, type, rarity, effect, AP cost)
+  - Locked cards are greyed out with "LOCKED" replacing the effect text and no toggle available
+  - Header shows "N / TOTAL unlocked"
 
----
+  **Card pool toggle (unlocked cards only):**
+  - Each unlocked card row has an enable/disable toggle
+  - Disabled cards are visually dimmed but still readable — they won't appear as rewards
+  - Starter cards have no toggle — always enabled
+  - Enforce minimums: at least 4 Common, 3 Uncommon, 1 Rare must remain enabled; warn and block if toggling off would violate this
+  - Enemy signature drops cannot be disabled (they are tied to that enemy's kill, not the general pool)
+  - Toggle state persists across runs (saved alongside unlock data in `UnlockManager`)
 
-## MILESTONE 5 — Game Screens
-
-- [x] **TASK-22 · Main Menu / Run Start Screen**
-  Title screen: game name, "Start Run" button, brief flavour text. Loads into Floor 1 Room 1 combat.
-
-- [x] **TASK-29 · Main Menu Expanded**
-  Redesign main menu with four buttons: Continue (greyed — no save system), New Game, Options (placeholder overlay), Exit (quits app / stops Play in editor).
-
-- [x] **TASK-30 · Inbox as Hub — Run Flow Redesign**
-  Replace the between-combat floor map with the Gmail-style Inbox screen as the primary navigation hub.
-  - On New Game: show the Inbox screen populated with all enemies for Level 1 as email rows
-  - Each email row = one encounter (combat or rest stop); player clicks a row to enter it
-  - After combat victory + card reward: return to the Inbox with that email removed
-  - After a rest stop: remove the row and return to Inbox immediately
-  - When all rows are cleared: show "LEVEL X CLEARED", award relic if applicable, load Level 2 Inbox
-  - `FloorMapScreen` (already Gmail-styled) becomes the persistent hub — retire its current behavior of showing only 2–3 random options between fights; instead populate it with all encounters for the level at level start
-
-- [x] **TASK-23 · Game Over Screen**
-  On HP ≤ 0: show "RUN TERMINATED" screen, floor reached, prompt to restart. Returns to main menu.
-
-- [x] **TASK-24 · Victory Screen**
-  On boss death: show "INBOX ZERO ACHIEVED" screen with run stats (floors cleared, cards played count, damage dealt). Return to main menu.
+  **Access:** All Mail remains accessible from the inbox sidebar as before. Also accessible from the main menu ("CONFIGURE" button or similar).
 
 ---
 
-## MILESTONE 5B — Card Mechanics Redesign
+## MILESTONE 9 — Content Expansion
 
-- [x] **TASK-31 · Persistent Hand & Draw-1 System**
-  Rework `DeckManager` and `TurnManager` to implement the new hand rules:
-  - Combat start: draw 5 cards (opening hand only)
-  - Each turn start: draw 1 card (not 5)
-  - `DiscardHand()` removed from `EndPlayerTurn()` — unplayed cards stay in hand
-  - `DeckManager.DiscardHand()` still exists but is only called when a card is played (`PlayCard` already moves it to discard)
-  - Deck exhaustion: when draw pile empties, reshuffle discard only (exclude current hand) into draw pile
-  - `HandDisplay.RefreshHand()` must no longer wipe and respawn all cards each turn — only append the newly drawn card(s)
+> Designed to be content-agnostic. New enemies at any tier plug into the unlock system automatically.
 
-- [x] **TASK-32 · Max Hand Size & Overflow Discard**
-  Enforce a max hand size of 7:
-  - Before drawing, check if `Hand.Count >= 7`
-  - If so, prompt the player to choose a card from hand to discard before the new card is drawn
-  - UI: highlight hand cards, clicking one discards it and completes the draw
-  - If no overflow, draw proceeds normally
+- [ ] **TASK-41 · Legendary Cards**
+  Implement Legendary rarity in the reward system (max 1 copy in deck, capped at 1 per specific card).
+  Create ScriptableObjects for all Legendary cards. Wire into `AllCardsRegistry`.
+  Update deck composition limit display in reward screen.
 
-- [x] **TASK-33 · Deck Composition Limits**
-  Enforce rarity caps in the deck builder:
-  - Track Uncommon count (max 4) and Rare count (max 2) in the active deck
-  - Track Rare duplicates (max 1 copy of any specific Rare)
-  - Track total deck size (max 15)
-  - Cards that would violate a limit are greyed out in the deck builder with a short reason
+- [ ] **TASK-42 · Character Card Sets**
+  Create ScriptableObjects for all character-tagged cards (Intern, Manager, Lawyer, Dev, Ghost).
+  These are locked until their respective unlock condition is met (TASK-39).
+  Wire into `AllCardsRegistry`.
 
-- [x] **TASK-34 · Card Drop System**
-  Replace guaranteed card reward screen with a chance-based drop on enemy defeat:
-  - Each `EnemyData` has a `dropChance` (float 0–1) and `dropRarity` tier
-  - On enemy death, roll against `dropChance`; on success, pick a random card of the appropriate rarity from a global card pool
-  - Dropped card goes into `GameManager.CardCollection` (new list, separate from the active deck)
-  - No UI shown immediately — victory screen just notes "1 card dropped" if applicable
-  - Boss always drops a Rare (100%)
-
-- [x] **TASK-35 · Deck Builder Screen (Logic)**
-  New screen accessible at Rest Stops and level transitions:
-  - Left column: active deck (cards currently in the 15-card deck)
-  - Right column: collection pool (dropped cards not yet in deck)
-  - Click a collection card to add it to deck (subject to composition limits)
-  - Click an active deck card to move it back to collection
-  - Show rarity counts and deck size in a header
-  - "Done" button closes the screen and continues flow
-
-- [x] **TASK-36 · Deck Builder UI Polish — DRAFTS**
-  Gmail-themed deck builder accessible from the DRAFTS item in the inbox sidebar:
-  - DRAFTS sidebar item in FloorMapScreen is now a clickable button (Google-blue label)
-  - Shows live card count badge: "DRAFTS  3" when collection has cards, "DRAFTS" when empty
-  - Clicking DRAFTS hides the inbox and opens DeckBuilderScreen; Done returns to the inbox
-  - Also opens automatically after rest stops and level transitions when collection is non-empty
-  - DeckBuilderScreen uses Gmail palette: near-white bg, pale-blue top bar, Google-blue accent, row hover tint
-  - Two-column layout: ACTIVE DECK (left) / COLLECTION (right) with live header counts
-  - Card rows styled as email rows: type-color dot, name, effect preview, rarity, AP cost
-
-- [x] **TASK-37 · All Mail — Full Card Compendium**
-  Add an "ALL MAIL" tab/screen showing every card in the game, grouped by rarity.
-  - Accessible as a new sidebar item in FloorMapScreen below DRAFTS, labelled "ALL MAIL"
-  - Lists all cards from a global registry (`AllCardsRegistry` ScriptableObject — a `List<CardData>` of every card SO)
-  - Cards the player has acquired (in active deck OR collection) are shown normally
-  - Cards not yet acquired are shown greyed out (50% alpha) with effect text replaced by "???"
-  - No interaction — read-only reference view; clicking a greyed card does nothing, clicking an owned card does nothing
-  - Header row: "ALL MAIL  N / TOTAL" showing how many distinct cards the player has seen
-  - Same Gmail row style as DeckBuilderScreen: type-color dot, name, effect/???, rarity badge, AP cost
-  - "CLOSE" pill button (Google-blue) returns to inbox
-
----
-
-## MILESTONE 6 — Polish
-
-- [x] **TASK-25 · Card Animations & Visual Feedback**
-  Card play animation (slide up + fade), damage numbers floating on hit, HP bar smooth lerp, shield flash on block.
-
-- [x] **TASK-26 · SFX Placeholders**
-  Hook up placeholder audio: card play click, damage hit, shield block, enemy death, turn end. Use Unity's built-in AudioSource.
-
----
-
-## MILESTONE 7 — Visual Polish
-
-All panel and container Image components use a single 9-sliced sprite as a placeholder. Swap the sprite reference on any Image to apply final art — no layout changes needed.
-
-- [x] **TASK-27 · Status Effect Label Chips**
-  Replace plain status text with label chips: horizontal row of pill badges per status on the enemy panel.
-
-- [x] **TASK-28 · Consistent Sliced Sprite**
-  Apply one 9-sliced sprite to all container/panel Images (EnemyPanel, PlayerPanel, card slots, End Turn button, victory/game over panels, card preview, card backgrounds). Sprite can be swapped per-element for final art without code changes.
-
----
-
-*Last updated: 2026-03-16*
+- [ ] **TASK-43 · Enemy Intent Deck Expansion**
+  Audit all existing enemies — ensure every enemy has a full intent deck (not relying on legacy flat-damage fallback).
+  Assign intent decks to any enemy still using `damagePerTurn` only.
 
 ---
 
 ## Design Change Log
 
-- **2026-03-15 · Inbox as Hub**: The between-combat floor map (2–3 random options) is replaced by a persistent Gmail-style Inbox screen. The Inbox shows all encounters for the current level upfront; the player chooses the order. "Floors" are now "Levels" in all UI text. See TASK-30.
+- **2026-03-15 · Inbox as Hub**: Floor map replaced by persistent Gmail-style Inbox screen. All encounters visible upfront. "Floors" → "Levels" in UI.
+- **2026-03-26 · Roguelite Reward Overhaul**: Chance-based drops + collection pool replaced by guaranteed 3-card pick per win. Card unlock system added (enemy-tier gates, signature drops, behavior unlocks). Main menu card pool toggle added.

@@ -10,8 +10,15 @@
 - **Fonts:** Use `BetterPixels` for ALL UI text — no exceptions. Both in scene YAML and programmatic TMP creation. TMP bitmap asset in `Assets/TextMesh Pro/Fonts/`. Every visible UI label needs a TMP text component — panels, bars, slots, and buttons should all have readable placeholder text so the layout blocking is clear. Font GUID for BetterPixels: `af581fb1ba59971408d2278b6bffa1d5`. Default material fileID inside the asset: `-7018534552672840379`. TMP `TextMeshProUGUI` script GUID: `f4688fdb7df04437aeb418b961361dc5` (from `com.unity.ugui` package). When writing scene YAML directly, always use these exact GUIDs — a wrong GUID produces a "missing script" error. Never use emoji or `\uXXXX` surrogate-pair escapes in `m_text` fields; Unity's YAML parser rejects them. Use plain ASCII substitutes (e.g. `SHIELD 0` not `[shield] 0`). **Standard font size is 14. Minimum is 14 — no exceptions.** This applies to `m_fontSize`, `m_fontSizeBase`, and `m_fontSizeMin` in scene YAML and to any programmatic `fontSize` assignments in scripts.
 - **No screenshots:** Do not take screenshots to verify results.
 - **Scripts folder:** All game scripts go in `Assets/Scripts/`. Organize by subfolder: `Core/`, `Combat/`, `UI/`, `Data/`, `Cards/`, `Enemies/`, `Relics/`.
-- **ScriptableObjects:** Card, Enemy, and Relic data are ScriptableObjects stored in `Assets/Data/`.
+- **ScriptableObjects:** Card, Enemy, and Relic data are ScriptableObjects stored in `Assets/Data/`. Cards are in `Assets/Data/Cards/` and are batch-created/updated via `InboxZero → Create All Cards` (Editor script: `Assets/Editor/CardBatchCreator.cs`). Rebuild the `AllCardsRegistry` with `InboxZero → Rebuild Cards Registry`.
+- **CardData fields:** `cardName`, `cardType`, `rarity`, `character` (CardCharacter enum: All/Intern/Manager/Lawyer/Dev/Ghost), `apCost`, `effectDescription` [TextArea], `flavorText` [TextArea], `effects` (List<CardEffect>), `icon`.
 - **Asset GUIDs:** When writing `.asset` files and their `.meta` files manually, Unity may regenerate the `.meta` with a new GUID on first import. Always read the `.meta` file back after Ctrl+R and update any scene YAML references that used the pre-assigned GUID. Symptoms of a stale GUID: null entries in inspector lists, NullReferenceException from code that iterates those lists.
+- **Card prefab size:** The Card prefab's RectTransform `sizeDelta` defines the displayed card size — do not hardcode width/height in `HandDisplay`. `RepositionAll()` reads `cardW` live from the first card's `rect.width`.
+- **DeckWidget:** Singleton MonoBehaviour on a UI GO in CombatScene (child of Canvas). Displays draw pile count via `countLabel` (TextMeshProUGUI). `HandDisplay` reads its world position as the origin for card-draw fly-in animations.
+- **Card draw animation:** New cards fly from `DeckWidget`'s world position to their hand slot (ease-out cubic, 0.2s, staggered 70 ms per card). Implemented in `HandDisplay.AnimateCardDraw()` + `GetDeckLocalPos()` (uses `RectTransformUtility` for coordinate conversion).
+- **Attack card animation:** Attack cards reparent to the canvas root and fly to `enemy.portraitImage.transform.position` (ease-in, 0.14s), then shrink+fade at the impact point (0.14s). `CardEffectResolver.Resolve()` fires **at impact**, not on click. Non-attack cards resolve immediately on click then slide-up-fade in place.
+- **AudioManager SFX:** Methods available — `PlayCardPlay()`, `PlayCardDraw()`, `PlayDamageHit()`, `PlayShieldBlock()`, `PlayGainShield()`, `PlayRestoreHP()`, `PlayStatusApplied()`, `PlayEnemyDeath()`, `PlayGameOver()`. All call sites use null-safe `AudioManager.Instance?.Play…()` pattern.
+- **Panel frame consistency:** All panel and container backgrounds must use the same 9-sliced frame sprite used by `PlayerPanel` (the Image on PlayerPanel itself) and `EnemyPanel > Frame`. Do not introduce new panel styles for new screens. Apply it by swapping the sprite reference on the `Image` component — no layout changes needed.
 - **Inbox UI architecture (SPA pattern):** The inbox screen uses a single-page-app pattern. `InboxLayout.prefab` provides the persistent chrome (top bar + sidebar). Each sidebar nav item swaps a *page prefab* into the `ContentArea` `RectTransform`. Current pages: `DraftsPage.prefab` (deck builder, shown by `DeckBuilderScreen.ShowInContent`), `AllMailPanel.prefab` (card compendium, shown by `AllMailScreen`). Each prefab has a *View component* (`DraftsPageView`, `AllMailPanelView`, `LayoutView`) that exposes serialized child references — scripts read these refs at runtime instead of using `GetComponentInChildren`. **Never run a builder MenuItem (`InboxZero → Rebuild … Prefab`) on a prefab that has been customized in the inspector — it will wipe those customizations.** Only run builders to create a prefab from scratch.
 
 ## How to Test After Each Task
@@ -116,25 +123,20 @@ END OF TURN
 - **Deck exhaustion.** When the draw pile runs out, shuffle the discard pile into a new draw pile. Cards currently in hand are **never** included in the reshuffle.
 - **Max hand size: 7.** If drawing would exceed 7 cards, you must choose a card to discard before the new card enters. This prevents indefinite hand accumulation.
 
-### Card Drops (replaces guaranteed reward screen)
+### Card Rewards
 
-Enemies do **not** guarantee a card reward. Instead, defeating an enemy has a chance to drop a card based on the enemy's reward tier. Dropped cards go into a **collection pool** — they are not immediately added to the deck.
+Every enemy defeat shows **3 cards** — pick 1, it is added to your deck immediately. No collection pool, no deferred deck building.
 
-| Enemy Tier | Drop Chance | Card Rarity Offered |
-|---|---|---|
-| Common | 40% | Common |
-| Uncommon | 65% | Common or Uncommon |
-| Rare | 90% | Uncommon or Rare |
-| Boss | 100% | Rare |
-
-**Deck building** happens at dedicated moments only — not mid-combat, not after every fight. Proposed triggers (TBD, pick one or combine):
-- **Rest Stops** — the rest stop screen shows collected cards and lets you swap them into/out of your active deck alongside the HP heal
-- **Level transitions** — the floor-cleared screen includes a deck builder step before moving to the next level
-- **Inbox Drafts** — dropped cards appear as a special "Drafts" folder row in the inbox sidebar; opening it at any time lets you review and equip
+| Enemy Tier | Card Rarity Offered |
+|---|---|
+| Common | Common only |
+| Uncommon | Common or Uncommon |
+| Rare | Uncommon or Rare |
+| Boss | Rare guaranteed |
 
 ### Deck Composition Rules
 
-These limits apply when adding cards to the active deck:
+These limits apply to the active deck:
 
 | Rarity | Max copies in deck |
 |---|---|
@@ -142,10 +144,52 @@ These limits apply when adding cards to the active deck:
 | Common | No limit |
 | Uncommon | 4 total |
 | Rare | 2 total |
+| Legendary | 1 total |
 
-- **Max deck size: 15 cards.** You may always leave collected cards in the pool unequipped.
-- You may never hold more than 1 copy of the same Rare card.
-- Cards in the collection pool but not in the active deck are kept for the rest of the run.
+- **Max deck size: 15 cards.**
+- You may never hold more than 1 copy of the same Rare or Legendary card.
+
+### Card Unlock System
+
+Cards are locked by default and enter the drop pool permanently once unlocked. Unlocks persist across runs. The system is content-agnostic — adding new floors or enemies does not require changes to unlock logic.
+
+**Rarity unlocks (triggered by enemy tier, not floor number):**
+
+| First time you defeat a... | Unlocks |
+|---|---|
+| Any enemy | Common cards enter the pool |
+| Uncommon-tier enemy | Uncommon cards enter the pool |
+| Rare-tier enemy | Rare cards enter the pool |
+| Boss | Legendary cards enter the pool |
+
+Starter cards are always available from run 1. Common cards unlock on the first fight ever.
+
+**Enemy signature drops** — defeating a specific enemy for the first time unlocks that enemy's associated card permanently:
+
+| Enemy | Unlocks |
+|---|---|
+| Reply-All Demon | Forward Bomb |
+| Auto-CC Manager | CC the CEO |
+| Out-of-Office Loop | Vacation Autoresponder |
+| Passive-Aggressive Karen | Report as Spam |
+| The Thread That Never Ends | Start New Thread |
+
+**Character-tier unlocks** — triggered by in-run behavior, unlocks that card group permanently:
+
+| Condition | Unlocks |
+|---|---|
+| Win a run using only Starter + Common cards | Intern cards |
+| Play 10+ cards in a single turn | Dev cards |
+| Win a fight without playing any Attack cards | Lawyer cards |
+| End a turn with 0 AP three turns in a row | Manager cards |
+| Win a run after losing to the final boss in a prior run | Ghost cards |
+
+### Card Pool Toggle (Main Menu)
+
+Before starting a run, players can disable specific unlocked cards from the drop pool. Disabled cards never appear as rewards that run. Constraints:
+- Starter cards cannot be disabled
+- Minimum enabled per tier: 4 Common, 3 Uncommon, 1 Rare
+- Enemy signature drops are always enabled (they are tied to that enemy's drop, not the general pool)
 
 ### Proposed Future Mechanics (design notes)
 
