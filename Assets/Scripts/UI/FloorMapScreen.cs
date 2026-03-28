@@ -23,7 +23,6 @@ namespace InboxZero.UI
         public UnityEvent<RoomOption> OnCombatSelected   = new UnityEvent<RoomOption>();
         public UnityEvent<RoomOption> OnRestStopSelected = new UnityEvent<RoomOption>();
         public UnityEvent             OnFloorComplete    = new UnityEvent();
-        public UnityEvent             OnDraftsSelected   = new UnityEvent();
         public UnityEvent             OnAllMailSelected  = new UnityEvent();
 
         Canvas           _canvas;
@@ -86,7 +85,6 @@ namespace InboxZero.UI
 
             // Wire nav buttons
             if (view.inboxButton   != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
-            if (view.draftsButton  != null) view.draftsButton.onClick.AddListener(OnDraftsClicked);
             if (view.allMailButton != null) view.allMailButton.onClick.AddListener(OnAllMailClicked);
 
             // Update dynamic labels
@@ -96,10 +94,7 @@ namespace InboxZero.UI
                 view.floorInfoLabel.text = $"FL {gm.CurrentFloor}  RM {gm.CurrentRoom + 1}";
             }
             if (view.draftsLabel != null)
-            {
-                int n = GameManager.Instance?.CardCollection.Count ?? 0;
-                view.draftsLabel.text = n > 0 ? $"DRAFTS  {n}" : "DRAFTS";
-            }
+                view.draftsLabel.text = "DRAFTS";
 
             _listAreaRt  = view.contentArea;
             _lastOptions = options;
@@ -224,30 +219,19 @@ namespace InboxZero.UI
                     hl.AddComponent<Image>().color = C_SbActive;
                 }
 
-                string txt;
-                if (isDrafts)
-                {
-                    int n = GameManager.Instance != null
-                        ? GameManager.Instance.CardCollection.Count
-                        : 0;
-                    txt = n > 0 ? $"DRAFTS  {n}" : "DRAFTS";
-                }
-                else
-                {
-                    txt = SbLabels[i];
-                    if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
-                }
+                string txt = SbLabels[i];
+                if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
 
-                Color labelColor = (isDrafts || isAllMail) ? C_Accent : (active ? C_Accent : C_TextMid);
+                Color labelColor = isAllMail ? C_Accent : (active ? C_Accent : C_TextMid);
 
                 Label($"Sb{i}", sbRt,
                     new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
                     new Vector2(8, y), new Vector2(-8, 14),
                     txt, labelColor, TextAlignmentOptions.MidlineLeft);
 
-                if (isInbox || isDrafts || isAllMail)
+                if (isInbox || isAllMail)
                 {
-                    string btnName = isInbox ? "SbInboxBtn" : isDrafts ? "SbDraftsBtn" : "SbAllMailBtn";
+                    string btnName = isInbox ? "SbInboxBtn" : "SbAllMailBtn";
                     var hitGo = new GameObject(btnName, typeof(RectTransform));
                     hitGo.layer = 5;
                     var hitRt   = hitGo.GetComponent<RectTransform>();
@@ -268,7 +252,7 @@ namespace InboxZero.UI
                     cb.highlightedColor = C_SbActive;
                     cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
                     btn.colors          = cb;
-                    UnityEngine.Events.UnityAction handler = isInbox ? OnInboxClicked : isDrafts ? (UnityEngine.Events.UnityAction)OnDraftsClicked : OnAllMailClicked;
+                    UnityEngine.Events.UnityAction handler = isInbox ? OnInboxClicked : OnAllMailClicked;
                     btn.onClick.AddListener(handler);
                 }
             }
@@ -286,24 +270,8 @@ namespace InboxZero.UI
 
         void OnInboxClicked()
         {
-            DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
             AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
             if (_lastOptions != null) ShowInboxPage(_lastOptions);
-        }
-
-        void OnDraftsClicked()
-        {
-            var db = DeckBuilderScreen.Instance;
-            if (db == null || _listAreaRt == null) return;
-
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
-            InboxScreen.Instance?.Hide();
-
-            foreach (Transform child in _listAreaRt)
-                Destroy(child.gameObject);
-
-            db.OnComplete.AddListener(OnDraftsDone);
-            db.ShowInContent(_listAreaRt);
         }
 
         void OnAllMailClicked()
@@ -317,13 +285,6 @@ namespace InboxZero.UI
 
             AllMailScreen.Instance.OnClose.AddListener(RestoreInbox);
             AllMailScreen.Instance.ShowInContent(_listAreaRt);
-        }
-
-        void OnDraftsDone()
-        {
-            DeckBuilderScreen.Instance?.OnComplete.RemoveListener(OnDraftsDone);
-            if (_listAreaRt == null || _lastOptions == null) return;
-            ShowInboxPage(_lastOptions);
         }
 
         void RestoreInbox()

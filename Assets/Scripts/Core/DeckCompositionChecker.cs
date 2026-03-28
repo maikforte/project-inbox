@@ -4,13 +4,13 @@ using InboxZero.Data;
 namespace InboxZero.Core
 {
     /// Shared rules for whether a card can be added to the active deck.
-    /// Used by CardRewardScreen now and the future DeckBuilder screen.
+    /// Used by CardRewardScreen and any future deck-editing UI.
     public static class DeckCompositionChecker
     {
-        public const int MaxDeckSize   = 99;
-        public const int MaxUncommons  = 99;
-        public const int MaxRares      = 99;
-        public const int MaxLegendary  = 99;
+        public const int MaxDeckSize   = 15;
+        public const int MaxUncommons  = 4;
+        public const int MaxRares      = 2;
+        public const int MaxLegendary  = 1;
 
         /// Returns whether <paramref name="card"/> can be added to the current deck,
         /// and a short uppercase reason string if it cannot (empty string if it can).
@@ -20,9 +20,37 @@ namespace InboxZero.Core
 
             var deck = GetFullDeck();
 
-            // Total size cap applies to all rarities.
             if (deck.Count >= MaxDeckSize)
                 return (false, $"DECK FULL ({MaxDeckSize})");
+
+            if (card.rarity == CardRarity.Uncommon)
+            {
+                int count = 0;
+                foreach (var c in deck)
+                    if (c != null && c.rarity == CardRarity.Uncommon) count++;
+                if (count >= MaxUncommons)
+                    return (false, $"MAX UNCOMMONS ({MaxUncommons})");
+            }
+
+            if (card.rarity == CardRarity.Rare)
+            {
+                int count = 0;
+                foreach (var c in deck)
+                    if (c != null && c.rarity == CardRarity.Rare) count++;
+                if (count >= MaxRares)
+                    return (false, $"MAX RARES ({MaxRares})");
+            }
+
+            if (card.rarity == CardRarity.Legendary)
+            {
+                foreach (var c in deck)
+                    if (c == card) return (false, "ALREADY OWNED");
+                int count = 0;
+                foreach (var c in deck)
+                    if (c != null && c.rarity == CardRarity.Legendary) count++;
+                if (count >= MaxLegendary)
+                    return (false, $"MAX LEGENDARY ({MaxLegendary})");
+            }
 
             return (true, string.Empty);
         }

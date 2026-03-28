@@ -211,7 +211,7 @@ namespace InboxZero.UI
                         cdv.SetDisabled(!isEnabled);
                         bool canToggle = !isStarter;
                         cdv.ShowToggle(canToggle, isEnabled,
-                            canToggle ? state => um?.SetEnabled(card, state) : (Action<bool>)null);
+                            canToggle ? state => OnToggleCard(card, state, um) : (Action<bool>)null);
                     }
                 }
             }
@@ -401,6 +401,51 @@ namespace InboxZero.UI
             CardType.Defend => new Color(0.20f, 0.66f, 0.32f),
             _               => new Color(0.52f, 0.18f, 0.80f),
         };
+
+        void OnToggleCard(CardData card, bool enable, UnlockManager um)
+        {
+            if (um == null) return;
+
+            if (!enable)
+            {
+                // Guard against dropping below pool minimums.
+                if (!um.CanDisable(card, registry, out string reason))
+                {
+                    FlashWarning(reason);
+                    // Rebuild so the toggle snaps back to its previous state.
+                    if (_panel != null) { var p = _panel.transform.parent; Hide(); BuildPanel(p); }
+                    return;
+                }
+            }
+
+            um.SetEnabled(card, enable);
+        }
+
+        void FlashWarning(string message)
+        {
+            if (_panel == null) return;
+            var rt = _panel.GetComponent<RectTransform>() ?? _panel.AddComponent<RectTransform>();
+            var warn = new GameObject("Warning", typeof(RectTransform));
+            warn.layer = 5;
+            var wrt = warn.GetComponent<RectTransform>();
+            wrt.SetParent(rt, false);
+            wrt.anchorMin        = new Vector2(0.5f, 0f);
+            wrt.anchorMax        = new Vector2(0.5f, 0f);
+            wrt.pivot            = new Vector2(0.5f, 0f);
+            wrt.anchoredPosition = new Vector2(0, 12f);
+            wrt.sizeDelta        = new Vector2(260f, 22f);
+            warn.AddComponent<CanvasRenderer>();
+            warn.AddComponent<Image>().color = new Color(0.55f, 0.10f, 0.10f, 0.92f);
+            var font = _panel.GetComponentInChildren<TextMeshProUGUI>()?.font;
+            var tmp  = warn.AddComponent<TextMeshProUGUI>();
+            tmp.text               = message;
+            tmp.fontSize           = 14;
+            tmp.color              = Color.white;
+            tmp.alignment          = TextAlignmentOptions.Center;
+            tmp.enableWordWrapping = false;
+            if (font != null) tmp.font = font;
+            Destroy(warn, 2.5f);
+        }
 
         void OnCloseClicked()
         {

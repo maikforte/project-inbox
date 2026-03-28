@@ -289,10 +289,8 @@ namespace InboxZero.UI
                 AddCardRow(_deckContent, deck[i], i, isDeckCard: true);
             SetContentHeight(_deckContent, deck.Count);
 
-            var coll = GameManager.Instance.CardCollection;
-            for (int i = 0; i < coll.Count; i++)
-                AddCardRow(_collContent, coll[i], i, isDeckCard: false);
-            SetContentHeight(_collContent, coll.Count);
+            // Collection pool removed (TASK-38) — right column is unused.
+            SetContentHeight(_collContent, 0);
 
             RefreshHeaders();
         }
@@ -402,7 +400,6 @@ namespace InboxZero.UI
                 FlashError(reason);
                 return;
             }
-            GameManager.Instance.CardCollection.Remove(card);
             GameManager.Instance.DrawPile.Add(card);
             PopulateColumns();
         }
@@ -412,7 +409,6 @@ namespace InboxZero.UI
             var gm = GameManager.Instance;
             if (!gm.DrawPile.Remove(card))
                 gm.DiscardPile.Remove(card);
-            gm.CardCollection.Add(card);
             PopulateColumns();
         }
 
@@ -477,11 +473,7 @@ namespace InboxZero.UI
             return $"ACTIVE DECK  ({n})";
         }
 
-        static string CollHeaderText()
-        {
-            int n = GameManager.Instance.CardCollection.Count;
-            return $"COLLECTION  ({n})";
-        }
+        static string CollHeaderText() => "COLLECTION  (0)";
 
         // ── Helpers ───────────────────────────────────────────────────────────
 

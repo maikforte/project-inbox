@@ -23,10 +23,12 @@ namespace InboxZero.Core
         [Header("Starter Deck & Relic")]
         [Tooltip("Cards added to the player deck at run start.")]
         [SerializeField] List<CardData> starterCards = new List<CardData>();
-        [Tooltip("Cards available in the collection pool from the very start of the run.")]
-        [SerializeField] List<CardData> unlockedCards = new List<CardData>();
         [Tooltip("Relic the player starts every run with (e.g. Paperclip).")]
         [SerializeField] RelicData startingRelic;
+
+        [Header("Card Registry")]
+        [Tooltip("All cards in the game — used for rarity unlock triggers.")]
+        [SerializeField] AllCardsRegistry allCardsRegistry;
 
         [Header("Scene References")]
         [SerializeField] EnemyController enemyController;
@@ -35,10 +37,8 @@ namespace InboxZero.Core
 
         // ── Inbox state ───────────────────────────────────────────────────────
 
-        List<RoomOption> _inbox        = new List<RoomOption>();
-        RoomOption       _activeOption;       // combat currently being fought
-        RoomOption       _pendingRestOpt;     // rest stop row waiting to be removed
-        System.Action    _afterDeckBuilder;   // what to do once deck builder closes
+        List<RoomOption> _inbox       = new List<RoomOption>();
+        RoomOption       _activeOption;  // combat currently being fought
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -64,21 +64,20 @@ namespace InboxZero.Core
             if (endTurnButton != null)
                 endTurnButton.onClick.AddListener(TurnManager.Instance.EndPlayerTurn);
 
-            // Victory → Card Reward screen
+            // Victory panel Continue → card reward screen
             combatResultManager.OnVictoryContinued.AddListener(OnVictoryContinued);
 
-            // Card reward screen is retired — drops are now automatic (see CardDropManager).
+            // Card reward screen done → return to inbox
+            if (CardRewardScreen.Instance != null)
+                CardRewardScreen.Instance.OnComplete.AddListener(OnCardRewardDone);
 
-            // Inbox row clicked → combat or rest stop; DRAFTS → deck builder
+            // Inbox row clicked → combat or rest stop
             if (FloorMapScreen.Instance != null)
             {
                 FloorMapScreen.Instance.OnCombatSelected.AddListener(BeginNextCombat);
                 FloorMapScreen.Instance.OnRestStopSelected.AddListener(OnRestStopSelected);
-                FloorMapScreen.Instance.OnDraftsSelected.AddListener(OnDraftsSelected);
                 FloorMapScreen.Instance.OnAllMailSelected.AddListener(OnAllMailSelected);
             }
-
-            // All Mail → return to inbox on close (wired contextually in OnAllMailSelected)
 
             // Rest Stop done → Inbox
             if (RestStopScreen.Instance != null)
@@ -91,11 +90,7 @@ namespace InboxZero.Core
                 FloorTransitionScreen.Instance.OnGameVictory.AddListener(ReturnToMenu);
             }
 
-            // Deck Builder → continues flow after player is done editing
-            if (InboxZero.UI.DeckBuilderScreen.Instance != null)
-                InboxZero.UI.DeckBuilderScreen.Instance.OnComplete.AddListener(OnDeckBuilderDone);
-
-            // Game Over / Victory → return to main menu
+            // Game Over → return to main menu
             combatResultManager.OnGameOverRestarted.AddListener(ReturnToMenu);
             combatResultManager.OnGameVictory.AddListener(ReturnToMenu);
         }
@@ -106,7 +101,6 @@ namespace InboxZero.Core
         {
             GameManager.Instance.InitRun();
             DeckManager.Instance.InitDeck(new List<CardData>(starterCards));
-            GameManager.Instance.CardCollection.AddRange(unlockedCards);
             if (startingRelic != null)
             {
                 GameManager.Instance.ActiveRelics.Add(startingRelic);
@@ -166,9 +160,52 @@ namespace InboxZero.Core
 
         void OnVictoryContinued()
         {
+            // Show guaranteed 3-card reward based on the defeated enemy's reward tier.
+            var tier = _activeOption.enemyData != null ? _activeOption.enemyData.rewardTier : RewardTier.Common;
+            if (CardRewardScreen.Instance != null)
+                CardRewardScreen.Instance.Show(tier);
+            else
+                FinishCombat();  // fallback if reward screen not in scene
+        }
+
+        void OnCardRewardDone()
+        {
+            FinishCombat();
+        }
+
+        void FinishCombat()
+        {
+            TriggerUnlocks(_activeOption.enemyData);
             _inbox.Remove(_activeOption);
             GameManager.Instance.CurrentRoom++;
             ShowInbox();
+        }
+
+        void TriggerUnlocks(EnemyData enemy)
+        {
+            if (enemy == null || UnlockManager.Instance == null) return;
+            var um = UnlockManager.Instance;
+
+            // Rarity-tier unlocks — every enemy of that tier unlocks the whole rarity.
+            switch (enemy.rewardTier)
+            {
+                case RewardTier.Uncommon:
+                    um.UnlockRarity(CardRarity.Uncommon, allCardsRegistry);
+                    break;
+                case RewardTier.Rare:
+                    um.UnlockRarity(CardRarity.Uncommon, allCardsRegistry);
+                    um.UnlockRarity(CardRarity.Rare, allCardsRegistry);
+                    break;
+                case RewardTier.Boss:
+                    um.UnlockRarity(CardRarity.Uncommon, allCardsRegistry);
+                    um.UnlockRarity(CardRarity.Rare, allCardsRegistry);
+                    um.UnlockRarity(CardRarity.Legendary, allCardsRegistry);
+                    break;
+            }
+
+            // Signature unlock — specific card tied to this enemy's first kill.
+            if (enemy.signatureUnlockCard != null)
+                um.Unlock(enemy.signatureUnlockCard);
         }
 
         void OnRestStopSelected(RoomOption opt)
@@ -177,6 +214,8 @@ namespace InboxZero.Core
             if (RestStopScreen.Instance != null)
                 RestStopScreen.Instance.Show();
         }
+
+        RoomOption _pendingRestOpt;
 
         void OnRestStopDone()
         {
@@ -198,20 +237,6 @@ namespace InboxZero.Core
             ShowInbox();
         }
 
-        void OnDraftsSelected()
-        {
-            // Always open deck builder from the sidebar; return to inbox when done.
-            if (InboxZero.UI.DeckBuilderScreen.Instance == null)
-            {
-                // Deck builder not in scene — just return to inbox so the player isn't stranded.
-                Debug.LogWarning("[CombatSetup] DeckBuilderScreen not found. Add it to the scene.");
-                ShowInbox();
-                return;
-            }
-            _afterDeckBuilder = ShowInbox;
-            InboxZero.UI.DeckBuilderScreen.Instance.Show();
-        }
-
         void OnAllMailSelected()
         {
             var am = InboxZero.UI.AllMailScreen.Instance;
@@ -230,27 +255,6 @@ namespace InboxZero.Core
             var am = InboxZero.UI.AllMailScreen.Instance;
             if (am != null) am.OnClose.RemoveListener(OnAllMailClosedDuringRun);
             ShowInbox();
-        }
-
-        void OnDeckBuilderDone()
-        {
-            _afterDeckBuilder?.Invoke();
-            _afterDeckBuilder = null;
-        }
-
-        /// Shows the deck builder if there are cards in the collection, else calls <paramref name="onContinue"/> directly.
-        void ShowDeckBuilderOrContinue(System.Action onContinue)
-        {
-            if (GameManager.Instance.CardCollection.Count > 0 &&
-                InboxZero.UI.DeckBuilderScreen.Instance != null)
-            {
-                _afterDeckBuilder = onContinue;
-                InboxZero.UI.DeckBuilderScreen.Instance.Show();
-            }
-            else
-            {
-                onContinue();
-            }
         }
 
         static void ReturnToMenu()

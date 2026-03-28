@@ -69,7 +69,7 @@ Each task is sized to be a single prompt session.
 
 > **UI convention for all new screens in this milestone and beyond:** All panel/container backgrounds must use the same 9-sliced frame sprite as `PlayerPanel` (Image on the GO itself) and `EnemyPanel > Frame`. Do not introduce new panel styles. Swap the sprite reference on the `Image` component — no layout changes needed.
 
-- [ ] **TASK-38 · Guaranteed 3-Card Reward**
+- [x] **TASK-38 · Guaranteed 3-Card Reward**
   Rework the post-combat reward flow:
   - Every enemy defeat shows exactly 3 cards — pick 1, it enters the active deck immediately
   - Card rarity offered based on enemy tier: Common → Common only, Uncommon → Common/Uncommon, Rare → Uncommon/Rare, Boss → Rare guaranteed

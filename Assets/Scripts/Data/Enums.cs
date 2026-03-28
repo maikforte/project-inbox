@@ -18,7 +18,7 @@ namespace InboxZero.Data
 
     public enum StatusEffectType { None, Unread, Guilt, AwaitingReply }
 
-    public enum RewardTier { Common, Uncommon, Rare }
+    public enum RewardTier { Common, Uncommon, Rare, Boss }
 
     public enum CardCharacter { All, Intern, Manager, Lawyer, Dev, Ghost }
 

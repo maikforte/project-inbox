@@ -12,9 +12,9 @@ namespace InboxZero.UI
     {
         public static CardRewardScreen Instance { get; private set; }
 
-        [Header("Card Pool")]
-        [Tooltip("All reward cards. Filtered by rarity at runtime based on current floor.")]
-        public List<CardData> rewardPool = new List<CardData>();
+        [Header("Card Registry")]
+        [Tooltip("All cards in the game. Reward pool is built at runtime from unlocked+enabled cards.")]
+        public AllCardsRegistry registry;
 
         [Header("Sprites")]
         public Sprite cardBackground;
@@ -49,9 +49,9 @@ namespace InboxZero.UI
 
         // ── Public API ────────────────────────────────────────────────────────
 
-        public void Show(int floor)
+        public void Show(RewardTier tier)
         {
-            var options = DrawOptions(floor);
+            var options = DrawOptions(tier);
             BuildPanel(options);
         }
 
@@ -64,13 +64,24 @@ namespace InboxZero.UI
 
         // ── Pool filtering ────────────────────────────────────────────────────
 
-        List<CardData> DrawOptions(int floor)
+        List<CardData> DrawOptions(RewardTier tier)
         {
-            var allowed = AllowedRarities(floor);
+            var allowed = AllowedRarities(tier);
+            var um = UnlockManager.Instance;
+
             var pool = new List<CardData>();
-            foreach (var card in rewardPool)
-                if (allowed.Contains(card.rarity))
+            if (registry != null)
+            {
+                foreach (var card in registry.allCards)
+                {
+                    if (card == null) continue;
+                    if (!allowed.Contains(card.rarity)) continue;
+                    // Only include unlocked + enabled cards (Starter excluded from rewards).
+                    if (card.rarity == CardRarity.Starter) continue;
+                    if (um != null && !um.IsEnabled(card)) continue;
                     pool.Add(card);
+                }
+            }
 
             // Shuffle and pick up to CardCount
             for (int i = pool.Count - 1; i > 0; i--)
@@ -85,12 +96,17 @@ namespace InboxZero.UI
             return result;
         }
 
-        static List<CardRarity> AllowedRarities(int floor) => floor switch
+        // Rarity offered by enemy reward tier (TASK-38):
+        //   Common   → Common only
+        //   Uncommon → Common or Uncommon
+        //   Rare     → Uncommon or Rare
+        //   Boss     → Rare guaranteed
+        static List<CardRarity> AllowedRarities(RewardTier tier) => tier switch
         {
-            1 => new List<CardRarity> { CardRarity.Common },
-            2 => new List<CardRarity> { CardRarity.Common, CardRarity.Uncommon },
-            3 => new List<CardRarity> { CardRarity.Uncommon, CardRarity.Rare },
-            _ => new List<CardRarity> { CardRarity.Rare },
+            RewardTier.Common   => new List<CardRarity> { CardRarity.Common },
+            RewardTier.Uncommon => new List<CardRarity> { CardRarity.Common, CardRarity.Uncommon },
+            RewardTier.Rare     => new List<CardRarity> { CardRarity.Uncommon, CardRarity.Rare },
+            _                   => new List<CardRarity> { CardRarity.Rare },  // Boss
         };
 
         // ── Panel construction ────────────────────────────────────────────────
