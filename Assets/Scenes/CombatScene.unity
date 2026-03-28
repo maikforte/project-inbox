@@ -7281,7 +7281,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.AllMailScreen
   panelPrefab: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
-  cardRowPrefab: {fileID: 3108210510614133440, guid: 652e8164e2922b54583c35fd65ebe00a, type: 3}
+  cardDisplayPrefab: {fileID: 5242762391324007489, guid: cad2932bb84f1c54f9e5049e52d0612a, type: 3}
+  buttonNormalSprite: {fileID: 3039210842713156157, guid: 8b580c93b0679ee4a87455447c2caa59, type: 3}
+  buttonPressedSprite: {fileID: 3039210842713156157, guid: 8b580c93b0679ee4a87455447c2caa59, type: 3}
   registry: {fileID: 11400000, guid: d81fadb0368a9404ba14bd11c1a6b561, type: 2}
   OnClose:
     m_PersistentCalls:

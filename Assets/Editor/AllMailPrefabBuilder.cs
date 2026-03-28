@@ -91,24 +91,27 @@ namespace InboxZero.Editor
 
             var view = root.AddComponent<AllMailPanelView>();
 
-            // ── Top bar ───────────────────────────────────────────────────────
+            // ── Top bar: ALL CARDS (left) | 0/0 (center) | BACK button (right) ──
             var topBar = MakeRect("TopBar", rootRt,
                 new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1f),
                 new Vector2(0, -TopBarH), new Vector2(0, TopBarH));
             topBar.gameObject.AddComponent<Image>().color = TopBarColor;
 
-            MakeText("Title", topBar, font,
+            // Left: "ALL CARDS" label
+            var colLbl = MakeText("AllCardsLabel", topBar, font,
                 new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 0.5f),
-                new Vector2(MarginL, 0), new Vector2(120, 0),
-                "< ALL MAIL", 14, TextAlignmentOptions.MidlineLeft, AccentColor);
+                new Vector2(MarginL, 0), new Vector2(100, 0),
+                "ALL CARDS", 14, TextAlignmentOptions.MidlineLeft, TextDark);
+            view.columnHeaderLabel = colLbl;
 
+            // Center: stats "0 / 0"
             var statsLbl = MakeText("Stats", topBar, font,
                 new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f),
-                Vector2.zero, new Vector2(200, 0),
-                "ALL MAIL  0 / 0", 14, TextAlignmentOptions.Center, TextMedium);
+                Vector2.zero, new Vector2(80, 0),
+                "0 / 0", 14, TextAlignmentOptions.Center, TextMedium);
             view.statsLabel = statsLbl;
 
-            // Close button
+            // Right: BACK button
             var closeBtnGo = new GameObject("CloseButton");
             closeBtnGo.layer = 5;
             var closeBtnRt   = closeBtnGo.AddComponent<RectTransform>();
@@ -117,7 +120,7 @@ namespace InboxZero.Editor
             closeBtnRt.anchorMax        = new Vector2(1, 0.5f);
             closeBtnRt.pivot            = new Vector2(1, 0.5f);
             closeBtnRt.anchoredPosition = new Vector2(-MarginR, 0);
-            closeBtnRt.sizeDelta        = new Vector2(52, 18);
+            closeBtnRt.sizeDelta        = new Vector2(60, 18);
             closeBtnGo.AddComponent<Image>().color = AccentColor;
             var btn = closeBtnGo.AddComponent<Button>();
             var cb  = btn.colors;
@@ -128,7 +131,7 @@ namespace InboxZero.Editor
             MakeText("Label", closeBtnRt, font,
                 Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
                 Vector2.zero, Vector2.zero,
-                "CLOSE", 14, TextAlignmentOptions.Center, Color.white);
+                "BACK", 14, TextAlignmentOptions.Center, Color.white);
             view.closeButton = btn;
 
             // ── Divider under top bar ─────────────────────────────────────────
@@ -137,25 +140,8 @@ namespace InboxZero.Editor
                 new Vector2(0, -(TopBarH + DividerH)), new Vector2(0, DividerH))
                 .gameObject.AddComponent<Image>().color = DividerColor;
 
-            // ── Column header ─────────────────────────────────────────────────
-            float colHeaderY = -(TopBarH + DividerH + ColHeaderH);
-            var hdr = MakeRect("ColHeader", rootRt,
-                new Vector2(0, 1), new Vector2(1, 1), new Vector2(0f, 1f),
-                new Vector2(0, colHeaderY), new Vector2(0, ColHeaderH));
-            hdr.gameObject.AddComponent<Image>().color = ColHeaderBg;
-            var colLbl = MakeText("Label", hdr, font,
-                new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0.5f),
-                new Vector2(MarginL, 0), Vector2.zero,
-                "ALL CARDS  (0)", 14, TextAlignmentOptions.MidlineLeft, TextDark);
-            view.columnHeaderLabel = colLbl;
-
-            MakeRect("ColHDiv", rootRt,
-                new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1f),
-                new Vector2(0, -(TopBarH + DividerH + ColHeaderH + DividerH)), new Vector2(0, DividerH))
-                .gameObject.AddComponent<Image>().color = DividerColor;
-
             // ── Scroll area ───────────────────────────────────────────────────
-            float listTop = TopBarH + DividerH + ColHeaderH + DividerH;
+            float listTop = TopBarH + DividerH;
 
             var scrollGo = new GameObject("Scroll");
             scrollGo.layer = 5;
@@ -280,8 +266,10 @@ namespace InboxZero.Editor
                 return;
             }
 
-            screen.panelPrefab   = AssetDatabase.LoadAssetAtPath<GameObject>(PanelPrefabPath);
-            screen.cardRowPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RowPrefabPath);
+            screen.panelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PanelPrefabPath);
+            var displayPrefabGo = AssetDatabase.LoadAssetAtPath<GameObject>(CardDisplayPrefabBuilder.PrefabPath);
+            if (displayPrefabGo != null)
+                screen.cardDisplayPrefab = displayPrefabGo.GetComponent<CardDisplayView>();
             EditorUtility.SetDirty(screen);
             EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
             Debug.Log("[AllMailPrefabBuilder] Assigned prefabs to AllMailScreen in scene.");

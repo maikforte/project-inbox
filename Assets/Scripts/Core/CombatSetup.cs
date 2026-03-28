@@ -78,9 +78,7 @@ namespace InboxZero.Core
                 FloorMapScreen.Instance.OnAllMailSelected.AddListener(OnAllMailSelected);
             }
 
-            // All Mail → return to inbox on close
-            if (InboxZero.UI.AllMailScreen.Instance != null)
-                InboxZero.UI.AllMailScreen.Instance.OnClose.AddListener(ShowInbox);
+            // All Mail → return to inbox on close (wired contextually in OnAllMailSelected)
 
             // Rest Stop done → Inbox
             if (RestStopScreen.Instance != null)
@@ -216,13 +214,22 @@ namespace InboxZero.Core
 
         void OnAllMailSelected()
         {
-            if (InboxZero.UI.AllMailScreen.Instance == null)
+            var am = InboxZero.UI.AllMailScreen.Instance;
+            if (am == null)
             {
                 Debug.LogWarning("[CombatSetup] AllMailScreen not found. Add it to the scene.");
                 ShowInbox();
                 return;
             }
-            InboxZero.UI.AllMailScreen.Instance.Show();
+            am.OnClose.AddListener(OnAllMailClosedDuringRun);
+            am.Show();
+        }
+
+        void OnAllMailClosedDuringRun()
+        {
+            var am = InboxZero.UI.AllMailScreen.Instance;
+            if (am != null) am.OnClose.RemoveListener(OnAllMailClosedDuringRun);
+            ShowInbox();
         }
 
         void OnDeckBuilderDone()
