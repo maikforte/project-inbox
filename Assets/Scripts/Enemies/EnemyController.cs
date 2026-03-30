@@ -50,13 +50,25 @@ namespace InboxZero.Enemies
 
         const int GuiltDamagePerTurn = 2;
 
+        // Flat bonuses applied per escalation level.
+        public const int EscalationHPBonus  = 5;
+        public const int EscalationDmgBonus = 2;
+
+        // Effective max HP and damage bonus after escalation scaling.
+        int _scaledMaxHP;
+        int _damageBonus;
+        public int DamageBonus   => _damageBonus;
+        public int ScaledMaxHP   => _scaledMaxHP;
+
         // ── Initialisation ────────────────────────────────────────────────────
 
-        public void Init(EnemyData data)
+        public void Init(EnemyData data, int escalation = 0)
         {
-            Data      = data;
-            CurrentHP = data.maxHP;
-            IsDead    = false;
+            Data           = data;
+            _scaledMaxHP   = data.maxHP + escalation * EscalationHPBonus;
+            _damageBonus   = escalation * EscalationDmgBonus;
+            CurrentHP      = _scaledMaxHP;
+            IsDead         = false;
             _statuses.Clear();
             _fillTarget = _fillDisplay = 1f;
 
@@ -120,7 +132,7 @@ namespace InboxZero.Enemies
         public void Heal(int amount)
         {
             if (IsDead) return;
-            CurrentHP = Mathf.Min(CurrentHP + amount, Data.maxHP);
+            CurrentHP = Mathf.Min(CurrentHP + amount, _scaledMaxHP);
             UpdateUI();
         }
 
@@ -189,7 +201,7 @@ namespace InboxZero.Enemies
                 else
                 {
                     // Legacy flat-damage fallback (no intent deck assigned).
-                    GameManager.Instance.TakeDamage(Data.damagePerTurn);
+                    GameManager.Instance.TakeDamage(Data.damagePerTurn + _damageBonus);
                     if (Data.statusAppliedOnAttack != StatusEffectType.None)
                         ApplyStatusToPlayer(Data.statusAppliedOnAttack, Data.statusDuration);
                 }
@@ -208,7 +220,7 @@ namespace InboxZero.Enemies
             // Regen.
             if (Data.regenPerTurn > 0)
             {
-                CurrentHP = Mathf.Min(CurrentHP + Data.regenPerTurn, Data.maxHP);
+                CurrentHP = Mathf.Min(CurrentHP + Data.regenPerTurn, _scaledMaxHP);
                 UpdateUI();
             }
 
@@ -288,10 +300,10 @@ namespace InboxZero.Enemies
                 nameText.text = Data != null ? Data.enemyName.ToUpper() : "";
 
             if (hpText != null)
-                hpText.text = $"{Mathf.Max(CurrentHP, 0)} / {(Data != null ? Data.maxHP : 0)}";
+                hpText.text = $"{Mathf.Max(CurrentHP, 0)} / {_scaledMaxHP}";
 
-            if (Data != null)
-                _fillTarget = (float)Mathf.Max(CurrentHP, 0) / Data.maxHP;
+            if (Data != null && _scaledMaxHP > 0)
+                _fillTarget = (float)Mathf.Max(CurrentHP, 0) / _scaledMaxHP;
 
             statusChipDisplay?.Refresh(_statuses);
         }

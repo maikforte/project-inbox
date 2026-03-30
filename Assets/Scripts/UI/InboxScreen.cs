@@ -30,7 +30,8 @@ namespace InboxZero.UI
         // ── Public API ────────────────────────────────────────────────────────
 
         /// Show the email list inside an existing content area (SPA style).
-        public void ShowInContent(RectTransform contentArea, List<RoomOption> options)
+        public void ShowInContent(RectTransform contentArea, List<RoomOption> options,
+                                  Dictionary<int, int> escalation = null)
         {
             Hide();
             if (pagePrefab == null || contentArea == null) return;
@@ -38,7 +39,7 @@ namespace InboxZero.UI
             _page = Instantiate(pagePrefab, contentArea, false);
             var view = _page.GetComponent<InboxPageView>();
             if (view?.emailListRoot != null)
-                BuildRows(view.emailListRoot, options);
+                BuildRows(view.emailListRoot, options, escalation);
         }
 
         public void Hide()
@@ -49,7 +50,8 @@ namespace InboxZero.UI
 
         // ── Row building ──────────────────────────────────────────────────────
 
-        void BuildRows(RectTransform parent, List<RoomOption> options)
+        void BuildRows(RectTransform parent, List<RoomOption> options,
+                       Dictionary<int, int> escalation)
         {
             if (emailRowPrefab == null)
             {
@@ -57,8 +59,8 @@ namespace InboxZero.UI
                 return;
             }
 
-            float rowH    = emailRowPrefab.GetComponent<RectTransform>().sizeDelta.y;
-            var   gm      = GameManager.Instance;
+            float rowH     = emailRowPrefab.GetComponent<RectTransform>().sizeDelta.y;
+            var   gm       = GameManager.Instance;
             int   floorDay = 14 - (4 - gm.CurrentFloor) * 2 - gm.CurrentRoom;
 
             for (int i = 0; i < options.Count; i++)
@@ -69,7 +71,8 @@ namespace InboxZero.UI
                 var rowView = rowGo.GetComponent<EmailRowView>();
                 if (rowView == null) continue;
 
-                rowView.Bind(options[i], floorDay);
+                int level = escalation != null && escalation.TryGetValue(options[i].id, out int e) ? e : 0;
+                rowView.Bind(options[i], floorDay, level);
 
                 var captured = options[i];
                 rowView.button?.onClick.AddListener(() => OnRowClicked(captured));

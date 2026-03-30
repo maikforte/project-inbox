@@ -5,7 +5,6 @@ using InboxZero.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 namespace InboxZero.UI
 {
@@ -25,10 +24,7 @@ namespace InboxZero.UI
         public TextMeshProUGUI previewEffect;
 
         readonly List<CardView> _cards = new List<CardView>();
-        bool        _started;
-        GameObject  _overflowPrompt;
-
-        public bool IsDiscardMode { get; private set; }
+        bool _started;
 
         const float MinSpacing  = 30f;
         const float MaxSpacing  = 94f;
@@ -53,7 +49,7 @@ namespace InboxZero.UI
             if (TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.AddListener(ClearCards);
-                TurnManager.Instance.OnOverflowDiscard.AddListener(EnterDiscardMode);
+                TurnManager.Instance.OnPlayerTurnEnd.AddListener(ClearCards);
                 TurnManager.Instance.OnPlayerTurnStart.AddListener(RefreshHand);
             }
             _started = true;
@@ -64,7 +60,7 @@ namespace InboxZero.UI
             if (_started && TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.AddListener(ClearCards);
-                TurnManager.Instance.OnOverflowDiscard.AddListener(EnterDiscardMode);
+                TurnManager.Instance.OnPlayerTurnEnd.AddListener(ClearCards);
                 TurnManager.Instance.OnPlayerTurnStart.AddListener(RefreshHand);
             }
         }
@@ -74,7 +70,7 @@ namespace InboxZero.UI
             if (TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.RemoveListener(ClearCards);
-                TurnManager.Instance.OnOverflowDiscard.RemoveListener(EnterDiscardMode);
+                TurnManager.Instance.OnPlayerTurnEnd.RemoveListener(ClearCards);
                 TurnManager.Instance.OnPlayerTurnStart.RemoveListener(RefreshHand);
             }
         }
@@ -166,69 +162,6 @@ namespace InboxZero.UI
             foreach (var c in _cards)
                 if (c != null) Destroy(c.gameObject);
             _cards.Clear();
-        }
-
-        // ── Overflow discard mode ─────────────────────────────────────────────
-
-        void EnterDiscardMode()
-        {
-            IsDiscardMode = true;
-            foreach (var cv in _cards)
-                cv?.SetHighlight(true);
-            BuildOverflowPrompt();
-        }
-
-        void ExitDiscardMode()
-        {
-            IsDiscardMode = false;
-            foreach (var cv in _cards)
-                cv?.SetHighlight(false);
-            if (_overflowPrompt != null) { Destroy(_overflowPrompt); _overflowPrompt = null; }
-        }
-
-        /// Called by CardView when IsDiscardMode is true.
-        public void DiscardFromHand(CardView view)
-        {
-            ExitDiscardMode();
-            DeckManager.Instance.DiscardCard(view.Data);
-            _cards.Remove(view);
-            if (view != null) Destroy(view.gameObject);
-            TurnManager.Instance.CompleteOverflowDiscard();
-        }
-
-        void BuildOverflowPrompt()
-        {
-            var canvas = cardContainer.GetComponentInParent<Canvas>();
-            if (canvas == null) return;
-
-            _overflowPrompt = new GameObject("OverflowPrompt", typeof(RectTransform));
-            _overflowPrompt.layer = 5;
-            var rt = _overflowPrompt.GetComponent<RectTransform>();
-            rt.SetParent(canvas.transform, false);
-            rt.SetAsLastSibling();
-            rt.anchorMin        = new Vector2(0f, 1f);
-            rt.anchorMax        = new Vector2(1f, 1f);
-            rt.pivot            = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta        = new Vector2(0f, 18f);
-            _overflowPrompt.AddComponent<Image>().color = new Color(0.65f, 0.08f, 0.08f, 0.92f);
-
-            var txtGo = new GameObject("Txt", typeof(RectTransform));
-            txtGo.layer = 5;
-            var txtRt = txtGo.GetComponent<RectTransform>();
-            txtRt.SetParent(rt, false);
-            txtRt.anchorMin = Vector2.zero;
-            txtRt.anchorMax = Vector2.one;
-            txtRt.offsetMin = Vector2.zero;
-            txtRt.offsetMax = Vector2.zero;
-
-            var tmp = txtGo.AddComponent<TextMeshProUGUI>();
-            tmp.text               = "HAND FULL  --  CLICK A CARD TO DISCARD IT";
-            tmp.fontSize           = 14;
-            tmp.color              = Color.white;
-            tmp.alignment          = TextAlignmentOptions.Center;
-            tmp.enableWordWrapping = false;
-            if (uiFont != null) tmp.font = uiFont;
         }
 
         // ── Card factory ──────────────────────────────────────────────────────

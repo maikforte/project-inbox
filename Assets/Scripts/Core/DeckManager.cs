@@ -71,7 +71,7 @@ namespace InboxZero.Core
         }
 
         // Move discard pile back into draw pile and shuffle.
-        void ReshuffleDiscard()
+        public void ReshuffleDiscard()
         {
             var gm = GameManager.Instance;
             gm.DrawPile.AddRange(gm.DiscardPile);

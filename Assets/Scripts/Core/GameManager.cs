@@ -16,7 +16,7 @@ namespace InboxZero.Core
         public int CurrentHP;
         public int MaxAP = 3;
         public int CurrentAP;
-        public int HandSize = 5;
+        public int HandSize = 3;
         public const int MaxHandSize = 7;
 
         [Header("Deck State")]

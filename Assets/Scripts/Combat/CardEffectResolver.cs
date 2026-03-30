@@ -32,7 +32,9 @@ namespace InboxZero.Combat
                 switch (effect.effectType)
                 {
                     case CardEffectType.DealDamage:
-                        int dmg = effect.value + (executor == EffectExecutor.Player ? BonusDamage(card) : 0);
+                        int dmg = effect.value + (executor == EffectExecutor.Player
+                            ? BonusDamage(card)
+                            : (ActiveEnemy != null ? ActiveEnemy.DamageBonus : 0));
                         if (executor == EffectExecutor.Player)
                         {
                             ActiveTarget?.TakeDamage(dmg);

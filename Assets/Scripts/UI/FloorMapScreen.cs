@@ -24,11 +24,14 @@ namespace InboxZero.UI
         public UnityEvent<RoomOption> OnRestStopSelected = new UnityEvent<RoomOption>();
         public UnityEvent             OnFloorComplete    = new UnityEvent();
         public UnityEvent             OnAllMailSelected  = new UnityEvent();
+        // Fired when the player clicks any sidebar tab other than INBOX or ALL MAIL.
+        public UnityEvent<InboxTab>   OnTabSelected      = new UnityEvent<InboxTab>();
 
-        Canvas           _canvas;
-        GameObject       _panel;
-        RectTransform    _listAreaRt;
-        List<RoomOption> _lastOptions;
+        Canvas               _canvas;
+        GameObject           _panel;
+        RectTransform        _listAreaRt;
+        List<RoomOption>     _lastOptions;
+        Dictionary<int, int> _lastEscalation;
 
         // ── Gmail colour palette ──────────────────────────────────────────────
         static readonly Color C_Bg        = new Color(1.00f, 1.00f, 1.00f);
@@ -44,6 +47,19 @@ namespace InboxZero.UI
         static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "ALL MAIL", "SPAM" };
         static readonly string[] SbCounts = { "22",    "",        "",         "",          "",     "",        "",         "5921" };
 
+        // Maps sidebar index → InboxTab (null = special handler: INBOX=0, ALL MAIL=6).
+        static readonly InboxTab?[] SbTabs =
+        {
+            null,                  // 0 INBOX — handled by OnInboxClicked
+            InboxTab.Starred,      // 1
+            InboxTab.Snoozed,      // 2
+            InboxTab.Important,    // 3
+            InboxTab.Sent,         // 4
+            InboxTab.Drafts,       // 5
+            null,                  // 6 ALL MAIL — handled by OnAllMailClicked
+            InboxTab.Spam,         // 7
+        };
+
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -53,8 +69,9 @@ namespace InboxZero.UI
 
         // ── Public API ────────────────────────────────────────────────────────
 
-        public void Show(List<RoomOption> options)
+        public void Show(List<RoomOption> options, Dictionary<int, int> escalation = null)
         {
+            _lastEscalation = escalation;
             if (_panel != null) Destroy(_panel);
             Build(options);
         }
@@ -83,9 +100,10 @@ namespace InboxZero.UI
             var view = _panel.GetComponent<LayoutView>();
             if (view == null) { Debug.LogError("[FloorMapScreen] layoutPrefab missing LayoutView."); return; }
 
-            // Wire nav buttons
+            // Wire nav buttons — inbox and all-mail via serialized refs, tabs via hierarchy lookup.
             if (view.inboxButton   != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
             if (view.allMailButton != null) view.allMailButton.onClick.AddListener(OnAllMailClicked);
+            WireSidebarTabs(_panel.transform);
 
             // Update dynamic labels
             if (view.floorInfoLabel != null)
@@ -229,9 +247,10 @@ namespace InboxZero.UI
                     new Vector2(8, y), new Vector2(-8, 14),
                     txt, labelColor, TextAlignmentOptions.MidlineLeft);
 
-                if (isInbox || isAllMail)
+                bool isTab = SbTabs[i].HasValue;
+                if (isInbox || isAllMail || isTab)
                 {
-                    string btnName = isInbox ? "SbInboxBtn" : "SbAllMailBtn";
+                    string btnName = isInbox ? "SbInboxBtn" : isAllMail ? "SbAllMailBtn" : $"SbTabBtn{i}";
                     var hitGo = new GameObject(btnName, typeof(RectTransform));
                     hitGo.layer = 5;
                     var hitRt   = hitGo.GetComponent<RectTransform>();
@@ -252,8 +271,16 @@ namespace InboxZero.UI
                     cb.highlightedColor = C_SbActive;
                     cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
                     btn.colors          = cb;
-                    UnityEngine.Events.UnityAction handler = isInbox ? OnInboxClicked : OnAllMailClicked;
-                    btn.onClick.AddListener(handler);
+
+                    if (isInbox)
+                        btn.onClick.AddListener(OnInboxClicked);
+                    else if (isAllMail)
+                        btn.onClick.AddListener(OnAllMailClicked);
+                    else
+                    {
+                        var capturedTab = SbTabs[i].Value;
+                        btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
+                    }
                 }
             }
         }
@@ -265,7 +292,46 @@ namespace InboxZero.UI
             foreach (Transform child in _listAreaRt)
                 Destroy(child.gameObject);
 
-            InboxScreen.Instance?.ShowInContent(_listAreaRt, options);
+            InboxScreen.Instance?.ShowInContent(_listAreaRt, options, _lastEscalation);
+        }
+
+        // Maps sidebar nav-item names → InboxTab for runtime button wiring.
+        static readonly (string name, InboxTab tab)[] SidebarTabMap =
+        {
+            ("Nav_STARRED",   InboxTab.Starred),
+            ("Nav_SNOOZED",   InboxTab.Snoozed),
+            ("Nav_IMPORTANT", InboxTab.Important),
+            ("Nav_SENT",      InboxTab.Sent),
+            ("Nav_DRAFTS",    InboxTab.Drafts),
+            ("Nav_SPAM",      InboxTab.Spam),
+        };
+
+        void WireSidebarTabs(Transform root)
+        {
+            var sidebar = root.Find("Body/Sidebar");
+            if (sidebar == null) return;
+            foreach (var (navName, tab) in SidebarTabMap)
+            {
+                var btn = sidebar.Find(navName)?.GetComponent<Button>();
+                if (btn == null) continue;
+                var capturedTab = tab;
+                btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
+            }
+        }
+
+        // Switches the content area to any room list without rebuilding the panel.
+        public void ShowContent(List<RoomOption> options, Dictionary<int, int> escalation = null)
+        {
+            if (_listAreaRt == null) return;
+            foreach (Transform child in _listAreaRt)
+                Destroy(child.gameObject);
+            InboxScreen.Instance?.ShowInContent(_listAreaRt, options, escalation);
+        }
+
+        void OnSideTabClicked(InboxTab tab)
+        {
+            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
+            OnTabSelected.Invoke(tab);
         }
 
         void OnInboxClicked()

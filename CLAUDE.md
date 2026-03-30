@@ -43,7 +43,7 @@
 - Let HP reach 0 → game over panel appears. Click Restart → combat resets.
 
 ### Milestone 3 — Status effects & starter cards (TASK-14 to 15)
-- Press Play → hand should show **5 cards** from the 9-card starter deck (Reply Politely ×2, Archive It ×2, Hard Delete, Mark as Read ×2, Unsubscribe, Set Filter). Card names and type-bar colors should be correct.
+- Press Play → hand should show **3 cards** drawn from the 9-card starter deck. Card names and type-bar colors should be correct. At end of turn, unplayed cards are discarded and 3 new cards are drawn.
 - Hover a card → preview panel shows card details. **Click** the card → preview dismisses immediately (no lingering panel).
 - To test **Unread**: temporarily set the test enemy's `Status Applied On Attack = Unread`, `Status Duration = 2` in the inspector. End your turn → the enemy panel shows `UNREAD 2`. On the enemy's turn it skips the attack. On the next enemy turn it attacks and the counter drops to 1, then clears.
 - To test **AwaitingReply**: set enemy SO to `Status Applied On Attack = AwaitingReply`, `Status Duration = 1`. End turn → after the enemy attacks, start of your next turn shows `AWAITINGREPLY 1` briefly on the player panel, and you have 2 AP instead of 3.
@@ -82,7 +82,7 @@ Each run is fresh. Each run will probably kill you.
 | Emails per Level | 4 |
 | Starting HP | 50 |
 | Starting AP per turn | 3 |
-| Starting Hand Size | 5 |
+| Cards Drawn Per Turn | 3 |
 | Win Condition | Defeat the Final Boss on Level 4 |
 | Lose Condition | HP reaches 0 |
 
@@ -95,12 +95,9 @@ Each run is fresh. Each run will probably kill you.
 Each combat encounter follows this sequence:
 
 ```
-COMBAT START (once per fight)
-    → Draw 5 cards into hand (opening hand)
-    → Gain 3 AP
-
-START OF TURN (every subsequent turn)
-    → Draw 1 card
+START OF TURN (every turn, including the first)
+    → If draw pile ≤ 2 cards AND discard pile is non-empty → reshuffle discard into draw pile first
+    → Draw 3 cards
     → Gain 3 AP
     → Apply start-of-turn relic effects (Cold Coffee: +3 HP)
     → Apply start-of-turn status effects (AwaitingReply AP reduction)
@@ -108,8 +105,11 @@ START OF TURN (every subsequent turn)
 YOUR TURN
     → Play cards from hand by spending AP
     → Played cards go to the discard pile immediately
-    → Unplayed cards STAY IN HAND — they are never auto-discarded
     → End turn when done (or out of AP)
+
+END OF PLAYER TURN
+    → All unplayed cards in hand are discarded
+    → Shield resets to 0
 
 ENEMY TURN
     → Enemy attacks for its listed damage
@@ -117,18 +117,15 @@ ENEMY TURN
     → Leftover damage hits your HP
     → Enemy regen triggers (if applicable)
     → Player status effects tick down (Guilt deals 2 dmg, etc.)
-
-END OF TURN
-    → Shield resets to 0
     → Loop back to Start of Turn
 ```
 
 ### Card Draw & Deck Cycling
 
-- **Hand persists.** Only played cards move to the discard pile. Unplayed cards remain in hand.
-- **Draw 1 per turn.** After the opening hand of 5, you draw exactly 1 card at the start of each turn (effects like Mark as Read or Unsubscribe can draw additional cards).
-- **Deck exhaustion.** When the draw pile runs out, shuffle the discard pile into a new draw pile. Cards currently in hand are **never** included in the reshuffle.
-- **Max hand size: 7.** If drawing would exceed 7 cards, you must choose a card to discard before the new card enters. This prevents indefinite hand accumulation.
+- **Hand resets every turn.** All 3 drawn cards are discarded at end of turn whether played or not. There is no hand persistence between turns.
+- **Draw 3 per turn.** Every turn draws exactly 3 cards (effects like Mark as Read or Unsubscribe can draw additional cards mid-turn).
+- **Pre-draw reshuffle.** If the draw pile has ≤ 2 cards at the start of a turn and the discard pile is non-empty, the discard pile is shuffled back into the draw pile before drawing. This ensures the draw never silently short-draws.
+- **Mid-draw reshuffle.** If the draw pile empties mid-draw (e.g. from a card effect drawing extra cards), the discard pile is shuffled in and drawing continues.
 
 ### Card Rewards
 
@@ -228,7 +225,7 @@ All configuration that persists across runs (unlock state, card pool toggles) is
 The **InboxLayout** is the run's navigation hub — the equivalent of Slay the Spire's map, but expressed as a Gmail inbox. There is no explicit node graph.
 
 **Tab structure:**
-- **Inbox** — the primary combat path. All main-path encounters are listed here as email rows. Rows resolve in order (the player cannot skip ahead).
+- **Inbox** — the primary combat path. All main-path encounters are listed here as email rows. The player may click any row in any order — there is no forced sequence. Unaddressed rows escalate (grow harder) each time the player completes any encounter.
 - **Other tabs** (Spam, Sent, Promotions, etc.) — optional side paths. Each tab has a distinct flavour:
   - *Spam* → ambushes or high-risk/high-reward fights
   - *Sent* → events or narrative choices

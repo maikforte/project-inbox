@@ -55,21 +55,9 @@ namespace InboxZero.UI
 
         // ── Input handlers ────────────────────────────────────────────────────
 
-        public void SetHighlight(bool on)
-        {
-            if (_bg != null) _bg.color = on ? new Color(1f, 0.55f, 0.55f) : Color.white;
-        }
-
         public void OnPointerClick(PointerEventData _)
         {
             if (Data == null) return;
-
-            // Overflow discard mode — clicking discards this card instead of playing it.
-            if (HandDisplay.Instance != null && HandDisplay.Instance.IsDiscardMode)
-            {
-                HandDisplay.Instance.DiscardFromHand(this);
-                return;
-            }
 
             if (TurnManager.Instance == null || !TurnManager.Instance.CanPlayCard(Data.apCost)) return;
 

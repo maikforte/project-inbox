@@ -176,7 +176,7 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: 0.16666667
     width: 1
     height: 1
   near clip plane: 0.3
@@ -1726,7 +1726,7 @@ MonoBehaviour:
   OnPlayerDeath:
     m_PersistentCalls:
       m_Calls: []
-  MaxHP: 100
+  MaxHP: 25
   CurrentHP: 0
   MaxAP: 3
   CurrentAP: 0
@@ -1785,9 +1785,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnCombatStart:
-    m_PersistentCalls:
-      m_Calls: []
-  OnOverflowDiscard:
     m_PersistentCalls:
       m_Calls: []
   OnPlayerTurnStart:
@@ -1987,7 +1984,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registry: {fileID: 11400000, guid: d81fadb0368a9404ba14bd11c1a6b561, type: 2}
-  cardBackground: {fileID: 1752860504664494368, guid: 0240d2bbc0a0e50418d69cc760c49b7a, type: 3}
+  cardDisplayPrefab: {fileID: 5242762391324007489, guid: cad2932bb84f1c54f9e5049e52d0612a, type: 3}
   cardFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
   OnComplete:
     m_PersistentCalls:
@@ -2048,6 +2045,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnAllMailSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTabSelected:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &4204
@@ -2332,11 +2332,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a, type: 2}
   starterCards:
   - {fileID: 11400000, guid: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6, type: 2}
-  - {fileID: 11400000, guid: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6, type: 2}
-  - {fileID: 11400000, guid: 3415df414ee3c7847b7f1e452331a14f, type: 2}
   - {fileID: 11400000, guid: 3415df414ee3c7847b7f1e452331a14f, type: 2}
   - {fileID: 11400000, guid: c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7, type: 2}
-  - {fileID: 11400000, guid: d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8, type: 2}
   - {fileID: 11400000, guid: d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8, type: 2}
   - {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6, type: 2}
   - {fileID: 11400000, guid: e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6, type: 2}

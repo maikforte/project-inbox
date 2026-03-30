@@ -22,8 +22,8 @@ namespace InboxZero.UI
             if (_enemy == null) _enemy = FindObjectOfType<EnemyController>();
             if (_enemy == null || _enemy.Data == null) return;
 
-            int hp    = Mathf.Clamp(_enemy.CurrentHP, 0, _enemy.Data.maxHP);
-            int maxHp = _enemy.Data.maxHP;
+            int maxHp = _enemy.ScaledMaxHP;
+            int hp    = Mathf.Clamp(_enemy.CurrentHP, 0, maxHp);
             int fillCount = hp == 0 ? 0 : Mathf.CeilToInt((float)hp / maxHp * 5f);
 
             for (int i = 0; i < fillSprites.Length; i++)

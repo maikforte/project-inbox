@@ -16,8 +16,6 @@ namespace InboxZero.Core
 
         // Fired once at the start of each combat (before the first player turn).
         public UnityEvent OnCombatStart = new UnityEvent();
-        // Fired when hand is full and player must discard before drawing.
-        public UnityEvent OnOverflowDiscard = new UnityEvent();
         // Fired at the start of each player turn (after draw + AP reset).
         public UnityEvent OnPlayerTurnStart = new UnityEvent();
         // Fired when the player ends their turn.
@@ -27,8 +25,8 @@ namespace InboxZero.Core
         // Fired at the end of the enemy turn (returns control to player).
         public UnityEvent OnEnemyTurnEnd = new UnityEvent();
 
-        bool _isFirstTurn;
-        int  _pendingDraw;
+        const int DrawPerTurn    = 3;
+        const int ReshuffleBelow = 2;  // reshuffle discard into draw when draw pile <= this
 
         void Awake()
         {
@@ -39,8 +37,6 @@ namespace InboxZero.Core
         // Call at the start of each combat encounter.
         public void BeginCombat()
         {
-            _isFirstTurn = true;
-
             if (PlayerStatusManager.Instance != null)
                 PlayerStatusManager.Instance.ClearAll();
             if (RelicManager.Instance != null)
@@ -69,19 +65,12 @@ namespace InboxZero.Core
             if (PlayerStatusManager.Instance != null)
                 PlayerStatusManager.Instance.ProcessTurnStart();
 
-            // Opening hand draws 5; every subsequent turn draws 1.
-            int cardsToDraw = _isFirstTurn ? gm.HandSize : 1;
-            _isFirstTurn = false;
+            // Reshuffle discard into draw pile if draw pile is running low.
+            var dm = DeckManager.Instance;
+            if (gm.DrawPile.Count <= ReshuffleBelow && gm.DiscardPile.Count > 0)
+                dm.ReshuffleDiscard();
 
-            // If drawing would exceed max hand size, pause and ask for a discard first.
-            if (gm.Hand.Count + cardsToDraw > GameManager.MaxHandSize)
-            {
-                _pendingDraw = cardsToDraw;
-                OnOverflowDiscard.Invoke();
-                return; // OnPlayerTurnStart fires after the player discards
-            }
-
-            DeckManager.Instance.DrawCards(cardsToDraw);
+            dm.DrawCards(DrawPerTurn);
             OnPlayerTurnStart.Invoke();
         }
 
@@ -92,7 +81,8 @@ namespace InboxZero.Core
             if (CurrentPhase != TurnPhase.PlayerTurn) return;
 
             AudioManager.Instance?.PlayTurnEnd();
-            // Hand is NOT discarded — unplayed cards persist into the next turn.
+            // Discard unplayed cards — hand refreshes each turn.
+            DeckManager.Instance.DiscardHand();
             OnPlayerTurnEnd.Invoke();
 
             StartEnemyTurn();
@@ -113,14 +103,6 @@ namespace InboxZero.Core
 
             OnEnemyTurnEnd.Invoke();
             StartPlayerTurn();
-        }
-
-        // Called by HandDisplay after the player discards a card during overflow.
-        public void CompleteOverflowDiscard()
-        {
-            DeckManager.Instance.DrawCards(_pendingDraw);
-            _pendingDraw = 0;
-            OnPlayerTurnStart.Invoke();
         }
 
         // ── AP helpers ────────────────────────────────────────────────────────

@@ -35,10 +35,20 @@ namespace InboxZero.Core
         [SerializeField] CombatResultManager combatResultManager;
         [SerializeField] Button endTurnButton;
 
-        // ── Inbox state ───────────────────────────────────────────────────────
+        // ── Inbox / tab state ─────────────────────────────────────────────────
 
-        List<RoomOption> _inbox       = new List<RoomOption>();
-        RoomOption       _activeOption;  // combat currently being fought
+        // Per-tab encounter lists. _inbox is the primary path; others are optional.
+        List<RoomOption> _inbox     = new List<RoomOption>();
+        List<RoomOption> _spam      = new List<RoomOption>();
+        List<RoomOption> _starred   = new List<RoomOption>();
+        List<RoomOption> _snoozed   = new List<RoomOption>();
+        List<RoomOption> _important = new List<RoomOption>();
+        List<RoomOption> _sent      = new List<RoomOption>();
+        List<RoomOption> _drafts    = new List<RoomOption>();
+
+        RoomOption           _activeOption;
+        // id → escalation level; rooms across all tabs share the same dict (ids are globally unique)
+        Dictionary<int, int> _escalation = new Dictionary<int, int>();
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -77,6 +87,7 @@ namespace InboxZero.Core
                 FloorMapScreen.Instance.OnCombatSelected.AddListener(BeginNextCombat);
                 FloorMapScreen.Instance.OnRestStopSelected.AddListener(OnRestStopSelected);
                 FloorMapScreen.Instance.OnAllMailSelected.AddListener(OnAllMailSelected);
+                FloorMapScreen.Instance.OnTabSelected.AddListener(OnSideTabSelected);
             }
 
             // Rest Stop done → Inbox
@@ -112,11 +123,46 @@ namespace InboxZero.Core
 
         // ── Inbox helpers ─────────────────────────────────────────────────────
 
+        List<RoomOption> GetTabList(InboxTab tab) => tab switch
+        {
+            InboxTab.Spam      => _spam,
+            InboxTab.Starred   => _starred,
+            InboxTab.Snoozed   => _snoozed,
+            InboxTab.Important => _important,
+            InboxTab.Sent      => _sent,
+            InboxTab.Drafts    => _drafts,
+            _                  => _inbox,
+        };
+
         void BuildInboxForFloor(int floor)
         {
-            var pool = GetPoolForFloor(floor);
-            _inbox = FloorMapManager.Instance.GenerateAllLevelEncounters(pool);
+            var fmm      = FloorMapManager.Instance;
+            var pool     = GetPoolForFloor(floor);
+            var nextPool = GetPoolForFloor(floor + 1);
+
+            _inbox     = fmm.GenerateAllLevelEncounters(pool);
+            _spam      = fmm.GenerateTabEncounters(pool, InboxTab.Spam);
+            _starred   = fmm.GenerateTabEncounters(pool, InboxTab.Starred, nextPool);
+            _snoozed   = fmm.GenerateTabEncounters(pool, InboxTab.Snoozed);
+            _important = fmm.GenerateTabEncounters(pool, InboxTab.Important);
+            _sent      = fmm.GenerateTabEncounters(pool, InboxTab.Sent);
+            _drafts    = fmm.GenerateTabEncounters(pool, InboxTab.Drafts);
+
+            _escalation.Clear();
+            foreach (var tab in System.Enum.GetValues(typeof(InboxTab)))
+                foreach (var opt in GetTabList((InboxTab)tab))
+                    _escalation[opt.id] = 0;
         }
+
+        // After an encounter, only rooms in the same tab escalate.
+        void StepEscalation(InboxTab tab)
+        {
+            foreach (var opt in GetTabList(tab))
+                _escalation[opt.id] = _escalation.TryGetValue(opt.id, out int cur) ? cur + 1 : 1;
+        }
+
+        int GetEscalation(RoomOption opt) =>
+            opt.baseEscalation + (_escalation.TryGetValue(opt.id, out int level) ? level : 0);
 
         void ShowInbox()
         {
@@ -126,7 +172,7 @@ namespace InboxZero.Core
                 return;
             }
             if (FloorMapScreen.Instance != null)
-                FloorMapScreen.Instance.Show(_inbox);
+                FloorMapScreen.Instance.Show(_inbox, _escalation);
         }
 
         List<EnemyData> GetPoolForFloor(int floor) => floor switch
@@ -151,7 +197,7 @@ namespace InboxZero.Core
                 return;
             }
 
-            enemyController.Init(opt.enemyData);
+            enemyController.Init(opt.enemyData, GetEscalation(opt));
             combatResultManager.RegisterEnemy(enemyController);
             TurnManager.Instance.BeginCombat();
         }
@@ -160,8 +206,9 @@ namespace InboxZero.Core
 
         void OnVictoryContinued()
         {
-            // Show guaranteed 3-card reward based on the defeated enemy's reward tier.
-            var tier = _activeOption.enemyData != null ? _activeOption.enemyData.rewardTier : RewardTier.Common;
+            // Tab-level rewardTierOverride takes priority over the enemy's own reward tier.
+            var tier = _activeOption.rewardTierOverride
+                ?? (_activeOption.enemyData != null ? _activeOption.enemyData.rewardTier : RewardTier.Common);
             if (CardRewardScreen.Instance != null)
                 CardRewardScreen.Instance.Show(tier);
             else
@@ -176,7 +223,9 @@ namespace InboxZero.Core
         void FinishCombat()
         {
             TriggerUnlocks(_activeOption.enemyData);
-            _inbox.Remove(_activeOption);
+            _escalation.Remove(_activeOption.id);
+            GetTabList(_activeOption.tab).Remove(_activeOption);
+            StepEscalation(_activeOption.tab);
             GameManager.Instance.CurrentRoom++;
             ShowInbox();
         }
@@ -219,7 +268,9 @@ namespace InboxZero.Core
 
         void OnRestStopDone()
         {
-            _inbox.Remove(_pendingRestOpt);
+            _escalation.Remove(_pendingRestOpt.id);
+            GetTabList(_pendingRestOpt.tab).Remove(_pendingRestOpt);
+            StepEscalation(_pendingRestOpt.tab);
             GameManager.Instance.CurrentRoom++;
             ShowInbox();
         }
@@ -235,6 +286,12 @@ namespace InboxZero.Core
             // CurrentFloor and CurrentRoom already advanced by FloorTransitionScreen.OnContinue
             BuildInboxForFloor(GameManager.Instance.CurrentFloor);
             ShowInbox();
+        }
+
+        void OnSideTabSelected(InboxTab tab)
+        {
+            var list = GetTabList(tab);
+            FloorMapScreen.Instance?.ShowContent(list, _escalation);
         }
 
         void OnAllMailSelected()

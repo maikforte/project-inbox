@@ -16,29 +16,22 @@ namespace InboxZero.UI
         [Tooltip("All cards in the game. Reward pool is built at runtime from unlocked+enabled cards.")]
         public AllCardsRegistry registry;
 
-        [Header("Sprites")]
-        public Sprite cardBackground;
+        [Header("Card Prefab")]
+        [Tooltip("Same CardDisplayView prefab used in All Mail. Toggle is hidden in reward context.")]
+        public CardDisplayView cardDisplayPrefab;
 
         [Header("Font")]
+        [Tooltip("BetterPixels — used for the title and skip button labels.")]
         public TMP_FontAsset cardFont;
 
-        // Fired after the player picks or skips — wire to room selection (TASK-11).
+        // Fired after the player picks or skips.
         public UnityEvent OnComplete = new UnityEvent();
 
-        const int CardCount    = 3;
-        const float CardWidth  = 110f;
-        const float CardHeight = 150f;
-        const float CardSpacing = 20f;
-        const float TypeBarHeight = 10f;
-        const float Padding = 5f;
+        const int   CardCount   = 3;
+        const float CardSpacing = 16f;
 
-        static readonly Color AttackColor  = new Color(0.85f, 0.18f, 0.18f);
-        static readonly Color DefendColor  = new Color(0.18f, 0.75f, 0.25f);
-        static readonly Color SpecialColor = new Color(0.55f, 0.18f, 0.80f);
-
-        Canvas _canvas;
+        Canvas     _canvas;
         GameObject _panel;
-        readonly List<GameObject> _cardObjects = new List<GameObject>();
 
         void Awake()
         {
@@ -59,7 +52,6 @@ namespace InboxZero.UI
         {
             if (_panel != null) Destroy(_panel);
             _panel = null;
-            _cardObjects.Clear();
         }
 
         // ── Pool filtering ────────────────────────────────────────────────────
@@ -76,7 +68,6 @@ namespace InboxZero.UI
                 {
                     if (card == null) continue;
                     if (!allowed.Contains(card.rarity)) continue;
-                    // Only include unlocked + enabled cards (Starter excluded from rewards).
                     if (card.rarity == CardRarity.Starter) continue;
                     if (um != null && !um.IsEnabled(card)) continue;
                     pool.Add(card);
@@ -96,171 +87,131 @@ namespace InboxZero.UI
             return result;
         }
 
-        // Rarity offered by enemy reward tier (TASK-38):
-        //   Common   → Common only
-        //   Uncommon → Common or Uncommon
-        //   Rare     → Uncommon or Rare
-        //   Boss     → Rare guaranteed
+        // Common → Common only, Uncommon → Common/Uncommon,
+        // Rare → Uncommon/Rare, Boss → Rare guaranteed
         static List<CardRarity> AllowedRarities(RewardTier tier) => tier switch
         {
             RewardTier.Common   => new List<CardRarity> { CardRarity.Common },
             RewardTier.Uncommon => new List<CardRarity> { CardRarity.Common, CardRarity.Uncommon },
             RewardTier.Rare     => new List<CardRarity> { CardRarity.Uncommon, CardRarity.Rare },
-            _                   => new List<CardRarity> { CardRarity.Rare },  // Boss
+            _                   => new List<CardRarity> { CardRarity.Rare },
         };
 
         // ── Panel construction ────────────────────────────────────────────────
 
         void BuildPanel(List<CardData> options)
         {
-            // Find the Canvas in the scene to parent to
-            var canvas = _canvas;
-            if (canvas == null) { Debug.LogError("[CardRewardScreen] No Canvas found."); return; }
+            if (_canvas == null) { Debug.LogError("[CardRewardScreen] No Canvas found."); return; }
+            if (cardDisplayPrefab == null) { Debug.LogError("[CardRewardScreen] cardDisplayPrefab not assigned."); return; }
 
             _panel = new GameObject("CardRewardPanel", typeof(RectTransform));
             _panel.layer = 5;
             var panelRt = _panel.GetComponent<RectTransform>();
-            panelRt.SetParent(canvas.transform, false);
+            panelRt.SetParent(_canvas.transform, false);
             panelRt.anchorMin = Vector2.zero;
             panelRt.anchorMax = Vector2.one;
             panelRt.offsetMin = Vector2.zero;
             panelRt.offsetMax = Vector2.zero;
 
-            // Dark overlay
-            var overlay = _panel.AddComponent<Image>();
-            overlay.color = new Color(0, 0, 0, 0.85f);
+            // Dark overlay — blocks clicks to the combat scene underneath
+            _panel.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
 
-            // Title
-            MakeText("Title", panelRt,
+            // "CHOOSE A CARD" title
+            MakeLabel("Title", panelRt,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0, -30), new Vector2(300, 20), "CHOOSE A CARD", 14);
+                new Vector2(0f, -30f), new Vector2(300f, 20f),
+                "CHOOSE A CARD", 14, TextAlignmentOptions.Center);
 
-            // Card row
-            float totalWidth = CardCount * CardWidth + (CardCount - 1) * CardSpacing;
-            float startX = -totalWidth / 2f + CardWidth / 2f;
+            // Horizontal card row — centred in the panel
+            var rowGo = new GameObject("CardRow", typeof(RectTransform));
+            rowGo.layer = 5;
+            var rowRt = rowGo.GetComponent<RectTransform>();
+            rowRt.SetParent(panelRt, false);
+            rowRt.anchorMin = new Vector2(0.5f, 0.5f);
+            rowRt.anchorMax = new Vector2(0.5f, 0.5f);
+            rowRt.pivot     = new Vector2(0.5f, 0.5f);
+            rowRt.anchoredPosition = Vector2.zero;
+            rowRt.sizeDelta = Vector2.zero;
 
-            for (int i = 0; i < options.Count; i++)
-            {
-                var cardGo = BuildRewardCard(panelRt, options[i]);
-                var cardRt = cardGo.GetComponent<RectTransform>();
-                cardRt.anchoredPosition = new Vector2(startX + i * (CardWidth + CardSpacing), 0);
-                _cardObjects.Add(cardGo);
-            }
+            var hlg = rowGo.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing            = CardSpacing;
+            hlg.childAlignment     = TextAnchor.MiddleCenter;
+            hlg.childControlWidth  = false;
+            hlg.childControlHeight = false;
+            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandHeight = false;
+
+            var csf = rowGo.AddComponent<ContentSizeFitter>();
+            csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            csf.verticalFit   = ContentSizeFitter.FitMode.PreferredSize;
+
+            foreach (var card in options)
+                BuildRewardCard(rowRt, card);
 
             // Skip button
             var skipGo = new GameObject("SkipButton", typeof(RectTransform));
             skipGo.layer = 5;
             var skipRt = skipGo.GetComponent<RectTransform>();
             skipRt.SetParent(panelRt, false);
-            skipRt.anchorMin = new Vector2(0.5f, 0);
-            skipRt.anchorMax = new Vector2(0.5f, 0);
-            skipRt.pivot     = new Vector2(0.5f, 0);
-            skipRt.anchoredPosition = new Vector2(0, 20);
-            skipRt.sizeDelta = new Vector2(80, 20);
+            skipRt.anchorMin        = new Vector2(0.5f, 0f);
+            skipRt.anchorMax        = new Vector2(0.5f, 0f);
+            skipRt.pivot            = new Vector2(0.5f, 0f);
+            skipRt.anchoredPosition = new Vector2(0f, 20f);
+            skipRt.sizeDelta        = new Vector2(80f, 20f);
             skipGo.AddComponent<Image>().color = new Color(0.25f, 0.25f, 0.35f);
-            var skipBtn = skipGo.AddComponent<Button>();
-            skipBtn.onClick.AddListener(OnSkip);
-            var skipLabelGo = MakeText("Label", skipRt,
+            skipGo.AddComponent<Button>().onClick.AddListener(OnSkip);
+            var skipLabel = MakeLabel("Label", skipRt,
                 Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
-                Vector2.zero, Vector2.zero, "SKIP", 14);
-            skipLabelGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+                Vector2.zero, Vector2.zero, "SKIP", 14, TextAlignmentOptions.Center);
+            skipLabel.GetComponent<TextMeshProUGUI>().enableWordWrapping = false;
         }
 
-        GameObject BuildRewardCard(RectTransform parent, CardData data)
+        void BuildRewardCard(RectTransform parent, CardData data)
         {
             var (canAdd, reason) = DeckCompositionChecker.CanAdd(data);
 
-            var go = new GameObject(data.cardName, typeof(RectTransform));
-            go.layer = 5;
-            var rt = go.GetComponent<RectTransform>();
-            rt.SetParent(parent, false);
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(CardWidth, CardHeight);
-
-            var bgImg = go.AddComponent<Image>();
-            if (cardBackground != null) bgImg.sprite = cardBackground;
-            bgImg.color = canAdd
-                ? new Color(0.18f, 0.18f, 0.28f)
-                : new Color(0.12f, 0.12f, 0.12f);   // dim bg when locked
-            go.AddComponent<GraphicRaycaster>();
-
-            // Type bar
-            var barGo = new GameObject("TypeBar", typeof(RectTransform));
-            barGo.layer = 5;
-            var barRt = barGo.GetComponent<RectTransform>();
-            barRt.SetParent(rt, false);
-            barRt.anchorMin = new Vector2(0, 1);
-            barRt.anchorMax = new Vector2(1, 1);
-            barRt.pivot = new Vector2(0.5f, 1f);
-            barRt.sizeDelta = new Vector2(0, TypeBarHeight);
-            barRt.anchoredPosition = Vector2.zero;
-            var typeBarColor = TypeColor(data.cardType);
-            barGo.AddComponent<Image>().color = canAdd
-                ? typeBarColor
-                : new Color(typeBarColor.r * 0.4f, typeBarColor.g * 0.4f, typeBarColor.b * 0.4f);
-
-            // Cost
-            MakeText("Cost", rt,
-                new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
-                new Vector2(Padding, -TypeBarHeight - 1), new Vector2(18, 14), data.apCost.ToString(), 14);
-
-            // Rarity pip (top-right)
-            MakeText("Rarity", rt,
-                new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1),
-                new Vector2(-Padding, -TypeBarHeight - 1), new Vector2(40, 10),
-                data.rarity.ToString().ToUpper(), 14);
-
-            // Name
-            var nameGo = MakeText("Name", rt,
-                new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1f),
-                new Vector2(0, -TypeBarHeight - Padding), new Vector2(0, 18),
-                data.cardName.ToUpper(), 14);
-            nameGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-
-            // Effect text — fixed-size rect to avoid TMP word-wrap recursion on first frame
-            var effectGo = MakeText("Effect", rt,
-                new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1),
-                new Vector2(Padding, -(TypeBarHeight + 26)),
-                new Vector2(CardWidth - Padding * 2, CardHeight - TypeBarHeight - 36),
-                data.effectDescription, 14);
-            var effectTmp = effectGo.GetComponent<TextMeshProUGUI>();
-            effectTmp.alignment          = TextAlignmentOptions.TopLeft;
-            effectTmp.enableWordWrapping = true;
+            var cdv = Instantiate(cardDisplayPrefab, parent, false);
+            cdv.Populate(data);
+            cdv.ShowToggle(false, false, null);   // hide ON/OFF toggle in reward context
 
             if (!canAdd)
             {
-                // Dark overlay to visually lock the card
-                var overlayGo = new GameObject("LockedOverlay", typeof(RectTransform));
-                overlayGo.layer = 5;
-                var overlayRt = overlayGo.GetComponent<RectTransform>();
-                overlayRt.SetParent(rt, false);
-                overlayRt.anchorMin = Vector2.zero;
-                overlayRt.anchorMax = Vector2.one;
-                overlayRt.offsetMin = Vector2.zero;
-                overlayRt.offsetMax = Vector2.zero;
-                overlayGo.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
+                cdv.SetDisabled(true);
 
-                // Reason label centred on the card
-                var reasonGo = MakeText("Reason", rt,
-                    new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0.5f),
-                    Vector2.zero, new Vector2(0, 28), reason, 14);
-                var reasonTmp = reasonGo.GetComponent<TextMeshProUGUI>();
-                reasonTmp.alignment         = TextAlignmentOptions.Center;
+                // Reason label centred over the card
+                var reasonGo = new GameObject("Reason", typeof(RectTransform));
+                reasonGo.layer = 5;
+                var reasonRt = reasonGo.GetComponent<RectTransform>();
+                reasonRt.SetParent(cdv.GetComponent<RectTransform>(), false);
+                reasonRt.anchorMin = new Vector2(0f, 0.5f);
+                reasonRt.anchorMax = new Vector2(1f, 0.5f);
+                reasonRt.pivot     = new Vector2(0.5f, 0.5f);
+                reasonRt.offsetMin = Vector2.zero;
+                reasonRt.offsetMax = Vector2.zero;
+                reasonRt.sizeDelta = new Vector2(0f, 28f);
+                var reasonTmp = reasonGo.AddComponent<TextMeshProUGUI>();
+                reasonTmp.text               = reason;
+                reasonTmp.fontSize           = 14;
+                reasonTmp.color              = new Color(1f, 0.35f, 0.35f);
+                reasonTmp.alignment          = TextAlignmentOptions.Center;
                 reasonTmp.enableWordWrapping = true;
-                reasonTmp.color             = new Color(1f, 0.35f, 0.35f);
+                reasonTmp.raycastTarget      = false;
+                if (cardFont != null) reasonTmp.font = cardFont;
             }
-
-            // Click handler — only active when card is addable
-            var btn = go.AddComponent<Button>();
-            btn.interactable = canAdd;
-            if (canAdd)
+            else
             {
+                // Wire click — add a Button on top so the whole card is clickable
+                var btn = cdv.gameObject.AddComponent<Button>();
                 var captured = data;
                 btn.onClick.AddListener(() => OnPick(captured));
-            }
 
-            return go;
+                // Subtle highlight on hover via colour tint
+                var cb = btn.colors;
+                cb.normalColor      = Color.white;
+                cb.highlightedColor = new Color(0.85f, 0.85f, 1f);
+                cb.pressedColor     = new Color(0.65f, 0.65f, 0.9f);
+                btn.colors = cb;
+            }
         }
 
         // ── Handlers ──────────────────────────────────────────────────────────
@@ -278,18 +229,12 @@ namespace InboxZero.UI
             OnComplete.Invoke();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // ── Helper ────────────────────────────────────────────────────────────
 
-        static Color TypeColor(CardType type) => type switch
-        {
-            CardType.Attack  => AttackColor,
-            CardType.Defend  => DefendColor,
-            _                => SpecialColor,
-        };
-
-        GameObject MakeText(string name, RectTransform parent,
+        GameObject MakeLabel(string name, RectTransform parent,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-            Vector2 anchoredPos, Vector2 size, string text, int fontSize)
+            Vector2 anchoredPos, Vector2 size, string text,
+            int fontSize, TextAlignmentOptions align)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.layer = 5;
@@ -302,9 +247,10 @@ namespace InboxZero.UI
             rt.sizeDelta        = size;
 
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text     = text;
-            tmp.fontSize = fontSize;
-            tmp.color    = Color.white;
+            tmp.text      = text;
+            tmp.fontSize  = fontSize;
+            tmp.color     = Color.white;
+            tmp.alignment = align;
             if (cardFont != null) tmp.font = cardFont;
 
             return go;
