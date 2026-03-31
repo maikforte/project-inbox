@@ -267,9 +267,10 @@ namespace InboxZero.Editor
             }
 
             screen.panelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PanelPrefabPath);
-            var displayPrefabGo = AssetDatabase.LoadAssetAtPath<GameObject>(CardDisplayPrefabBuilder.PrefabPath);
-            if (displayPrefabGo != null)
-                screen.cardDisplayPrefab = displayPrefabGo.GetComponent<CardDisplayView>();
+            const string CardPrefabPath = "Assets/Prefabs/Card.prefab";
+            var cardPrefabGo = AssetDatabase.LoadAssetAtPath<GameObject>(CardPrefabPath);
+            if (cardPrefabGo != null)
+                screen.cardDisplayPrefab = cardPrefabGo.GetComponent<CardView>();
             EditorUtility.SetDirty(screen);
             EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
             Debug.Log("[AllMailPrefabBuilder] Assigned prefabs to AllMailScreen in scene.");

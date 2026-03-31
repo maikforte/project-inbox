@@ -17,8 +17,8 @@ namespace InboxZero.UI
         public AllCardsRegistry registry;
 
         [Header("Card Prefab")]
-        [Tooltip("Same CardDisplayView prefab used in All Mail. Toggle is hidden in reward context.")]
-        public CardDisplayView cardDisplayPrefab;
+        [Tooltip("Card prefab (CardView). Toggle is hidden in reward context.")]
+        public CardView cardDisplayPrefab;
 
         [Header("Font")]
         [Tooltip("BetterPixels — used for the title and skip button labels.")]
@@ -102,7 +102,7 @@ namespace InboxZero.UI
         void BuildPanel(List<CardData> options)
         {
             if (_canvas == null) { Debug.LogError("[CardRewardScreen] No Canvas found."); return; }
-            if (cardDisplayPrefab == null) { Debug.LogError("[CardRewardScreen] cardDisplayPrefab not assigned."); return; }
+            if (cardDisplayPrefab == null) { Debug.LogError("[CardRewardScreen] cardDisplayPrefab (Card prefab) not assigned."); return; }
 
             _panel = new GameObject("CardRewardPanel", typeof(RectTransform));
             _panel.layer = 5;
@@ -171,6 +171,7 @@ namespace InboxZero.UI
             var (canAdd, reason) = DeckCompositionChecker.CanAdd(data);
 
             var cdv = Instantiate(cardDisplayPrefab, parent, false);
+            cdv.SetDisplayMode(true);
             cdv.Populate(data);
             cdv.ShowToggle(false, false, null);   // hide ON/OFF toggle in reward context
 

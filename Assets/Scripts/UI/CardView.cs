@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using InboxZero.Combat;
 using InboxZero.Core;
@@ -22,7 +23,7 @@ namespace InboxZero.UI
         [SerializeField] Image _bg;
         [SerializeField] Image _icon;
         [SerializeField] TextMeshProUGUI _nameText;
-        [SerializeField] TextMeshProUGUI _costText;
+        [SerializeField] Transform _costBadgeRoot;
         [SerializeField] TextMeshProUGUI _effectText;
 
         [Header("Rarity Visuals")]
@@ -31,6 +32,18 @@ namespace InboxZero.UI
         [SerializeField] RarityVisuals _uncommon;
         [SerializeField] RarityVisuals _rare;
         [SerializeField] RarityVisuals _legendary;
+
+        [Header("Display Mode")]
+        [SerializeField] GameObject _disabledOverlay;
+        [SerializeField] Button _poolToggle;
+        [SerializeField] TextMeshProUGUI _toggleLabel;
+
+        bool _displayMode;
+        Action _onHoverEnter;
+        Action _onHoverExit;
+
+        static readonly Color AmberOn = new Color(1.00f, 0.88f, 0.55f);
+        static readonly Color TextDim = new Color(0.50f, 0.50f, 0.55f);
 
         public void Populate(CardData data)
         {
@@ -48,15 +61,77 @@ namespace InboxZero.UI
             if (_bg != null && visuals.bg != null) _bg.sprite = visuals.bg;
 
             if (_icon       != null) { _icon.sprite = data.icon; _icon.enabled = data.icon != null; }
-            if (_nameText   != null) _nameText.text   = data.cardName.ToUpper();
-            if (_costText   != null) _costText.text   = data.apCost.ToString();
+            if (_nameText   != null) _nameText.text = data.cardName.ToUpper();
+            if (_costBadgeRoot != null)
+            {
+                string costStr = "AP " + data.apCost;
+                foreach (var tmp in _costBadgeRoot.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    tmp.text = costStr;
+            }
             if (_effectText != null) _effectText.text = data.effectDescription;
+        }
+
+        // ── Display mode API (used by AllMailScreen and CardRewardScreen) ──────
+
+        public void SetDisplayMode(bool display)
+        {
+            _displayMode = display;
+        }
+
+        public void SetLocked(bool locked)
+        {
+            if (!locked) return;
+            if (_icon != null) _icon.gameObject.SetActive(false);
+            if (_nameText != null) _nameText.text = "???";
+            if (_costBadgeRoot != null)
+                foreach (var tmp in _costBadgeRoot.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    tmp.text = "?";
+            if (_effectText != null) _effectText.text = "???";
+        }
+
+        public void SetDisabled(bool disabled)
+        {
+            if (_disabledOverlay != null) _disabledOverlay.SetActive(disabled);
+        }
+
+        public void ShowToggle(bool show, bool isEnabled, Action<bool> onToggle)
+        {
+            if (_poolToggle == null) return;
+            _poolToggle.gameObject.SetActive(show);
+            if (!show) return;
+
+            SetToggleVisual(isEnabled);
+            _poolToggle.onClick.RemoveAllListeners();
+            bool state = isEnabled;
+            _poolToggle.onClick.AddListener(() =>
+            {
+                state = !state;
+                SetToggleVisual(state);
+                SetDisabled(!state);
+                onToggle?.Invoke(state);
+            });
+        }
+
+        public void SetHoverCallbacks(Action onEnter, Action onExit)
+        {
+            _onHoverEnter = onEnter;
+            _onHoverExit  = onExit;
+        }
+
+        void SetToggleVisual(bool on)
+        {
+            if (_toggleLabel != null)
+            {
+                _toggleLabel.text  = on ? "ON" : "OFF";
+                _toggleLabel.color = on ? AmberOn : TextDim;
+            }
         }
 
         // ── Input handlers ────────────────────────────────────────────────────
 
         public void OnPointerClick(PointerEventData _)
         {
+            if (_displayMode) return;
             if (Data == null) return;
 
             if (TurnManager.Instance == null || !TurnManager.Instance.CanPlayCard(Data.apCost)) return;
@@ -157,12 +232,14 @@ namespace InboxZero.UI
 
         public void OnPointerEnter(PointerEventData _)
         {
+            if (_displayMode) { _onHoverEnter?.Invoke(); return; }
             HandDisplay.Instance?.ShowPreview(Data);
             transform.localScale = Vector3.one * 1.08f;
         }
 
         public void OnPointerExit(PointerEventData _)
         {
+            if (_displayMode) { _onHoverExit?.Invoke(); return; }
             HandDisplay.Instance?.HidePreview();
             transform.localScale = Vector3.one;
         }

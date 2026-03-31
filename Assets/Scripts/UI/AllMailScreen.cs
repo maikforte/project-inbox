@@ -18,7 +18,7 @@ namespace InboxZero.UI
 
         [Header("Prefabs")]
         public GameObject panelPrefab;
-        public CardDisplayView cardDisplayPrefab;
+        public CardView cardDisplayPrefab;
 
         [Header("Back Button Sprites")]
         [Tooltip("Normal sprite — same as MainMenu buttons (Inputs.png normal state).")]
@@ -92,7 +92,7 @@ namespace InboxZero.UI
             if (parent == null)    { Debug.LogError("[AllMailScreen] No parent.");           return; }
             if (registry == null)  { Debug.LogWarning("[AllMailScreen] No AllCardsRegistry."); return; }
             if (panelPrefab == null){ Debug.LogError("[AllMailScreen] panelPrefab missing."); return; }
-            if (cardDisplayPrefab == null) { Debug.LogError("[AllMailScreen] cardDisplayPrefab missing."); return; }
+            if (cardDisplayPrefab == null) { Debug.LogError("[AllMailScreen] cardDisplayPrefab (Card prefab) missing."); return; }
 
             _panel = Instantiate(panelPrefab, parent, false);
 
@@ -198,6 +198,7 @@ namespace InboxZero.UI
                     bool isStarter  = card.rarity == CardRarity.Starter;
 
                     var cdv = Instantiate(cardDisplayPrefab, gridGo.transform, false);
+                    cdv.SetDisplayMode(true);
                     cdv.Populate(card);
 
                     if (!isUnlocked)
@@ -282,7 +283,7 @@ namespace InboxZero.UI
 
         void WireHover(GameObject cardGo, CardData card)
         {
-            var cdv = cardGo.GetComponent<CardDisplayView>();
+            var cdv = cardGo.GetComponent<CardView>();
             if (cdv != null) cdv.SetHoverCallbacks(() => ShowPreview(card), HidePreview);
         }
 

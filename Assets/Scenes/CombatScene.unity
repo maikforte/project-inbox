@@ -176,7 +176,7 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.16666667
+    y: 0
     width: 1
     height: 1
   near clip plane: 0.3
@@ -1984,7 +1984,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registry: {fileID: 11400000, guid: d81fadb0368a9404ba14bd11c1a6b561, type: 2}
-  cardDisplayPrefab: {fileID: 5242762391324007489, guid: cad2932bb84f1c54f9e5049e52d0612a, type: 3}
+  cardDisplayPrefab: {fileID: 6554047385065318624, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
   cardFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
   OnComplete:
     m_PersistentCalls:
@@ -7258,7 +7258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.AllMailScreen
   panelPrefab: {fileID: 6067085050129347519, guid: 898a9e043428ee745b8331bb93d719e4, type: 3}
-  cardDisplayPrefab: {fileID: 5242762391324007489, guid: cad2932bb84f1c54f9e5049e52d0612a, type: 3}
+  cardDisplayPrefab: {fileID: 6554047385065318624, guid: d0fcb4df796e0814ca09ef34441cb633, type: 3}
   buttonNormalSprite: {fileID: 3039210842713156157, guid: 8b580c93b0679ee4a87455447c2caa59, type: 3}
   buttonPressedSprite: {fileID: 3039210842713156157, guid: 8b580c93b0679ee4a87455447c2caa59, type: 3}
   registry: {fileID: 11400000, guid: d81fadb0368a9404ba14bd11c1a6b561, type: 2}
