@@ -16,15 +16,7 @@ namespace InboxZero.UI
         public TextMeshProUGUI    dateLabel;
         public Button             button;
 
-        // ── Palette (matches FloorMapScreen / InboxScreen) ────────────────────
-        static readonly Color C_TextDark  = new Color(1.00f, 1.00f, 1.00f);
-        static readonly Color C_TextMid   = new Color(0.75f, 0.75f, 0.78f);
-        static readonly Color C_TextLight = new Color(0.50f, 0.50f, 0.55f);
-        static readonly Color C_Accent    = new Color(0.10f, 0.45f, 0.91f);
-
-        // Escalation threat colours: +1 yellow → +2 orange → +3 red
-        static readonly Color C_Esc1 = new Color(1.00f, 0.80f, 0.27f);  // #FFCC44
-        static readonly Color C_Esc2 = new Color(1.00f, 0.53f, 0.20f);  // #FF8833
+        // Urgent tag colour only — all other label colours come from the prefab.
         static readonly Color C_Esc3 = new Color(1.00f, 0.20f, 0.20f);  // #FF3333
 
         public void Bind(RoomOption opt, int floorDay, int escalation = 0)
@@ -34,44 +26,25 @@ namespace InboxZero.UI
             bool isUnread        = opt.type == RoomType.Combat;
             bool isUrgent        = opt.baseEscalation >= 2;
 
-            // Dot — escalated combat rows shift from blue to threat colour.
-            Color dotColor    = ThreatColor(totalEscalation, C_Accent);
-            Color senderColor = isUnread ? C_TextDark : C_TextMid;
-            if (totalEscalation > 0 && isUnread) senderColor = dotColor;
-
             if (unreadDot != null)
-            {
                 unreadDot.gameObject.SetActive(isUnread);
-                unreadDot.color = dotColor;
-            }
 
             if (senderLabel != null)
             {
                 senderLabel.text         = opt.senderName;
-                senderLabel.color        = senderColor;
                 senderLabel.overflowMode = TextOverflowModes.Ellipsis;
             }
 
             if (bodyLabel != null)
             {
-                string subjectHex = ColorUtility.ToHtmlStringRGB(senderColor);
-                string previewHex = ColorUtility.ToHtmlStringRGB(C_TextMid);
-                string preview    = BuildPreview(opt, totalEscalation);
-                string urgentTag  = isUrgent ? $"<color=#{ColorUtility.ToHtmlStringRGB(C_Esc3)}>!! URGENT  </color>" : "";
-                bodyLabel.text        = urgentTag +
-                                        $"<color=#{subjectHex}>{opt.subjectLine}</color>" +
-                                        $"<color=#{previewHex}>  -  {preview}</color>";
+                string preview   = BuildPreview(opt, totalEscalation);
+                string urgentTag = isUrgent ? $"<color=#{ColorUtility.ToHtmlStringRGB(C_Esc3)}>!! URGENT  </color>" : "";
+                bodyLabel.text        = urgentTag + $"{opt.subjectLine}  -  {preview}";
                 bodyLabel.overflowMode = TextOverflowModes.Ellipsis;
             }
 
-            string dateStr = totalEscalation > 0 ? $"+{totalEscalation}" : $"Mar {floorDay}";
-            Color  dateCol = totalEscalation > 0 ? dotColor
-                           : (isUnread ? C_TextDark : C_TextLight);
             if (dateLabel != null)
-            {
-                dateLabel.text  = dateStr;
-                dateLabel.color = dateCol;
-            }
+                dateLabel.text = totalEscalation > 0 ? $"+{totalEscalation}" : $"Mar {floorDay}";
         }
 
         static string BuildPreview(RoomOption opt, int totalEscalation)
@@ -86,12 +59,6 @@ namespace InboxZero.UI
             return preview;
         }
 
-        static Color ThreatColor(int escalation, Color baseColor) => escalation switch
-        {
-            0 => baseColor,
-            1 => C_Esc1,
-            2 => C_Esc2,
-            _ => C_Esc3,
-        };
+
     }
 }
