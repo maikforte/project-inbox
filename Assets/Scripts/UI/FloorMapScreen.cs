@@ -33,6 +33,12 @@ namespace InboxZero.UI
         List<RoomOption>     _lastOptions;
         Dictionary<int, int> _lastEscalation;
 
+        // Nested canvases for per-nav sort-order control.
+        readonly List<(Transform nav, Canvas canvas)> _navCanvases = new();
+        const int SortBehind  = 0;
+        const int SortContent = 1;
+        const int SortFront   = 2;
+
         // ── Gmail colour palette ──────────────────────────────────────────────
         static readonly Color C_Bg        = new Color(1.00f, 1.00f, 1.00f);
         static readonly Color C_TopBar    = new Color(0.97f, 0.97f, 0.97f);
@@ -310,12 +316,54 @@ namespace InboxZero.UI
         {
             var sidebar = root.Find("Body/Sidebar");
             if (sidebar == null) return;
+
+            // Give ContentArea its own canvas so nav sort orders are relative to it.
+            var contentAreaGo = root.Find("Body/ContentArea")?.gameObject;
+            if (contentAreaGo != null && contentAreaGo.GetComponent<Canvas>() == null)
+            {
+                var ca = contentAreaGo.AddComponent<Canvas>();
+                ca.overrideSorting = true;
+                ca.sortingOrder    = SortContent;
+                contentAreaGo.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            }
+
+            _navCanvases.Clear();
+
+            // Wire inbox nav.
+            AddNavCanvas(sidebar.Find("Nav_INBOX"), isActive: true);
+
             foreach (var (navName, tab) in SidebarTabMap)
             {
-                var btn = sidebar.Find(navName)?.GetComponent<Button>();
+                var navTf = sidebar.Find(navName);
+                AddNavCanvas(navTf, isActive: false);
+                var btn = navTf?.GetComponent<Button>();
                 if (btn == null) continue;
                 var capturedTab = tab;
                 btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
+            }
+        }
+
+        void AddNavCanvas(Transform navTf, bool isActive)
+        {
+            if (navTf == null) return;
+            var c = navTf.gameObject.GetComponent<Canvas>();
+            if (c == null)
+            {
+                c = navTf.gameObject.AddComponent<Canvas>();
+                navTf.gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            }
+            c.overrideSorting = isActive;
+            c.sortingOrder    = isActive ? SortFront : SortBehind;
+            _navCanvases.Add((navTf, c));
+        }
+
+        void SetActiveNav(Transform activeNav)
+        {
+            foreach (var (nav, canvas) in _navCanvases)
+            {
+                bool isActive = nav == activeNav;
+                canvas.overrideSorting = isActive;
+                canvas.sortingOrder    = isActive ? SortFront : SortBehind;
             }
         }
 
@@ -330,18 +378,32 @@ namespace InboxZero.UI
 
         void OnSideTabClicked(InboxTab tab)
         {
+            // Find the nav for this tab and bring it to front.
+            foreach (var (navName, mappedTab) in SidebarTabMap)
+            {
+                if (mappedTab == tab)
+                {
+                    var sidebar = _panel?.transform.Find("Body/Sidebar");
+                    SetActiveNav(sidebar?.Find(navName));
+                    break;
+                }
+            }
             AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
             OnTabSelected.Invoke(tab);
         }
 
         void OnInboxClicked()
         {
+            var sidebar = _panel?.transform.Find("Body/Sidebar");
+            SetActiveNav(sidebar?.Find("Nav_INBOX"));
             AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
             if (_lastOptions != null) ShowInboxPage(_lastOptions);
         }
 
         void OnAllMailClicked()
         {
+            var sidebar = _panel?.transform.Find("Body/Sidebar");
+            SetActiveNav(sidebar?.Find("Nav_ALLMAIL"));
             if (_listAreaRt == null || AllMailScreen.Instance == null) return;
 
             InboxScreen.Instance?.Hide();

@@ -176,8 +176,8 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.17777778
-    width: 2.971875
+    y: 0.16666667
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -2034,7 +2034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   layoutPrefab: {fileID: 1124569793158738346, guid: 6c6343382d51f9f4c9586bf725525a1a, type: 3}
-  uiFont: {fileID: 11400000, guid: af581fb1ba59971408d2278b6bffa1d5, type: 2}
+  uiFont: {fileID: 11400000, guid: 968711493fda13b4789c59de06321a30, type: 2}
   OnCombatSelected:
     m_PersistentCalls:
       m_Calls: []
