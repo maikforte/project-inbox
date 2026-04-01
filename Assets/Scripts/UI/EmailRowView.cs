@@ -31,20 +31,20 @@ namespace InboxZero.UI
 
             if (senderLabel != null)
             {
-                senderLabel.text         = opt.senderName;
+                senderLabel.text         = opt.senderName.ToUpper();
                 senderLabel.overflowMode = TextOverflowModes.Ellipsis;
             }
 
             if (bodyLabel != null)
             {
-                string preview   = BuildPreview(opt, totalEscalation);
+                string preview   = BuildPreview(opt, totalEscalation).ToUpper();
                 string urgentTag = isUrgent ? $"<color=#{ColorUtility.ToHtmlStringRGB(C_Esc3)}>!! URGENT  </color>" : "";
-                bodyLabel.text        = urgentTag + $"{opt.subjectLine}  -  {preview}";
+                bodyLabel.text        = urgentTag + $"{opt.subjectLine.ToUpper()}  -  {preview}";
                 bodyLabel.overflowMode = TextOverflowModes.Ellipsis;
             }
 
             if (dateLabel != null)
-                dateLabel.text = totalEscalation > 0 ? $"+{totalEscalation}" : $"Mar {floorDay}";
+                dateLabel.text = totalEscalation > 0 ? $"+{totalEscalation}" : $"MAR {floorDay}";
         }
 
         static string BuildPreview(RoomOption opt, int totalEscalation)
