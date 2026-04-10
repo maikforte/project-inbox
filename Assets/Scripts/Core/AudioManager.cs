@@ -23,6 +23,7 @@ namespace InboxZero.Core
         public AudioClip enemyDeath;
         public AudioClip gameOver;
         public AudioClip turnEnd;
+        public AudioClip buttonClick;
 
         AudioSource _sfxSource;
         AudioSource _musicSource;
@@ -61,6 +62,7 @@ namespace InboxZero.Core
         public void PlayEnemyDeath()    => Play(enemyDeath);
         public void PlayGameOver()      => Play(gameOver);
         public void PlayTurnEnd()       => Play(turnEnd);
+        public void PlayButtonClick()   => Play(buttonClick);
 
         void Play(AudioClip clip)
         {

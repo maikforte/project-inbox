@@ -176,7 +176,7 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.16666667
+    y: 0
     width: 1
     height: 1
   near clip plane: 0.3
@@ -2042,9 +2042,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnFloorComplete:
-    m_PersistentCalls:
-      m_Calls: []
-  OnAllMailSelected:
     m_PersistentCalls:
       m_Calls: []
   OnTabSelected:
@@ -4288,6 +4285,7 @@ MonoBehaviour:
   enemyDeath: {fileID: 0}
   gameOver: {fileID: 0}
   turnEnd: {fileID: 0}
+  buttonClick: {fileID: 8300000, guid: 6a7396d434e4d9f41b1d1a7efa26db50, type: 3}
 --- !u!4 &9504
 Transform:
   m_ObjectHideFlags: 0

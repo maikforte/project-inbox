@@ -90,6 +90,7 @@ namespace InboxZero.UI
             {
                 if (btn.name == childName && btn.interactable)
                 {
+                    btn.onClick.AddListener(() => AudioManager.Instance?.PlayButtonClick());
                     btn.onClick.AddListener(callback);
                     return;
                 }

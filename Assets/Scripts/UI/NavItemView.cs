@@ -1,3 +1,4 @@
+using InboxZero.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,5 +21,10 @@ namespace InboxZero.UI
 
         [Header("Config")]
         public NavTarget target;
+
+        void Start()
+        {
+            button?.onClick.AddListener(() => AudioManager.Instance?.PlayButtonClick());
+        }
     }
 }
