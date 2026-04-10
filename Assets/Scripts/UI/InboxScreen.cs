@@ -60,13 +60,14 @@ namespace InboxZero.UI
             }
 
             float rowH     = emailRowPrefab.GetComponent<RectTransform>().sizeDelta.y;
+            const float gap = 1f;
             var   gm       = GameManager.Instance;
             int   floorDay = 14 - (4 - gm.CurrentFloor) * 2 - gm.CurrentRoom;
 
             for (int i = 0; i < options.Count; i++)
             {
                 var rowGo = Instantiate(emailRowPrefab, parent, false);
-                rowGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -i * rowH);
+                rowGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -i * (rowH + gap));
 
                 var rowView = rowGo.GetComponent<EmailRowView>();
                 if (rowView == null) continue;
@@ -78,7 +79,9 @@ namespace InboxZero.UI
                 rowView.button?.onClick.AddListener(() => OnRowClicked(captured));
             }
 
-            parent.sizeDelta = new Vector2(0, options.Count * rowH);
+            int   n           = options.Count;
+            float totalHeight = n > 0 ? n * rowH + (n - 1) * gap : 0f;
+            parent.sizeDelta  = new Vector2(0, totalHeight);
         }
 
         void OnRowClicked(RoomOption opt)
