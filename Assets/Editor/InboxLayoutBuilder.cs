@@ -200,15 +200,19 @@ namespace InboxZero.Editor
             borderGo.AddComponent<Image>().color = C_Sep;
 
             // Nav items
+            var navTargets = new NavTarget[] {
+                NavTarget.Inbox, NavTarget.Starred, NavTarget.Snoozed, NavTarget.Important,
+                NavTarget.Sent,  NavTarget.Drafts,  NavTarget.Inbox,   NavTarget.Spam,
+            };
+            view.navItems = new NavItemView[NavLabels.Length];
+
             for (int i = 0; i < NavLabels.Length; i++)
             {
-                float  y         = -NavTopPad - i * NavItemGap;
-                bool   isInbox   = i == InboxIndex;
-                bool   isDrafts  = i == DraftsIndex;
-                bool   isAllMail = i == AllMailIndex;
-                bool   isActive  = isInbox;
-                bool   isAccent  = isDrafts || isAllMail;
-                Color  labelCol  = isActive || isAccent ? C_Accent : C_TextMid;
+                float  y        = -NavTopPad - i * NavItemGap;
+                bool   isInbox  = i == InboxIndex;
+                bool   isDrafts = i == DraftsIndex;
+                bool   isAccent = isDrafts || i == AllMailIndex;
+                Color  labelCol = isInbox || isAccent ? C_Accent : C_TextMid;
 
                 var rowGo = new GameObject($"Nav_{NavLabels[i].Split(' ')[0]}");
                 rowGo.layer = 5;
@@ -222,7 +226,7 @@ namespace InboxZero.Editor
 
                 // Active highlight background (INBOX is highlighted by default)
                 var bgImg = rowGo.AddComponent<Image>();
-                bgImg.color = isActive ? C_SbActive : Color.clear;
+                bgImg.color = isInbox ? C_SbActive : Color.clear;
 
                 // Label
                 var lbl = MakeText("Label", rowRt, font,
@@ -230,20 +234,21 @@ namespace InboxZero.Editor
                     new Vector2(8, 0), new Vector2(-8, 0),
                     NavLabels[i], 14, TextAlignmentOptions.MidlineLeft, labelCol);
 
-                // Button (all interactive items)
-                if (isInbox || isDrafts || isAllMail)
-                {
-                    var btn = rowGo.AddComponent<Button>();
-                    var cb  = btn.colors;
-                    cb.normalColor      = Color.clear;
-                    cb.highlightedColor = C_SbActive;
-                    cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
-                    btn.colors = cb;
+                // Button + NavItemView
+                var btn = rowGo.AddComponent<Button>();
+                var cb  = btn.colors;
+                cb.normalColor      = Color.clear;
+                cb.highlightedColor = C_SbActive;
+                cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
+                btn.colors = cb;
 
-                    if (isInbox)        { view.inboxButton   = btn; }
-                    else if (isDrafts)  { view.draftsButton  = btn; view.draftsLabel = lbl; }
-                    else                { view.allMailButton = btn; }
-                }
+                var navItem = rowGo.AddComponent<NavItemView>();
+                navItem.label  = lbl;
+                navItem.button = btn;
+                navItem.target = navTargets[i];
+
+                if (isDrafts) view.draftsLabel = lbl;
+                view.navItems[i] = navItem;
             }
         }
 

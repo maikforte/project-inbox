@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
@@ -8,10 +7,8 @@ namespace InboxZero.UI
     /// FloorMapScreen reads these to wire up navigation and populate dynamic labels.
     public class LayoutView : MonoBehaviour
     {
-        [Header("Nav Buttons")]
-        public Button inboxButton;
-        public Button draftsButton;
-        public Button allMailButton;
+        [Header("Nav Items")]
+        public NavItemView[] navItems;          // All sidebar nav buttons, in display order
 
         [Header("Dynamic Labels")]
         public TextMeshProUGUI floorInfoLabel;  // "FL 1  RM 2" — updated on Show()

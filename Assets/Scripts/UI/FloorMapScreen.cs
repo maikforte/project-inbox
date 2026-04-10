@@ -34,6 +34,7 @@ namespace InboxZero.UI
 
         // Nested canvases for per-nav sort-order control.
         readonly List<(Transform nav, Canvas canvas)> _navCanvases = new();
+        readonly Dictionary<NavTarget, Transform>     _navTransforms = new();
         const int SortBehind  = 0;
         const int SortContent = 1;
         const int SortFront   = 2;
@@ -101,9 +102,8 @@ namespace InboxZero.UI
             var view = _panel.GetComponent<LayoutView>();
             if (view == null) { Debug.LogError("[FloorMapScreen] layoutPrefab missing LayoutView."); return; }
 
-            // Wire nav buttons — inbox and all-mail via serialized refs, tabs via hierarchy lookup.
-            if (view.inboxButton != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
-            WireSidebarTabs(_panel.transform);
+            // Wire all nav buttons via the serialized navItems array.
+            WireSidebarTabs(view);
 
             // Update dynamic labels
             if (view.floorInfoLabel != null)
@@ -280,21 +280,10 @@ namespace InboxZero.UI
             InboxScreen.Instance?.ShowInContent(_listAreaRt, options, _lastEscalation);
         }
 
-        // Maps sidebar nav-item names → InboxTab for runtime button wiring.
-        static readonly (string name, InboxTab tab)[] SidebarTabMap =
+        void WireSidebarTabs(LayoutView view)
         {
-            ("Nav_IMPORTANT", InboxTab.Important),
-            ("Nav_SENT",      InboxTab.Sent),
-            ("Nav_SPAM",      InboxTab.Spam),
-        };
-
-        void WireSidebarTabs(Transform root)
-        {
-            var sidebar = root.Find("Body/Sidebar");
-            if (sidebar == null) return;
-
             // Give ContentArea its own canvas so nav sort orders are relative to it.
-            var contentAreaGo = root.Find("Body/ContentArea")?.gameObject;
+            var contentAreaGo = _panel?.transform.Find("Body/ContentArea")?.gameObject;
             if (contentAreaGo != null && contentAreaGo.GetComponent<Canvas>() == null)
             {
                 var ca = contentAreaGo.AddComponent<Canvas>();
@@ -304,20 +293,38 @@ namespace InboxZero.UI
             }
 
             _navCanvases.Clear();
+            _navTransforms.Clear();
 
-            // Wire inbox nav.
-            AddNavCanvas(sidebar.Find("Nav_INBOX"), isActive: true);
-
-            foreach (var (navName, tab) in SidebarTabMap)
+            foreach (var item in view.navItems)
             {
-                var navTf = sidebar.Find(navName);
-                AddNavCanvas(navTf, isActive: false);
-                var btn = navTf?.GetComponent<Button>();
-                if (btn == null) continue;
-                var capturedTab = tab;
-                btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
+                if (item == null) continue;
+                bool isInbox = item.target == NavTarget.Inbox;
+                AddNavCanvas(item.transform, isActive: isInbox);
+                _navTransforms[item.target] = item.transform;
+
+                if (isInbox)
+                {
+                    item.button?.onClick.AddListener(OnInboxClicked);
+                }
+                else
+                {
+                    var tab = NavTargetToTab(item.target);
+                    if (tab.HasValue)
+                    {
+                        var capturedTab = tab.Value;
+                        item.button?.onClick.AddListener(() => OnSideTabClicked(capturedTab));
+                    }
+                }
             }
         }
+
+        static InboxTab? NavTargetToTab(NavTarget target) => target switch
+        {
+            NavTarget.Important => InboxTab.Important,
+            NavTarget.Sent      => InboxTab.Sent,
+            NavTarget.Spam      => InboxTab.Spam,
+            _                   => null,
+        };
 
         void AddNavCanvas(Transform navTf, bool isActive)
         {
@@ -356,13 +363,12 @@ namespace InboxZero.UI
 
         void OnSideTabClicked(InboxTab tab)
         {
-            // Find the nav for this tab and bring it to front.
-            foreach (var (navName, mappedTab) in SidebarTabMap)
+            // Find the transform registered for any NavTarget that maps to this tab.
+            foreach (var kvp in _navTransforms)
             {
-                if (mappedTab == tab)
+                if (NavTargetToTab(kvp.Key) == tab)
                 {
-                    var sidebar = _panel?.transform.Find("Body/Sidebar");
-                    SetActiveNav(sidebar?.Find(navName));
+                    SetActiveNav(kvp.Value);
                     break;
                 }
             }
@@ -371,8 +377,8 @@ namespace InboxZero.UI
 
         void OnInboxClicked()
         {
-            var sidebar = _panel?.transform.Find("Body/Sidebar");
-            SetActiveNav(sidebar?.Find("Nav_INBOX"));
+            _navTransforms.TryGetValue(NavTarget.Inbox, out var navTf);
+            SetActiveNav(navTf);
             if (_lastOptions != null) ShowInboxPage(_lastOptions);
         }
 
