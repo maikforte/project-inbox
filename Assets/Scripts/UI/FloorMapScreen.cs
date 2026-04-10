@@ -23,7 +23,6 @@ namespace InboxZero.UI
         public UnityEvent<RoomOption> OnCombatSelected   = new UnityEvent<RoomOption>();
         public UnityEvent<RoomOption> OnRestStopSelected = new UnityEvent<RoomOption>();
         public UnityEvent             OnFloorComplete    = new UnityEvent();
-        public UnityEvent             OnAllMailSelected  = new UnityEvent();
         // Fired when the player clicks any sidebar tab other than INBOX or ALL MAIL.
         public UnityEvent<InboxTab>   OnTabSelected      = new UnityEvent<InboxTab>();
 
@@ -50,20 +49,16 @@ namespace InboxZero.UI
         static readonly Color C_Sep       = new Color(0.88f, 0.88f, 0.88f);
 
         // ── Sidebar items ─────────────────────────────────────────────────────
-        static readonly string[] SbLabels = { "INBOX", "STARRED", "SNOOZED", "IMPORTANT", "SENT", "DRAFTS", "ALL MAIL", "SPAM" };
-        static readonly string[] SbCounts = { "22",    "",        "",         "",          "",     "",        "",         "5921" };
+        static readonly string[] SbLabels = { "INBOX", "IMPORTANT", "SENT", "SPAM" };
+        static readonly string[] SbCounts = { "22",    "",          "",     "5921" };
 
-        // Maps sidebar index → InboxTab (null = special handler: INBOX=0, ALL MAIL=6).
+        // Maps sidebar index → InboxTab (null = special handler: INBOX=0).
         static readonly InboxTab?[] SbTabs =
         {
             null,                  // 0 INBOX — handled by OnInboxClicked
-            InboxTab.Starred,      // 1
-            InboxTab.Snoozed,      // 2
-            InboxTab.Important,    // 3
-            InboxTab.Sent,         // 4
-            InboxTab.Drafts,       // 5
-            null,                  // 6 ALL MAIL — handled by OnAllMailClicked
-            InboxTab.Spam,         // 7
+            InboxTab.Important,    // 1
+            InboxTab.Sent,         // 2
+            InboxTab.Spam,         // 3
         };
 
         void Awake()
@@ -107,8 +102,7 @@ namespace InboxZero.UI
             if (view == null) { Debug.LogError("[FloorMapScreen] layoutPrefab missing LayoutView."); return; }
 
             // Wire nav buttons — inbox and all-mail via serialized refs, tabs via hierarchy lookup.
-            if (view.inboxButton   != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
-            if (view.allMailButton != null) view.allMailButton.onClick.AddListener(OnAllMailClicked);
+            if (view.inboxButton != null) view.inboxButton.onClick.AddListener(OnInboxClicked);
             WireSidebarTabs(_panel.transform);
 
             // Update dynamic labels
@@ -223,17 +217,11 @@ namespace InboxZero.UI
             bRt.offsetMax = new Vector2(0, 0);
             border.AddComponent<Image>().color = C_Sep;
 
-            const int InboxIndex   = 0;
-            const int DraftsIndex  = 5;
-            const int AllMailIndex = 6;
-
             for (int i = 0; i < SbLabels.Length; i++)
             {
-                float y         = -8 - i * 22f;
-                bool  active    = i == 0;
-                bool  isInbox   = i == InboxIndex;
-                bool  isDrafts  = i == DraftsIndex;
-                bool  isAllMail = i == AllMailIndex;
+                float y      = -8 - i * 22f;
+                bool  active = i == 0;
+                bool  isInbox = i == 0;
 
                 if (active)
                 {
@@ -246,47 +234,38 @@ namespace InboxZero.UI
                 string txt = SbLabels[i];
                 if (!string.IsNullOrEmpty(SbCounts[i])) txt += $"  {SbCounts[i]}";
 
-                Color labelColor = isAllMail ? C_Accent : (active ? C_Accent : C_TextMid);
-
                 Label($"Sb{i}", sbRt,
                     new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
                     new Vector2(8, y), new Vector2(-8, 14),
-                    txt, labelColor, TextAlignmentOptions.MidlineLeft);
+                    txt, active ? C_Accent : C_TextMid, TextAlignmentOptions.MidlineLeft);
 
-                bool isTab = SbTabs[i].HasValue;
-                if (isInbox || isAllMail || isTab)
+                var hitGo = new GameObject(isInbox ? "SbInboxBtn" : $"SbTabBtn{i}", typeof(RectTransform));
+                hitGo.layer = 5;
+                var hitRt   = hitGo.GetComponent<RectTransform>();
+                hitRt.SetParent(sbRt, false);
+                hitRt.anchorMin        = new Vector2(0, 1);
+                hitRt.anchorMax        = new Vector2(1, 1);
+                hitRt.pivot            = new Vector2(0, 1);
+                hitRt.anchoredPosition = new Vector2(0, y - 1);
+                hitRt.sizeDelta        = new Vector2(0, 20);
+
+                var hitImg = hitGo.AddComponent<Image>();
+                hitImg.color         = new Color(1f, 1f, 1f, 0.01f);
+                hitImg.raycastTarget = true;
+
+                var btn = hitGo.AddComponent<Button>();
+                var cb  = btn.colors;
+                cb.normalColor      = Color.white;
+                cb.highlightedColor = C_SbActive;
+                cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
+                btn.colors          = cb;
+
+                if (isInbox)
+                    btn.onClick.AddListener(OnInboxClicked);
+                else
                 {
-                    string btnName = isInbox ? "SbInboxBtn" : isAllMail ? "SbAllMailBtn" : $"SbTabBtn{i}";
-                    var hitGo = new GameObject(btnName, typeof(RectTransform));
-                    hitGo.layer = 5;
-                    var hitRt   = hitGo.GetComponent<RectTransform>();
-                    hitRt.SetParent(sbRt, false);
-                    hitRt.anchorMin        = new Vector2(0, 1);
-                    hitRt.anchorMax        = new Vector2(1, 1);
-                    hitRt.pivot            = new Vector2(0, 1);
-                    hitRt.anchoredPosition = new Vector2(0, y - 1);
-                    hitRt.sizeDelta        = new Vector2(0, 20);
-
-                    var hitImg           = hitGo.AddComponent<Image>();
-                    hitImg.color         = new Color(1f, 1f, 1f, 0.01f);
-                    hitImg.raycastTarget = true;
-
-                    var btn = hitGo.AddComponent<Button>();
-                    var cb  = btn.colors;
-                    cb.normalColor      = Color.white;
-                    cb.highlightedColor = C_SbActive;
-                    cb.pressedColor     = new Color(C_SbActive.r * 0.9f, C_SbActive.g * 0.9f, C_SbActive.b * 0.9f);
-                    btn.colors          = cb;
-
-                    if (isInbox)
-                        btn.onClick.AddListener(OnInboxClicked);
-                    else if (isAllMail)
-                        btn.onClick.AddListener(OnAllMailClicked);
-                    else
-                    {
-                        var capturedTab = SbTabs[i].Value;
-                        btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
-                    }
+                    var capturedTab = SbTabs[i].Value;
+                    btn.onClick.AddListener(() => OnSideTabClicked(capturedTab));
                 }
             }
         }
@@ -304,11 +283,8 @@ namespace InboxZero.UI
         // Maps sidebar nav-item names → InboxTab for runtime button wiring.
         static readonly (string name, InboxTab tab)[] SidebarTabMap =
         {
-            ("Nav_STARRED",   InboxTab.Starred),
-            ("Nav_SNOOZED",   InboxTab.Snoozed),
             ("Nav_IMPORTANT", InboxTab.Important),
             ("Nav_SENT",      InboxTab.Sent),
-            ("Nav_DRAFTS",    InboxTab.Drafts),
             ("Nav_SPAM",      InboxTab.Spam),
         };
 
@@ -354,6 +330,7 @@ namespace InboxZero.UI
             }
             c.overrideSorting = isActive;
             c.sortingOrder    = isActive ? SortFront : SortBehind;
+            navTf.GetComponent<NavTabButton>()?.SetSelected(isActive);
             _navCanvases.Add((navTf, c));
         }
 
@@ -364,6 +341,7 @@ namespace InboxZero.UI
                 bool isActive = nav == activeNav;
                 canvas.overrideSorting = isActive;
                 canvas.sortingOrder    = isActive ? SortFront : SortBehind;
+                nav.GetComponent<NavTabButton>()?.SetSelected(isActive);
             }
         }
 
@@ -388,7 +366,6 @@ namespace InboxZero.UI
                     break;
                 }
             }
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
             OnTabSelected.Invoke(tab);
         }
 
@@ -396,31 +373,9 @@ namespace InboxZero.UI
         {
             var sidebar = _panel?.transform.Find("Body/Sidebar");
             SetActiveNav(sidebar?.Find("Nav_INBOX"));
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
             if (_lastOptions != null) ShowInboxPage(_lastOptions);
         }
 
-        void OnAllMailClicked()
-        {
-            var sidebar = _panel?.transform.Find("Body/Sidebar");
-            SetActiveNav(sidebar?.Find("Nav_ALLMAIL"));
-            if (_listAreaRt == null || AllMailScreen.Instance == null) return;
-
-            InboxScreen.Instance?.Hide();
-
-            foreach (Transform child in _listAreaRt)
-                Destroy(child.gameObject);
-
-            AllMailScreen.Instance.OnClose.AddListener(RestoreInbox);
-            AllMailScreen.Instance.ShowInContent(_listAreaRt);
-        }
-
-        void RestoreInbox()
-        {
-            AllMailScreen.Instance?.OnClose.RemoveListener(RestoreInbox);
-            if (_listAreaRt == null || _lastOptions == null) return;
-            ShowInboxPage(_lastOptions);
-        }
 
         // ── InboxScreen event forwarding ──────────────────────────────────────
 

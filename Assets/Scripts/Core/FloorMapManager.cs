@@ -5,7 +5,7 @@ using UnityEngine;
 namespace InboxZero.Core
 {
     public enum RoomType  { Combat, RestStop }
-    public enum InboxTab  { Inbox, Spam, Starred, Snoozed, Important, Sent, Drafts }
+    public enum InboxTab  { Inbox, Spam, Important, Sent }
 
     [System.Serializable]
     public struct RoomOption
@@ -120,7 +120,7 @@ namespace InboxZero.Core
         // ── Tab encounter generation ──────────────────────────────────────────
 
         /// Generates encounters for a sidebar tab.
-        /// <paramref name="nextPool"/> is used by the Starred tab to source elite encounters
+        /// <paramref name="nextPool"/> is used by the Important tab to source elite encounters
         /// from the next floor's enemy pool.
         public List<RoomOption> GenerateTabEncounters(List<EnemyData> pool, InboxTab tab,
                                                       List<EnemyData> nextPool = null)
@@ -131,12 +131,10 @@ namespace InboxZero.Core
             {
                 case InboxTab.Spam:
                     return GenerateSpamEncounters(pool, floorIdx);
-                case InboxTab.Starred:
-                    return GenerateStarredEncounters(nextPool ?? pool, floorIdx);
                 case InboxTab.Important:
-                    return GenerateImportantEncounters(pool, floorIdx);
+                    return GenerateImportantEncounters(pool, nextPool ?? pool, floorIdx);
                 default:
-                    return new List<RoomOption>();  // other tabs stubbed
+                    return new List<RoomOption>();
             }
         }
 
@@ -152,32 +150,27 @@ namespace InboxZero.Core
             return options;
         }
 
-        // Starred — elite fights: 2 encounters from the next floor's pool, Rare reward.
-        List<RoomOption> GenerateStarredEncounters(List<EnemyData> pool, int floorIdx)
+        // Important — elite fights: 2 from next floor pool (Rare reward) + urgent fights
+        // from current pool (pre-escalated +2, reward bumped). Merged from Starred + Important.
+        List<RoomOption> GenerateImportantEncounters(List<EnemyData> pool, List<EnemyData> nextPool, int floorIdx)
         {
-            var shuffled = new List<EnemyData>(pool);
-            Shuffle(shuffled);
-
             var options = new List<RoomOption>();
-            int count   = Mathf.Min(2, shuffled.Count);
-            for (int i = 0; i < count; i++)
-                options.Add(MakeCombatOption(floorIdx, shuffled[i], InboxTab.Starred,
+
+            // Elite tier (ex-Starred): 2 encounters from the next floor's pool, Rare reward.
+            var elitePool = new List<EnemyData>(nextPool);
+            Shuffle(elitePool);
+            int eliteCount = Mathf.Min(2, elitePool.Count);
+            for (int i = 0; i < eliteCount; i++)
+                options.Add(MakeCombatOption(floorIdx, elitePool[i], InboxTab.Important,
                     baseEscalation: 0, rewardTierOverride: RewardTier.Rare));
 
-            return options;
-        }
-
-        // Important — urgent fights: 2 encounters from current pool, pre-escalated +2, reward bumped.
-        List<RoomOption> GenerateImportantEncounters(List<EnemyData> pool, int floorIdx)
-        {
-            var shuffled = new List<EnemyData>(pool);
-            Shuffle(shuffled);
-
-            var options = new List<RoomOption>();
-            int count   = Mathf.Min(2, shuffled.Count);
-            for (int i = 0; i < count; i++)
-                options.Add(MakeCombatOption(floorIdx, shuffled[i], InboxTab.Important,
-                    baseEscalation: 2, rewardTierOverride: BumpTier(shuffled[i].rewardTier)));
+            // Urgent tier (ex-Important): 2 encounters from current pool, pre-escalated +2.
+            var urgentPool = new List<EnemyData>(pool);
+            Shuffle(urgentPool);
+            int urgentCount = Mathf.Min(2, urgentPool.Count);
+            for (int i = 0; i < urgentCount; i++)
+                options.Add(MakeCombatOption(floorIdx, urgentPool[i], InboxTab.Important,
+                    baseEscalation: 2, rewardTierOverride: BumpTier(urgentPool[i].rewardTier)));
 
             return options;
         }

@@ -40,11 +40,8 @@ namespace InboxZero.Core
         // Per-tab encounter lists. _inbox is the primary path; others are optional.
         List<RoomOption> _inbox     = new List<RoomOption>();
         List<RoomOption> _spam      = new List<RoomOption>();
-        List<RoomOption> _starred   = new List<RoomOption>();
-        List<RoomOption> _snoozed   = new List<RoomOption>();
         List<RoomOption> _important = new List<RoomOption>();
         List<RoomOption> _sent      = new List<RoomOption>();
-        List<RoomOption> _drafts    = new List<RoomOption>();
 
         RoomOption           _activeOption;
         // id → escalation level; rooms across all tabs share the same dict (ids are globally unique)
@@ -86,7 +83,6 @@ namespace InboxZero.Core
             {
                 FloorMapScreen.Instance.OnCombatSelected.AddListener(BeginNextCombat);
                 FloorMapScreen.Instance.OnRestStopSelected.AddListener(OnRestStopSelected);
-                FloorMapScreen.Instance.OnAllMailSelected.AddListener(OnAllMailSelected);
                 FloorMapScreen.Instance.OnTabSelected.AddListener(OnSideTabSelected);
             }
 
@@ -126,11 +122,8 @@ namespace InboxZero.Core
         List<RoomOption> GetTabList(InboxTab tab) => tab switch
         {
             InboxTab.Spam      => _spam,
-            InboxTab.Starred   => _starred,
-            InboxTab.Snoozed   => _snoozed,
             InboxTab.Important => _important,
             InboxTab.Sent      => _sent,
-            InboxTab.Drafts    => _drafts,
             _                  => _inbox,
         };
 
@@ -142,11 +135,8 @@ namespace InboxZero.Core
 
             _inbox     = fmm.GenerateAllLevelEncounters(pool);
             _spam      = fmm.GenerateTabEncounters(pool, InboxTab.Spam);
-            _starred   = fmm.GenerateTabEncounters(pool, InboxTab.Starred, nextPool);
-            _snoozed   = fmm.GenerateTabEncounters(pool, InboxTab.Snoozed);
-            _important = fmm.GenerateTabEncounters(pool, InboxTab.Important);
+            _important = fmm.GenerateTabEncounters(pool, InboxTab.Important, nextPool);
             _sent      = fmm.GenerateTabEncounters(pool, InboxTab.Sent);
-            _drafts    = fmm.GenerateTabEncounters(pool, InboxTab.Drafts);
 
             _escalation.Clear();
             foreach (var tab in System.Enum.GetValues(typeof(InboxTab)))
@@ -294,25 +284,6 @@ namespace InboxZero.Core
             FloorMapScreen.Instance?.ShowContent(list, _escalation);
         }
 
-        void OnAllMailSelected()
-        {
-            var am = InboxZero.UI.AllMailScreen.Instance;
-            if (am == null)
-            {
-                Debug.LogWarning("[CombatSetup] AllMailScreen not found. Add it to the scene.");
-                ShowInbox();
-                return;
-            }
-            am.OnClose.AddListener(OnAllMailClosedDuringRun);
-            am.Show();
-        }
-
-        void OnAllMailClosedDuringRun()
-        {
-            var am = InboxZero.UI.AllMailScreen.Instance;
-            if (am != null) am.OnClose.RemoveListener(OnAllMailClosedDuringRun);
-            ShowInbox();
-        }
 
         static void ReturnToMenu()
         {
