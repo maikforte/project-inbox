@@ -1380,6 +1380,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5957558036159908085}
+  - component: {fileID: 5957558036159908086}
   m_Layer: 5
   m_Name: CardsWidget
   m_TagString: Untagged
@@ -1408,6 +1409,19 @@ RectTransform:
   m_AnchoredPosition: {x: -84.020004, y: 0}
   m_SizeDelta: {x: 168.04, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5957558036159908086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5159050536234270635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3c7e82f1d4b9053e6f2178a0c5d3b91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.TopBarCardsWidget
+  countLabel: {fileID: 1194383913223077686}
 --- !u!1 &5276704952876495827
 GameObject:
   m_ObjectHideFlags: 0
@@ -1919,7 +1933,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Cards : 10'
+  m_text: 'Cards: 10'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
   m_sharedMaterial: {fileID: 5198164059421637814, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
