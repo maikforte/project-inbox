@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 262f03a7b62819643a3e7a6003fcb272
+guid: c37d78e214492da4d959f117393b0749
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4243903785582028010
-    second: Emojis_32x32_584_0
+      213: 4455915625971755596
+    second: Checkbox_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 32
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 1, y: 1, z: 1, w: 1}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Emojis_32x32_584_0
+      name: Checkbox_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 3
+        y: 0
         width: 32
-        height: 26
+        height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ae46d80020065ea30800000000000000
-      internalID: 4243903785582028010
+      spriteID: c4aa82347a796dd30800000000000000
+      internalID: 4455915625971755596
       vertices: []
       indices: 
       edges: []
@@ -139,7 +139,7 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 0
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Emojis_32x32_584_0: 4243903785582028010
+      Checkbox_0: 4455915625971755596
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

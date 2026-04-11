@@ -15,6 +15,7 @@ namespace InboxZero.Data
         public int statusDuration;
         public RewardTier rewardTier;
         [TextArea] public string flavorText;
+        [TextArea] public string emailBody;
 
         [Header("Visuals")]
         public Sprite portrait;

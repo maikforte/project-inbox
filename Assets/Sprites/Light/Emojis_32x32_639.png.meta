@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 262f03a7b62819643a3e7a6003fcb272
+guid: a8c6834732d005945b95f89a2ed3cfb9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4243903785582028010
-    second: Emojis_32x32_584_0
+      213: 6979556313416797316
+    second: Emojis_32x32_639_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Emojis_32x32_584_0
+      name: Emojis_32x32_639_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 3
+        y: 0
         width: 32
-        height: 26
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ae46d80020065ea30800000000000000
-      internalID: 4243903785582028010
+      spriteID: 48c0b0fdc7d5cd060800000000000000
+      internalID: 6979556313416797316
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Emojis_32x32_584_0: 4243903785582028010
+      Emojis_32x32_639_0: 6979556313416797316
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

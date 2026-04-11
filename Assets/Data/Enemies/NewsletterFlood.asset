@@ -21,6 +21,7 @@ MonoBehaviour:
   statusDuration: 0
   rewardTier: 0
   flavorText: You signed up for this. You did this to yourself.
+  emailBody: You signed up for this in 2014. Probably. Unsubscribe below. (Link broken. We are working on it.)
   portrait: {fileID: 21300000, guid: fda99ab6f7c528c4ab4badc4aba777f1, type: 3}
   dropChance: 0.5
   dropRarity: 1

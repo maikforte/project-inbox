@@ -88,8 +88,7 @@ namespace InboxZero.Core
         {
             var subjects = SubjectsByFloor[floorIdx];
 
-            string preview = $"{enemy.maxHP} HP  *  {enemy.damagePerTurn} DMG/TURN";
-            if (enemy.regenPerTurn > 0) preview += "  *  REGEN";
+            string preview = string.IsNullOrEmpty(enemy.emailBody) ? enemy.flavorText : enemy.emailBody;
 
             return new RoomOption
             {

@@ -11,6 +11,9 @@ namespace InboxZero.Core
         public UnityEvent OnPlayerDeath = new UnityEvent();
         public static GameManager Instance { get; private set; }
 
+        [Header("Cursor")]
+        [SerializeField] Texture2D cursorTexture;
+
         [Header("Player Stats")]
         public int MaxHP = 100;
         public int CurrentHP;
@@ -47,6 +50,9 @@ namespace InboxZero.Core
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            if (cursorTexture != null)
+                Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         }
 
         // Applies incoming damage: relic reduction first, then shield absorbs, remainder hits HP.

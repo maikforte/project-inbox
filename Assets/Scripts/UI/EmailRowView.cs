@@ -1,5 +1,4 @@
 using InboxZero.Core;
-using InboxZero.Enemies;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,28 +36,15 @@ namespace InboxZero.UI
 
             if (bodyLabel != null)
             {
-                string preview   = BuildPreview(opt, totalEscalation).ToUpper();
                 string urgentTag = isUrgent ? $"<color=#{ColorUtility.ToHtmlStringRGB(C_Esc3)}>!! URGENT  </color>" : "";
-                bodyLabel.text        = urgentTag + $"{opt.subjectLine.ToUpper()}  -  {preview}";
+                string preview = opt.previewText.Length > 99 ? opt.previewText[..99] : opt.previewText;
+                bodyLabel.text        = urgentTag + preview;
                 bodyLabel.overflowMode = TextOverflowModes.Ellipsis;
             }
 
             if (dateLabel != null)
                 dateLabel.text = totalEscalation > 0 ? $"+{totalEscalation}" : $"MAR {floorDay}";
         }
-
-        static string BuildPreview(RoomOption opt, int totalEscalation)
-        {
-            if (opt.enemyData == null || totalEscalation == 0) return opt.previewText;
-
-            int scaledHP  = opt.enemyData.maxHP  + totalEscalation * EnemyController.EscalationHPBonus;
-            int scaledDmg = opt.enemyData.damagePerTurn + totalEscalation * EnemyController.EscalationDmgBonus;
-            string preview = $"{scaledHP} HP (+{totalEscalation * EnemyController.EscalationHPBonus})" +
-                             $"  *  {scaledDmg} DMG/TURN (+{totalEscalation * EnemyController.EscalationDmgBonus})";
-            if (opt.enemyData.regenPerTurn > 0) preview += "  *  REGEN";
-            return preview;
-        }
-
 
     }
 }
