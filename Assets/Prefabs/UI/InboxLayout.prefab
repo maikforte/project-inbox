@@ -834,7 +834,7 @@ PrefabInstance:
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: icon
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8199349531447149952}
     - target: {fileID: 2002, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_SizeDelta.x
       value: -30.005
@@ -845,7 +845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_text
-      value: INBOX
+      value: Inbox
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontSize
@@ -855,6 +855,10 @@ PrefabInstance:
       propertyPath: m_margin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor.b
       value: 0
@@ -872,6 +876,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 5198164059421637814, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4278190080
       objectReference: {fileID: 0}
@@ -880,9 +888,17 @@ PrefabInstance:
       value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
+    - target: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 80946267, guid: f3508ac547b11dc4890fc582641b0018, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -904,6 +920,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c3d4e5f6789012345678abcdef0123, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.NavItemView
+--- !u!114 &8199349531447149952 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+  m_PrefabInstance: {fileID: 298035838575653178}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &7368515626088541020
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1015,7 +1042,7 @@ PrefabInstance:
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: icon
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1416697759370797030}
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: target
       value: 1
@@ -1030,7 +1057,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_text
-      value: IMPORTANT
+      value: Important
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontSize
@@ -1040,6 +1067,10 @@ PrefabInstance:
       propertyPath: m_margin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor.b
       value: 0
@@ -1057,6 +1088,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 5198164059421637814, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4278190080
       objectReference: {fileID: 0}
@@ -1065,18 +1100,33 @@ PrefabInstance:
       value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: a309634c1d751fb46b9c48eb44e3d44b, type: 3}
+      objectReference: {fileID: 1141168691, guid: f3508ac547b11dc4890fc582641b0018, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+--- !u!114 &1416697759370797030 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+  m_PrefabInstance: {fileID: 7368515626088541020}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!114 &7368515626088540339 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
@@ -1204,7 +1254,7 @@ PrefabInstance:
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: icon
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 550159452939810915}
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: target
       value: 3
@@ -1219,7 +1269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_text
-      value: SPAM
+      value: Spam
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontSize
@@ -1229,6 +1279,10 @@ PrefabInstance:
       propertyPath: m_margin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor.b
       value: 0
@@ -1246,6 +1300,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 5198164059421637814, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4278190080
       objectReference: {fileID: 0}
@@ -1254,18 +1312,33 @@ PrefabInstance:
       value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 2594f5afbcb48d84a8f1e8fb66aa601b, type: 3}
+      objectReference: {fileID: -2050517107, guid: f3508ac547b11dc4890fc582641b0018, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+--- !u!114 &550159452939810915 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+  m_PrefabInstance: {fileID: 8235300221912059097}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!224 &8235300221912059699 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: c3d4e5f678901234567890abcdef1234, type: 3}
@@ -1393,7 +1466,7 @@ PrefabInstance:
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: icon
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 280457027723556427}
     - target: {fileID: 1007, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: target
       value: 2
@@ -1408,7 +1481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_text
-      value: SENT
+      value: Sent
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontSize
@@ -1418,6 +1491,10 @@ PrefabInstance:
       propertyPath: m_margin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor.b
       value: 0
@@ -1435,6 +1512,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 5198164059421637814, guid: 2b428a15c8f06de42bdf99c08f29b9d3, type: 2}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4278190080
       objectReference: {fileID: 0}
@@ -1443,18 +1524,33 @@ PrefabInstance:
       value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2004, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: b7d01957f9b468d42b70110b2b8d8082, type: 3}
+      objectReference: {fileID: 1358376350, guid: f3508ac547b11dc4890fc582641b0018, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+--- !u!114 &280457027723556427 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8496927937747973306, guid: c3d4e5f678901234567890abcdef1234, type: 3}
+  m_PrefabInstance: {fileID: 8507093944011981553}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!224 &8507093944011981083 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: c3d4e5f678901234567890abcdef1234, type: 3}
