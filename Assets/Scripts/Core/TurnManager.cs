@@ -25,7 +25,7 @@ namespace InboxZero.Core
         // Fired at the end of the enemy turn (returns control to player).
         public UnityEvent OnEnemyTurnEnd = new UnityEvent();
 
-        const int DrawPerTurn    = 3;
+        const int DrawPerTurn    = 5;
         const int ReshuffleBelow = 2;  // reshuffle discard into draw when draw pile <= this
 
         void Awake()

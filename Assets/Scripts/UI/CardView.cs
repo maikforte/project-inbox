@@ -137,7 +137,7 @@ namespace InboxZero.UI
             if (TurnManager.Instance == null || !TurnManager.Instance.CanPlayCard(Data.apCost)) return;
 
             HandDisplay.Instance.HidePreview();
-            transform.localScale = Vector3.one;
+            HandDisplay.Instance.OnCardHoverExit(this);
 
             TurnManager.Instance.TrySpendAP(Data.apCost);
 
@@ -234,14 +234,14 @@ namespace InboxZero.UI
         {
             if (_displayMode) { _onHoverEnter?.Invoke(); return; }
             HandDisplay.Instance?.ShowPreview(Data);
-            transform.localScale = Vector3.one * 1.08f;
+            HandDisplay.Instance?.OnCardHoverEnter(this);
         }
 
         public void OnPointerExit(PointerEventData _)
         {
             if (_displayMode) { _onHoverExit?.Invoke(); return; }
             HandDisplay.Instance?.HidePreview();
-            transform.localScale = Vector3.one;
+            HandDisplay.Instance?.OnCardHoverExit(this);
         }
     }
 }

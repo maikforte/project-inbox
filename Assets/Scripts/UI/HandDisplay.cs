@@ -23,6 +23,12 @@ namespace InboxZero.UI
         public TextMeshProUGUI previewCost;
         public TextMeshProUGUI previewEffect;
 
+        [Header("Hover Lift")]
+        [Tooltip("Pixels the hovered card rises.")]
+        public float hoverLiftPrimary = 18f;
+        [Tooltip("Pixels the immediate neighbours rise.")]
+        public float hoverLiftAdjacent = 9f;
+
         readonly List<CardView> _cards = new List<CardView>();
         bool _started;
 
@@ -219,6 +225,40 @@ namespace InboxZero.UI
         public void HidePreview()
         {
             if (previewPanel != null) previewPanel.SetActive(false);
+        }
+
+        // ── Hover lift ────────────────────────────────────────────────────────
+
+        public void OnCardHoverEnter(CardView card)
+        {
+            int idx = _cards.IndexOf(card);
+            if (idx < 0) return;
+            ApplyHoverLift(idx);
+        }
+
+        public void OnCardHoverExit(CardView card)
+        {
+            ApplyHoverLift(-1);
+        }
+
+        void ApplyHoverLift(int hoveredIdx)
+        {
+            for (int i = 0; i < _cards.Count; i++)
+            {
+                if (_cards[i] == null) continue;
+                var cf = _cards[i].GetComponent<CardFloat>();
+                if (cf == null) continue;
+
+                float lift = 0f;
+                if (hoveredIdx >= 0)
+                {
+                    int dist = Mathf.Abs(i - hoveredIdx);
+                    lift = dist == 0 ? hoverLiftPrimary
+                         : dist == 1 ? hoverLiftAdjacent
+                         : 0f;
+                }
+                cf.SetLiftTarget(lift);
+            }
         }
     }
 }
