@@ -176,7 +176,7 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.16666667
+    y: 0
     width: 1
     height: 1
   near clip plane: 0.3
@@ -497,6 +497,7 @@ GameObject:
   - component: {fileID: 1104}
   - component: {fileID: 1105}
   - component: {fileID: 1106}
+  - component: {fileID: 1107}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -535,8 +536,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.6313726, b: 0.25882354, a: 1}
+  m_Material: {fileID: 2100000, guid: 23d5a55b29c38f74c90b718487f5982d, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -561,6 +562,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1100}
   m_CullTransparentMesh: 1
+--- !u!114 &1107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48941cf1701670f47a30eda7d1f15ec6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.AnimatedBackground
+  mode: 6
+  speed: 0.4
+  scale: 3
+  pixelSize: 2
 --- !u!1 &1200
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,7 +1469,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -16.484985, y: 67.4}
+  m_AnchoredPosition: {x: -16.484985, y: 67.399994}
   m_SizeDelta: {x: 100, y: 36}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1505
