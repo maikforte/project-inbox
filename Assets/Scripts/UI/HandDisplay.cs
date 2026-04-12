@@ -55,7 +55,7 @@ namespace InboxZero.UI
             if (TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.AddListener(ClearCards);
-                TurnManager.Instance.OnPlayerTurnEnd.AddListener(ClearCards);
+                TurnManager.Instance.OnPlayerTurnEnd.AddListener(StartDiscardAnimation);
                 TurnManager.Instance.OnPlayerTurnStart.AddListener(RefreshHand);
             }
             _started = true;
@@ -66,7 +66,7 @@ namespace InboxZero.UI
             if (_started && TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.AddListener(ClearCards);
-                TurnManager.Instance.OnPlayerTurnEnd.AddListener(ClearCards);
+                TurnManager.Instance.OnPlayerTurnEnd.AddListener(StartDiscardAnimation);
                 TurnManager.Instance.OnPlayerTurnStart.AddListener(RefreshHand);
             }
         }
@@ -76,7 +76,7 @@ namespace InboxZero.UI
             if (TurnManager.Instance != null)
             {
                 TurnManager.Instance.OnCombatStart.RemoveListener(ClearCards);
-                TurnManager.Instance.OnPlayerTurnEnd.RemoveListener(ClearCards);
+                TurnManager.Instance.OnPlayerTurnEnd.RemoveListener(StartDiscardAnimation);
                 TurnManager.Instance.OnPlayerTurnStart.RemoveListener(RefreshHand);
             }
         }
@@ -93,18 +93,26 @@ namespace InboxZero.UI
             for (int i = prevCount; i < hand.Count; i++)
                 AppendCard(hand[i]);
 
+            StartCoroutine(AnimateNewCards(prevCount));
+        }
+
+        IEnumerator AnimateNewCards(int prevCount)
+        {
+            // Hide new cards immediately so they don't flash at their spawn position.
+            for (int i = prevCount; i < _cards.Count; i++)
+                if (_cards[i] != null) _cards[i].transform.localScale = Vector3.zero;
+
+            // Wait one frame so RectTransform layout has calculated card widths.
+            yield return null;
+
             RepositionAll();
 
-            // Animate newly added cards flying in from the deck.
-            if (DeckWidget.Instance != null)
+            for (int i = prevCount; i < _cards.Count; i++)
             {
-                for (int i = prevCount; i < _cards.Count; i++)
-                {
-                    if (_cards[i] == null) continue;
-                    var rt = (RectTransform)_cards[i].transform;
-                    Vector2 target = rt.anchoredPosition;
-                    StartCoroutine(AnimateCardDraw(rt, target, i - prevCount));
-                }
+                if (_cards[i] == null) continue;
+                var rt = (RectTransform)_cards[i].transform;
+                Vector2 target = rt.anchoredPosition;
+                StartCoroutine(AnimateCardDraw(rt, target, i - prevCount));
             }
         }
 
@@ -116,37 +124,117 @@ namespace InboxZero.UI
             if (index > 0) yield return new WaitForSeconds(index * 0.07f);
             if (rt == null) yield break;
 
-            // Teleport card to deck position (in cardContainer local space).
+            // Start at deck position, scaled down to roughly deck-card size.
             rt.anchoredPosition = GetDeckLocalPos();
+            rt.localScale = Vector3.one * 0.15f;
 
-            const float Duration = 0.2f;
+            const float Duration = 0.32f;
             float t = 0f;
             Vector2 start = rt.anchoredPosition;
+
             while (t < Duration)
             {
                 if (rt == null) yield break;
                 t += Time.deltaTime;
-                float p = 1f - Mathf.Pow(1f - Mathf.Clamp01(t / Duration), 3f); // ease-out cubic
-                rt.anchoredPosition = Vector2.Lerp(start, target, p);
+                float p = Mathf.Clamp01(t / Duration);
+
+                // Ease-out cubic — same curve drives both position and scale
+                // so the card feels like it's physically expanding as it arrives.
+                float curve = 1f - Mathf.Pow(1f - p, 3f);
+                rt.anchoredPosition = Vector2.Lerp(start, target, curve);
+                rt.localScale       = Vector3.one * Mathf.Lerp(0.15f, 1f, curve);
+
                 yield return null;
             }
 
-            if (rt != null) rt.anchoredPosition = target;
+            if (rt != null)
+            {
+                rt.anchoredPosition = target;
+                rt.localScale       = Vector3.one;
+            }
+        }
+
+        // ── Discard animation ─────────────────────────────────────────────────
+
+        void StartDiscardAnimation() => StartCoroutine(AnimateDiscardAll());
+
+        IEnumerator AnimateDiscardAll()
+        {
+            var toDiscard = new List<CardView>(_cards);
+            _cards.Clear();  // detach immediately so hand logic sees an empty hand
+
+            for (int i = 0; i < toDiscard.Count; i++)
+            {
+                if (toDiscard[i] == null) continue;
+                StartCoroutine(AnimateCardToArchive(toDiscard[i], i));
+            }
+            yield break;
+        }
+
+        IEnumerator AnimateCardToArchive(CardView card, int staggerIndex)
+        {
+            if (staggerIndex > 0)
+                yield return new WaitForSeconds(staggerIndex * 0.04f);
+
+            if (card == null) yield break;
+
+            // Stop the float bob so it doesn't fight the discard animation.
+            var cf = card.GetComponent<CardFloat>();
+            if (cf != null) cf.enabled = false;
+
+            var rt = (RectTransform)card.transform;
+            Vector2 start      = rt.anchoredPosition;
+            Vector2 archivePos = GetArchiveLocalPos();
+            Vector3 startScale = rt.localScale;
+
+            const float Duration = 0.25f;
+            float t = 0f;
+
+            while (t < Duration)
+            {
+                if (rt == null) yield break;
+                t += Time.deltaTime;
+                float p     = Mathf.Clamp01(t / Duration);
+                float curve = p * p;  // ease-in: accelerates into the archive
+
+                rt.anchoredPosition = Vector2.Lerp(start, archivePos, curve);
+                rt.localScale       = Vector3.Lerp(startScale, Vector3.one * 0.15f, curve);
+                yield return null;
+            }
+
+            if (card != null) Destroy(card.gameObject);
+        }
+
+        Vector2 GetArchiveLocalPos()
+        {
+            if (cardContainer == null) return Vector2.zero;
+
+            if (ArchiveWidget.Instance != null)
+            {
+                Vector3 world = ArchiveWidget.Instance.transform.position;
+                return cardContainer.InverseTransformPoint(world);
+            }
+
+            // Fallback: bottom-left corner of the container.
+            Rect r = cardContainer.rect;
+            return new Vector2(r.xMin, r.yMin - 60f);
         }
 
         Vector2 GetDeckLocalPos()
         {
-            var deckRT = DeckWidget.Instance != null
-                ? (RectTransform)DeckWidget.Instance.transform
-                : null;
-            if (deckRT == null || cardContainer == null) return Vector2.zero;
+            if (cardContainer == null) return Vector2.zero;
 
-            var canvas = cardContainer.GetComponentInParent<Canvas>();
-            var cam    = canvas != null ? canvas.worldCamera : null;
+            if (DeckWidget.Instance != null)
+            {
+                // Convert the deck widget's world position directly into
+                // cardContainer local space — no screen-space round-trip.
+                Vector3 world = DeckWidget.Instance.transform.position;
+                return cardContainer.InverseTransformPoint(world);
+            }
 
-            Vector2 screen = RectTransformUtility.WorldToScreenPoint(cam, deckRT.position);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(cardContainer, screen, cam, out Vector2 local);
-            return local;
+            // Fallback: bottom-right corner of the container.
+            Rect r = cardContainer.rect;
+            return new Vector2(r.xMax, r.yMin - 60f);
         }
 
         public void RemoveCard(CardView view)
