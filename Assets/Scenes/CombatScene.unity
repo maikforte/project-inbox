@@ -4287,7 +4287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5a2c6f1e4b8d5a2c6f1e4b8d5a2c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleMusic: {fileID: 8300000, guid: 4a5e43a3f2a2dc941a7c59f19ad8b91b, type: 3}
+  battleMusic: {fileID: 0}
   musicVolume: 0.3
   cardPlay: {fileID: 8300000, guid: d7e655c89f5303e4299a3631945758c1, type: 3}
   cardDraw: {fileID: 8300000, guid: e2d55e60bba72064aab9f50e3970531e, type: 3}

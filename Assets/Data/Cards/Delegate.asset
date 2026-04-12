@@ -21,4 +21,4 @@ MonoBehaviour:
     5 damage) into your deck.'
   flavorText: I trust you on this.
   effects: []
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 3044b638665c5c2468e434cacd0fb654, type: 3}
