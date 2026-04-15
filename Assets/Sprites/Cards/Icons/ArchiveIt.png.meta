@@ -3,8 +3,8 @@ guid: 306cae1a5546ae546b54452403cbc1db
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8725218637780951959
-    second: Sprite-0009_0
+      213: 8249141399466717477
+    second: ArchiveIt_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Sprite-0009_0
+      name: ArchiveIt_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 1
-        width: 29
-        height: 30
+        x: 0
+        y: 0
+        width: 77
+        height: 62
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7932d847f14361970800000000000000
-      internalID: 8725218637780951959
+      spriteID: 521be21a566da7270800000000000000
+      internalID: 8249141399466717477
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Sprite-0009_0: 8725218637780951959
+      ArchiveIt_0: 8249141399466717477
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

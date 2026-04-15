@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c0c8f7bef722f624ea9f46c742de954c
+guid: 00a55c2574db07f4c923deaf34d7ca3b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4907276057661496305
-    second: CCTheCEO_0
+      213: -8386667314990585516
+    second: Unsubscribe_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CCTheCEO_0
+      name: Unsubscribe_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 0
         y: 0
-        width: 24
-        height: 32
+        width: 78
+        height: 63
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f04ae48ec6ad5ebb0800000000000000
-      internalID: -4907276057661496305
+      spriteID: 4596b90f2829c9b80800000000000000
+      internalID: -8386667314990585516
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CCTheCEO_0: -4907276057661496305
+      Unsubscribe_0: -8386667314990585516
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

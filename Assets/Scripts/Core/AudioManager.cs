@@ -28,6 +28,26 @@ namespace InboxZero.Core
         AudioSource _sfxSource;
         AudioSource _musicSource;
 
+        // ── Volume properties (with PlayerPrefs persistence) ──────────────────
+
+        public float MasterVolume
+        {
+            get => AudioListener.volume;
+            set { AudioListener.volume = value; PlayerPrefs.SetFloat("vol_master", value); }
+        }
+
+        public float MusicVolume
+        {
+            get => _musicSource != null ? _musicSource.volume : musicVolume;
+            set { musicVolume = value; if (_musicSource != null) _musicSource.volume = value; PlayerPrefs.SetFloat("vol_music", value); }
+        }
+
+        public float SfxVolume
+        {
+            get => _sfxSource != null ? _sfxSource.volume : 1f;
+            set { if (_sfxSource != null) _sfxSource.volume = value; PlayerPrefs.SetFloat("vol_sfx", value); }
+        }
+
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -40,6 +60,11 @@ namespace InboxZero.Core
             _musicSource.playOnAwake = false;
             _musicSource.loop = true;
             _musicSource.volume = musicVolume;
+
+            // Apply saved volumes
+            AudioListener.volume     = PlayerPrefs.GetFloat("vol_master", 1f);
+            _musicSource.volume      = PlayerPrefs.GetFloat("vol_music", musicVolume);
+            _sfxSource.volume        = PlayerPrefs.GetFloat("vol_sfx", 1f);
         }
 
         public void PlayBattleMusic()

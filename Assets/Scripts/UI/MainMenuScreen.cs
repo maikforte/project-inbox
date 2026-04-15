@@ -49,9 +49,10 @@ namespace InboxZero.UI
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
 
-            WireButton("NewGameButton", OnNewGame);
-            WireButton("AllMailButton", OnAllMail);
-            WireButton("ExitButton",    OnExit);
+            WireButton("NewGameButton",  OnNewGame);
+            WireButton("AllMailButton",  OnAllMail);
+            WireButton("SettingsButton", OnSettings);
+            WireButton("ExitButton",     OnExit);
         }
 
         public void Hide()
@@ -71,6 +72,11 @@ namespace InboxZero.UI
         void OnAllMail()
         {
             AllMailScreen.Instance?.Show();
+        }
+
+        void OnSettings()
+        {
+            SettingsScreen.Instance?.Show();
         }
 
         void OnExit()
