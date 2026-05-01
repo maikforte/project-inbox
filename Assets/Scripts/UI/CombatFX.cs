@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
-    /// Drives hit-shake and animated slice effects for the enemy and player panels.
+    /// Drives hit-shake and pixel-art slash particle effects for the enemy and player panels.
+    /// Assign hitFXMaterial (using InboxZero/HitFX shader) in the inspector.
     /// Place on any scene GO and wire the fields in the inspector.
     public class CombatFX : MonoBehaviour
     {
@@ -18,20 +19,21 @@ namespace InboxZero.UI
         [SerializeField] Image enemyHitOverlay;
         [SerializeField] Image playerHitOverlay;
 
-        [Header("Animation Frames (optional — 6 sprites sliced from your spritesheet)")]
-        [Tooltip("6-frame hit animation for the enemy panel.")]
-        [SerializeField] Sprite[] enemyHitFrames;
-        [Tooltip("6-frame hit animation for the player panel.")]
-        [SerializeField] Sprite[] playerHitFrames;
+        [Header("Hit FX Material (InboxZero/HitFX shader)")]
+        [Tooltip("Material using the InboxZero/HitFX shader. A unique instance is created per overlay at runtime.")]
+        [SerializeField] Material hitFXMaterial;
 
         [Header("Tuning")]
         [SerializeField] float panelShakeDuration  = 0.22f;
         [SerializeField] float panelShakeMagnitude = 5f;
-        [Tooltip("Frames per second for the hit sprite animation.")]
-        [SerializeField] float hitAnimFPS = 18f;
+        [Tooltip("Duration of the pixel slash animation in seconds.")]
+        [SerializeField] float hitFXDuration = 0.65f;
 
         Vector2 _enemyHome;
         Vector2 _playerHome;
+
+        Material _enemyMat;
+        Material _playerMat;
 
         Coroutine _enemyShake;
         Coroutine _playerShake;
@@ -49,6 +51,19 @@ namespace InboxZero.UI
 
             if (enemyHitOverlay  != null) enemyHitOverlay.enabled  = false;
             if (playerHitOverlay != null) playerHitOverlay.enabled = false;
+
+            // Create per-overlay material instances so concurrent hits don't share state.
+            if (hitFXMaterial != null)
+            {
+                _enemyMat  = new Material(hitFXMaterial);
+                _playerMat = new Material(hitFXMaterial);
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (_enemyMat  != null) Destroy(_enemyMat);
+            if (_playerMat != null) Destroy(_playerMat);
         }
 
         // ── Public hit triggers ───────────────────────────────────────────────
@@ -56,22 +71,22 @@ namespace InboxZero.UI
         public void EnemyHit()
         {
             if (_enemyShake != null) StopCoroutine(_enemyShake);
-            _enemyShake = StartCoroutine(ShakeRoutine(enemyPanel, _enemyHome, enemyHitOverlay, enemyHitFrames));
+            _enemyShake = StartCoroutine(ShakeRoutine(enemyPanel, _enemyHome, enemyHitOverlay, _enemyMat));
         }
 
         public void PlayerHit()
         {
             if (_playerShake != null) StopCoroutine(_playerShake);
-            _playerShake = StartCoroutine(ShakeRoutine(playerPanel, _playerHome, playerHitOverlay, playerHitFrames));
+            _playerShake = StartCoroutine(ShakeRoutine(playerPanel, _playerHome, playerHitOverlay, _playerMat));
             ScreenShake.Instance?.Shake();
         }
 
         // ── Internals ─────────────────────────────────────────────────────────
 
-        IEnumerator ShakeRoutine(RectTransform panel, Vector2 home, Image overlay, Sprite[] frames)
+        IEnumerator ShakeRoutine(RectTransform panel, Vector2 home, Image overlay, Material mat)
         {
             if (overlay != null)
-                StartCoroutine(PlayFrames(overlay, frames));
+                StartCoroutine(PlayHitFX(overlay, mat));
 
             for (float t = 0f; t < panelShakeDuration; t += Time.deltaTime)
             {
@@ -84,38 +99,38 @@ namespace InboxZero.UI
             if (panel != null) panel.anchoredPosition = home;
         }
 
-        IEnumerator PlayFrames(Image overlay, Sprite[] frames)
+        IEnumerator PlayHitFX(Image overlay, Material mat)
         {
             overlay.enabled = true;
-            var c = overlay.color;
 
-            // If no frames assigned, fall back to a plain white flash
-            if (frames == null || frames.Length == 0)
+            if (mat == null)
             {
-                float flashDur = 6f / hitAnimFPS; // same duration as 6 frames would take
-                for (float t = 0f; t < flashDur; t += Time.deltaTime)
+                // Fallback: plain white flash when no material assigned.
+                var c = overlay.color;
+                for (float t = 0f; t < hitFXDuration; t += Time.deltaTime)
                 {
-                    c.a = 1f - t / flashDur;
+                    c.a = 1f - t / hitFXDuration;
                     overlay.color = c;
                     yield return null;
                 }
+                c.a = 0f;
+                overlay.color = c;
                 overlay.enabled = false;
                 yield break;
             }
 
-            // Play each frame for one tick at the chosen FPS, then hide
-            float secondsPerFrame = 1f / hitAnimFPS;
-            for (int i = 0; i < frames.Length; i++)
+            overlay.color = Color.white;
+            overlay.material = mat;
+            mat.SetFloat("_Progress", 0f);
+
+            for (float t = 0f; t < hitFXDuration; t += Time.deltaTime)
             {
-                if (frames[i] != null) overlay.sprite = frames[i];
-
-                // Fade alpha across the full animation so the last frame is transparent
-                c.a = 1f - (float)i / frames.Length;
-                overlay.color = c;
-
-                yield return new WaitForSeconds(secondsPerFrame);
+                mat.SetFloat("_Progress", t / hitFXDuration);
+                yield return null;
             }
 
+            mat.SetFloat("_Progress", 0f);
+            overlay.material = null;  // restore default UI material
             overlay.enabled = false;
         }
     }
