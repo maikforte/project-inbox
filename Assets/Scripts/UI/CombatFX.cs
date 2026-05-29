@@ -68,6 +68,8 @@ namespace InboxZero.UI
 
         // ── Public hit triggers ───────────────────────────────────────────────
 
+        public RectTransform PlayerPanel => playerPanel;
+
         public void EnemyHit()
         {
             if (_enemyShake != null) StopCoroutine(_enemyShake);

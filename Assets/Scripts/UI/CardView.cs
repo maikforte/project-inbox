@@ -147,7 +147,9 @@ namespace InboxZero.UI
             TurnManager.Instance.TrySpendAP(Data.apCost);
 
             // Attack cards delay effect resolution until the card reaches the enemy.
+            // Defend cards resolve immediately (shield applies on click); animation is cosmetic.
             bool isAttack = Data.cardType == CardType.Attack;
+            bool isDefend = Data.cardType == CardType.Defend;
             if (!isAttack)
                 CardEffectResolver.Resolve(Data);
 
@@ -163,7 +165,10 @@ namespace InboxZero.UI
             snapRt.anchoredPosition = HandAnchoredPosition;
             snapRt.localScale = Vector3.one;
 
-            StartCoroutine(isAttack ? AnimateSlapAndDestroy() : AnimatePlayAndDestroy());
+            StartCoroutine(
+                isAttack ? AnimateSlapAndDestroy() :
+                isDefend ? AnimateShieldAndDestroy() :
+                AnimatePlayAndDestroy());
             HandDisplay.Instance.RefreshHand();
         }
 
@@ -185,6 +190,87 @@ namespace InboxZero.UI
                 cg.alpha = 1f - p;
                 yield return null;
             }
+            Destroy(gameObject);
+        }
+
+        // Defend cards: anticipate (grow toward camera) → fly to player panel (shrink into screen) → vanish.
+        IEnumerator AnimateShieldAndDestroy()
+        {
+            var playerPanel = CombatFX.Instance?.PlayerPanel;
+
+            if (playerPanel == null)
+            {
+                yield return StartCoroutine(AnimatePlayAndDestroy());
+                yield break;
+            }
+
+            var cf = GetComponent<CardFloat>();
+            if (cf != null) cf.enabled = false;
+
+            var cc = HandDisplay.Instance?.cardContainer;
+            Vector3 startWorld = cc != null
+                ? cc.TransformPoint(new Vector3(HandAnchoredPosition.x, HandAnchoredPosition.y, 0f))
+                : transform.position;
+
+            Vector3 targetWorld = playerPanel.transform.position;
+            targetWorld.z = startWorld.z;
+            transform.localScale = Vector3.one;
+
+            ((RectTransform)transform).anchoredPosition = HandAnchoredPosition;
+
+            var cg = gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            var overrideCanvas = gameObject.AddComponent<Canvas>();
+            overrideCanvas.overrideSorting = true;
+            overrideCanvas.sortingOrder = 100;
+
+            Vector3 toTarget     = targetWorld - startWorld;
+            Vector3 dir          = toTarget.normalized;
+            float   pullDist     = Mathf.Max(toTarget.magnitude * 0.15f, 0.3f);
+            Vector3 anticipateAt = startWorld - dir * pullDist;
+
+            // === Phase 0 — Anticipation: pull back, grow toward the player (4th-wall) ===
+            const float AntDuration = 0.13f;
+            float t = 0f;
+            while (t < AntDuration)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / AntDuration);
+                float c = p * (2f - p);
+                transform.position   = Vector3.Lerp(startWorld, anticipateAt, c);
+                transform.localScale = Vector3.one * Mathf.Lerp(1f, 1.5f, c);
+                yield return null;
+            }
+            transform.position   = anticipateAt;
+            transform.localScale = Vector3.one * 1.5f;
+
+            // === Phase 1 — Fly to player panel: build speed, shrink into screen (4th-wall) ===
+            const float FlyDuration = 0.22f;
+            t = 0f;
+            while (t < FlyDuration)
+            {
+                t += Time.deltaTime;
+                float p  = Mathf.Clamp01(t / FlyDuration);
+                float ep = p * p * p;
+                transform.position   = Vector3.Lerp(anticipateAt, targetWorld, ep);
+                transform.localScale = Vector3.one * Mathf.Lerp(1.5f, 0.1f, p * p);
+                yield return null;
+            }
+            transform.position   = targetWorld;
+            transform.localScale = Vector3.one * 0.1f;
+
+            yield return new WaitForSeconds(0.05f);
+
+            // === Phase 2 — Vanish at player panel ===
+            const float VanishDuration = 0.1f;
+            t = 0f;
+            while (t < VanishDuration)
+            {
+                t += Time.deltaTime;
+                cg.alpha = 1f - Mathf.Clamp01(t / VanishDuration);
+                yield return null;
+            }
+
             Destroy(gameObject);
         }
 
