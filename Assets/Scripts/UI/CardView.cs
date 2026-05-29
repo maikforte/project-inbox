@@ -42,6 +42,11 @@ namespace InboxZero.UI
         Action _onHoverEnter;
         Action _onHoverExit;
 
+        // Set by HandDisplay.RepositionAll — the card's intended slot position in cardContainer space.
+        public Vector2 HandAnchoredPosition { get; set; }
+        // Set true when the card is played so the draw animation coroutine yields control.
+        public bool IsBeingPlayed { get; private set; }
+
         static readonly Color AmberOn = new Color(1.00f, 0.88f, 0.55f);
         static readonly Color TextDim = new Color(0.50f, 0.50f, 0.55f);
 
@@ -150,6 +155,14 @@ namespace InboxZero.UI
             AudioManager.Instance?.PlayCardPlay();
 
             HandDisplay.Instance.DetachCard(this);
+
+            // Snap to the final hand slot so the play animation always starts from the correct
+            // position and scale, even if the draw animation hasn't finished yet.
+            IsBeingPlayed = true;
+            var snapRt = (RectTransform)transform;
+            snapRt.anchoredPosition = HandAnchoredPosition;
+            snapRt.localScale = Vector3.one;
+
             StartCoroutine(isAttack ? AnimateSlapAndDestroy() : AnimatePlayAndDestroy());
             HandDisplay.Instance.RefreshHand();
         }
@@ -175,12 +188,11 @@ namespace InboxZero.UI
             Destroy(gameObject);
         }
 
-        // Attack cards: fly to enemy, fire effects on impact, then shrink-fade.
+        // Attack cards: anticipate (grow toward camera) → fly to enemy (shrink into screen) → vanish.
         IEnumerator AnimateSlapAndDestroy()
         {
             var enemy = CardEffectResolver.ActiveEnemy;
 
-            // Fallback if no active enemy (e.g. enemy just died on a multi-effect card).
             if (enemy == null || enemy.portraitImage == null)
             {
                 CardEffectResolver.Resolve(Data);
@@ -188,42 +200,83 @@ namespace InboxZero.UI
                 yield break;
             }
 
+            // Stop CardFloat so it doesn't fight transform.position writes during the animation.
+            var cf = GetComponent<CardFloat>();
+            if (cf != null) cf.enabled = false;
+
+            // Compute start position from the known hand slot in cardContainer space.
+            // Reading transform.position AFTER AddComponent<Canvas> can return stale/wrong
+            // values due to Unity's nested-canvas layout recalculation, so we derive the
+            // world position from the authoritative HandAnchoredPosition instead.
+            var cc = HandDisplay.Instance?.cardContainer;
+            Vector3 startWorld = cc != null
+                ? cc.TransformPoint(new Vector3(HandAnchoredPosition.x, HandAnchoredPosition.y, 0f))
+                : transform.position;
+
+            Vector3 targetWorld = enemy.portraitImage.transform.position;
+            targetWorld.z = startWorld.z;
+            transform.localScale = Vector3.one;
+
+            // Teleport the card to its hand slot before adding overlay components.
+            ((RectTransform)transform).anchoredPosition = HandAnchoredPosition;
+
             var cg = gameObject.AddComponent<CanvasGroup>();
             cg.blocksRaycasts = false;
 
-            // Re-parent to canvas root so the card can travel anywhere on screen.
-            var canvas = GetComponentInParent<Canvas>();
-            Vector3 worldStart  = transform.position;
-            Vector3 worldTarget = enemy.portraitImage.transform.position;
-            if (canvas != null) transform.SetParent(canvas.transform, worldPositionStays: true);
+            // Bump sort order so this card renders on top of all panels.
+            // We stay in the original hierarchy so coordinates never need conversion.
+            var overrideCanvas = gameObject.AddComponent<Canvas>();
+            overrideCanvas.overrideSorting = true;
+            overrideCanvas.sortingOrder    = 100;
 
-            // Phase 1 — fly to enemy (ease-in acceleration).
-            const float FlyDuration = 0.14f;
+            // Direction from card to enemy; anticipation pulls the opposite way.
+            // pullDist is in world units (scale = 0.03125 units/pixel), so 0.3f ≈ 10 px minimum.
+            Vector3 toEnemy      = targetWorld - startWorld;
+            Vector3 dir          = toEnemy.normalized;
+            float   pullDist     = Mathf.Max(toEnemy.magnitude * 0.15f, 0.3f);
+            Vector3 anticipateAt = startWorld - dir * pullDist;
+
+            // === Phase 0 — Anticipation: pull back, grow toward the player (4th-wall) ===
+            const float AntDuration = 0.13f;
             float t = 0f;
+            while (t < AntDuration)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / AntDuration);
+                float c = p * (2f - p);                         // ease-out quad
+                transform.position   = Vector3.Lerp(startWorld, anticipateAt, c);
+                transform.localScale = Vector3.one * Mathf.Lerp(1f, 1.5f, c);
+                yield return null;
+            }
+            transform.position   = anticipateAt;
+            transform.localScale = Vector3.one * 1.5f;
+
+            // === Phase 1 — Fly to enemy: build speed, shrink away from player (4th-wall) ===
+            const float FlyDuration = 0.22f;
+            t = 0f;
             while (t < FlyDuration)
             {
                 t += Time.deltaTime;
                 float p  = Mathf.Clamp01(t / FlyDuration);
-                float ep = p * p;   // ease-in
-                transform.position = Vector3.Lerp(worldStart, worldTarget, ep);
-                transform.localScale = Vector3.one * Mathf.Lerp(1f, 1.15f, ep);
+                float ep = p * p * p;                           // ease-in cubic — momentum builds
+                transform.position   = Vector3.Lerp(anticipateAt, targetWorld, ep);
+                transform.localScale = Vector3.one * Mathf.Lerp(1.5f, 0.1f, p * p);
                 yield return null;
             }
+            transform.position   = targetWorld;
+            transform.localScale = Vector3.one * 0.1f;
 
-            // Impact — resolve effects here: triggers TakeDamage → panel shake + floating text.
+            // Impact — resolve effects at the moment the card reaches the enemy.
             CardEffectResolver.Resolve(Data);
-            transform.localScale = Vector3.one * 1.35f;
-            yield return new WaitForSeconds(0.04f);
+            yield return new WaitForSeconds(0.05f);
 
-            // Phase 2 — shrink and fade at impact point.
-            const float FadeDuration = 0.14f;
+            // === Phase 2 — Vanish at the enemy center ===
+            const float VanishDuration = 0.1f;
             t = 0f;
-            while (t < FadeDuration)
+            while (t < VanishDuration)
             {
                 t += Time.deltaTime;
-                float p = Mathf.Clamp01(t / FadeDuration);
-                cg.alpha             = 1f - p;
-                transform.localScale = Vector3.one * Mathf.Lerp(1.35f, 0.5f, p);
+                cg.alpha = 1f - Mathf.Clamp01(t / VanishDuration);
                 yield return null;
             }
 

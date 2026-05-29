@@ -112,11 +112,11 @@ namespace InboxZero.UI
                 if (_cards[i] == null) continue;
                 var rt = (RectTransform)_cards[i].transform;
                 Vector2 target = rt.anchoredPosition;
-                StartCoroutine(AnimateCardDraw(rt, target, i - prevCount));
+                StartCoroutine(AnimateCardDraw(rt, target, i - prevCount, _cards[i]));
             }
         }
 
-        IEnumerator AnimateCardDraw(RectTransform rt, Vector2 target, int index)
+        IEnumerator AnimateCardDraw(RectTransform rt, Vector2 target, int index, CardView owner = null)
         {
             if (rt == null) yield break;
 
@@ -134,7 +134,8 @@ namespace InboxZero.UI
 
             while (t < Duration)
             {
-                if (rt == null) yield break;
+                // If the card was played mid-draw, stop so the play animation owns the transform.
+                if (rt == null || (owner != null && owner.IsBeingPlayed)) yield break;
                 t += Time.deltaTime;
                 float p = Mathf.Clamp01(t / Duration);
 
@@ -147,7 +148,7 @@ namespace InboxZero.UI
                 yield return null;
             }
 
-            if (rt != null)
+            if (rt != null && (owner == null || !owner.IsBeingPlayed))
             {
                 rt.anchoredPosition = target;
                 rt.localScale       = Vector3.one;
@@ -295,7 +296,9 @@ namespace InboxZero.UI
             {
                 if (_cards[i] == null) continue;
                 float x = -totalSpan * 0.5f + cardW * 0.5f + i * spacing;
-                ((RectTransform)_cards[i].transform).anchoredPosition = new Vector2(x, 0);
+                var slotPos = new Vector2(x, 0);
+                ((RectTransform)_cards[i].transform).anchoredPosition = slotPos;
+                _cards[i].HandAnchoredPosition = slotPos;
             }
         }
 
