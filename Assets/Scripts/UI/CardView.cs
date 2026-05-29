@@ -168,7 +168,7 @@ namespace InboxZero.UI
             StartCoroutine(
                 isAttack ? AnimateSlapAndDestroy() :
                 isDefend ? AnimateShieldAndDestroy() :
-                AnimatePlayAndDestroy());
+                AnimateBurstAndDestroy());
             HandDisplay.Instance.RefreshHand();
         }
 
@@ -268,6 +268,49 @@ namespace InboxZero.UI
             {
                 t += Time.deltaTime;
                 cg.alpha = 1f - Mathf.Clamp01(t / VanishDuration);
+                yield return null;
+            }
+
+            Destroy(gameObject);
+        }
+
+        // Special cards: quick squeeze windup → burst outward (scale-up + fade).
+        IEnumerator AnimateBurstAndDestroy()
+        {
+            var cf = GetComponent<CardFloat>();
+            if (cf != null) cf.enabled = false;
+
+            ((RectTransform)transform).anchoredPosition = HandAnchoredPosition;
+            transform.localScale = Vector3.one;
+
+            var cg = gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            var overrideCanvas = gameObject.AddComponent<Canvas>();
+            overrideCanvas.overrideSorting = true;
+            overrideCanvas.sortingOrder    = 100;
+
+            // Phase 0 — Windup: brief squeeze to build tension.
+            const float WindupDuration = 0.07f;
+            float t = 0f;
+            while (t < WindupDuration)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / WindupDuration);
+                transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.82f, p);
+                yield return null;
+            }
+            transform.localScale = Vector3.one * 0.82f;
+
+            // Phase 1 — Burst: expand to 2× while fading out (ease-out scale, linear fade).
+            const float BurstDuration = 0.18f;
+            t = 0f;
+            while (t < BurstDuration)
+            {
+                t += Time.deltaTime;
+                float p    = Mathf.Clamp01(t / BurstDuration);
+                float ease = 1f - Mathf.Pow(1f - p, 2f);   // ease-out quad
+                transform.localScale = Vector3.one * Mathf.Lerp(0.82f, 2f, ease);
+                cg.alpha             = 1f - p;
                 yield return null;
             }
 
