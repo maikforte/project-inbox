@@ -4,8 +4,7 @@ using UnityEngine.UI;
 
 namespace InboxZero.UI
 {
-    /// Drives hit-shake and pixel-art slash particle effects for the enemy and player panels.
-    /// Assign hitFXMaterial (using InboxZero/HitFX shader) in the inspector.
+    /// Drives hit-shake and color-flash effects for the enemy and player panels.
     /// Place on any scene GO and wire the fields in the inspector.
     public class CombatFX : MonoBehaviour
     {
@@ -15,25 +14,16 @@ namespace InboxZero.UI
         [SerializeField] RectTransform enemyPanel;
         [SerializeField] RectTransform playerPanel;
 
-        [Header("Hit Overlays (Image component on each panel)")]
-        [SerializeField] Image enemyHitOverlay;
-        [SerializeField] Image playerHitOverlay;
-
-        [Header("Hit FX Material (InboxZero/HitFX shader)")]
-        [Tooltip("Material using the InboxZero/HitFX shader. A unique instance is created per overlay at runtime.")]
-        [SerializeField] Material hitFXMaterial;
+        [Header("Hit Flash Targets")]
+        [SerializeField] Image enemyFrame;   // EnemyPanel > Frame
+        [SerializeField] Image playerFrame;  // PlayerPanel (the panel itself)
 
         [Header("Tuning")]
         [SerializeField] float panelShakeDuration  = 0.22f;
         [SerializeField] float panelShakeMagnitude = 5f;
-        [Tooltip("Duration of the pixel slash animation in seconds.")]
-        [SerializeField] float hitFXDuration = 0.65f;
 
         Vector2 _enemyHome;
         Vector2 _playerHome;
-
-        Material _enemyMat;
-        Material _playerMat;
 
         Coroutine _enemyShake;
         Coroutine _playerShake;
@@ -48,47 +38,31 @@ namespace InboxZero.UI
         {
             if (enemyPanel  != null) _enemyHome  = enemyPanel.anchoredPosition;
             if (playerPanel != null) _playerHome = playerPanel.anchoredPosition;
-
-            if (enemyHitOverlay  != null) enemyHitOverlay.enabled  = false;
-            if (playerHitOverlay != null) playerHitOverlay.enabled = false;
-
-            // Create per-overlay material instances so concurrent hits don't share state.
-            if (hitFXMaterial != null)
-            {
-                _enemyMat  = new Material(hitFXMaterial);
-                _playerMat = new Material(hitFXMaterial);
-            }
-        }
-
-        void OnDestroy()
-        {
-            if (_enemyMat  != null) Destroy(_enemyMat);
-            if (_playerMat != null) Destroy(_playerMat);
         }
 
         // ── Public hit triggers ───────────────────────────────────────────────
 
         public RectTransform PlayerPanel => playerPanel;
 
-        public void EnemyHit()
+        public void EnemyHit(Image portrait = null)
         {
             if (_enemyShake != null) StopCoroutine(_enemyShake);
-            _enemyShake = StartCoroutine(ShakeRoutine(enemyPanel, _enemyHome, enemyHitOverlay, _enemyMat));
+            _enemyShake = StartCoroutine(ShakeRoutine(enemyPanel, _enemyHome, portrait != null ? portrait : enemyFrame));
         }
 
         public void PlayerHit()
         {
             if (_playerShake != null) StopCoroutine(_playerShake);
-            _playerShake = StartCoroutine(ShakeRoutine(playerPanel, _playerHome, playerHitOverlay, _playerMat));
+            _playerShake = StartCoroutine(ShakeRoutine(playerPanel, _playerHome, playerFrame));
             ScreenShake.Instance?.Shake();
         }
 
         // ── Internals ─────────────────────────────────────────────────────────
 
-        IEnumerator ShakeRoutine(RectTransform panel, Vector2 home, Image overlay, Material mat)
+        IEnumerator ShakeRoutine(RectTransform panel, Vector2 home, Image target)
         {
-            if (overlay != null)
-                StartCoroutine(PlayHitFX(overlay, mat));
+            if (target != null)
+                StartCoroutine(PlayHitFX(target));
 
             for (float t = 0f; t < panelShakeDuration; t += Time.deltaTime)
             {
@@ -101,39 +75,39 @@ namespace InboxZero.UI
             if (panel != null) panel.anchoredPosition = home;
         }
 
-        IEnumerator PlayHitFX(Image overlay, Material mat)
+        static readonly Color HitRed = new Color(1f, 0.15f, 0.15f, 1f);
+
+        IEnumerator PlayHitFX(Image target)
         {
-            overlay.enabled = true;
+            Color original = target.color;
 
-            if (mat == null)
+            // Phase 0 — Flash white (0.04 s)
+            const float FlashIn = 0.04f;
+            for (float t = 0f; t < FlashIn; t += Time.deltaTime)
             {
-                // Fallback: plain white flash when no material assigned.
-                var c = overlay.color;
-                for (float t = 0f; t < hitFXDuration; t += Time.deltaTime)
-                {
-                    c.a = 1f - t / hitFXDuration;
-                    overlay.color = c;
-                    yield return null;
-                }
-                c.a = 0f;
-                overlay.color = c;
-                overlay.enabled = false;
-                yield break;
+                target.color = Color.Lerp(original, Color.white, Mathf.Clamp01(t / FlashIn));
+                yield return null;
             }
+            target.color = Color.white;
 
-            overlay.color = Color.white;
-            overlay.material = mat;
-            mat.SetFloat("_Progress", 0f);
-
-            for (float t = 0f; t < hitFXDuration; t += Time.deltaTime)
+            // Phase 1 — White → red (0.10 s)
+            const float TintDuration = 0.10f;
+            for (float t = 0f; t < TintDuration; t += Time.deltaTime)
             {
-                mat.SetFloat("_Progress", t / hitFXDuration);
+                target.color = Color.Lerp(Color.white, HitRed, t / TintDuration);
+                yield return null;
+            }
+            target.color = HitRed;
+
+            // Phase 2 — Red → original (0.25 s)
+            const float FadeOut = 0.25f;
+            for (float t = 0f; t < FadeOut; t += Time.deltaTime)
+            {
+                target.color = Color.Lerp(HitRed, original, Mathf.Clamp01(t / FadeOut));
                 yield return null;
             }
 
-            mat.SetFloat("_Progress", 0f);
-            overlay.material = null;  // restore default UI material
-            overlay.enabled = false;
+            target.color = original;
         }
     }
 }

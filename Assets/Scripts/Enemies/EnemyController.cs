@@ -117,7 +117,7 @@ namespace InboxZero.Enemies
             if (net > 0)
             {
                 FloatingText.Spawn($"-{net}", portraitImage?.rectTransform, new Color(1f, 0.35f, 0.35f));
-                CombatFX.Instance?.EnemyHit();
+                CombatFX.Instance?.EnemyHit(portraitImage);
             }
             AudioManager.Instance?.PlayDamageHit();
             CheckDeath();
