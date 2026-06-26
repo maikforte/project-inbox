@@ -18,7 +18,11 @@ namespace InboxZero.UI
         static readonly Color ColorSpecial = new Color(0.6f,  0.35f, 0.9f);
         static readonly Color ColorFrozen  = new Color(0.4f,  0.8f,  1f);
 
-        void Awake() => Instance = this;
+        void Awake()
+        {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+        }
 
         public void ShowIntent(CardData card)
         {

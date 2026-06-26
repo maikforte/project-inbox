@@ -33,7 +33,8 @@ namespace InboxZero.Combat
             if (victoryPanel  != null) victoryPanel.SetActive(false);
             if (gameOverPanel != null) gameOverPanel.SetActive(false);
 
-            GameManager.Instance.OnPlayerDeath.AddListener(TriggerGameOver);
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnPlayerDeath.AddListener(TriggerGameOver);
 
             if (victoryContinueButton  != null) victoryContinueButton.onClick.AddListener(OnContinue);
             if (gameOverRestartButton  != null) gameOverRestartButton.onClick.AddListener(OnRestart);

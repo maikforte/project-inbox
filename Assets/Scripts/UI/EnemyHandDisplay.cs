@@ -25,6 +25,7 @@ namespace InboxZero.UI
 
         void Awake()
         {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             Debug.Log("[EnemyHandDisplay] Awake — Instance set.");
         }
