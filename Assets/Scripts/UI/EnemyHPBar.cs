@@ -17,9 +17,13 @@ namespace InboxZero.UI
 
         EnemyController _enemy;
 
+        void Awake()
+        {
+            _enemy = FindAnyObjectByType<EnemyController>();
+        }
+
         void Update()
         {
-            if (_enemy == null) _enemy = FindObjectOfType<EnemyController>();
             if (_enemy == null || _enemy.Data == null) return;
 
             int maxHp = _enemy.ScaledMaxHP;

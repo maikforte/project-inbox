@@ -19,6 +19,9 @@ namespace InboxZero.UI
 
         Material _mat;
 
+        BackgroundMode _appliedMode;
+        float _appliedSpeed, _appliedScale, _appliedPixelSize;
+
         void Awake()
         {
             var img = GetComponent<Image>();
@@ -27,15 +30,30 @@ namespace InboxZero.UI
             // Instantiate so we never dirty the shared material asset.
             _mat = Instantiate(img.material);
             img.material = _mat;
+            ApplyToMaterial();
         }
 
         void Update()
         {
             if (_mat == null) return;
+            // Only push to the material when an inspector value actually changed —
+            // the shader animates itself, these are just tunables.
+            if (mode == _appliedMode && speed == _appliedSpeed && scale == _appliedScale && pixelSize == _appliedPixelSize)
+                return;
+            ApplyToMaterial();
+        }
+
+        void ApplyToMaterial()
+        {
             _mat.SetInt  ("_Mode",      (int)mode);
             _mat.SetFloat("_Speed",     speed);
             _mat.SetFloat("_Scale",     scale);
             _mat.SetFloat("_PixelSize", pixelSize);
+
+            _appliedMode      = mode;
+            _appliedSpeed     = speed;
+            _appliedScale     = scale;
+            _appliedPixelSize = pixelSize;
         }
     }
 }
