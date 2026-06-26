@@ -52,6 +52,17 @@ Source: [Unity Manual — Special folder names](https://docs.unity3d.com/6000.3/
 
 **Observation outside the special-folders list:** `Assets/_Recovery/` currently contains two autosave/crash-recovery scene files (`0.unity`, `0 (1).unity`). This isn't a Unity-reserved folder — it's leftover Editor crash-recovery output. Not a manual violation, but worth a deliberate decision (keep, gitignore, or delete) during the refactor rather than leaving it as untracked clutter. `TextMesh Pro/` (space in the name) is also present at root — this is the stock folder name created by Unity's own TMP Essentials importer, not a violation to "fix," just an expected exception to general no-spaces naming advice.
 
+## D. Singleton architecture — evaluated, not pursued (2026-06-27)
+
+This codebase has 25 MonoBehaviour singletons. A full coupling/lifecycle audit was run before considering any consolidation toward the ScriptableObject-backed pattern this skill's Architecture section generally recommends. **Don't re-propose a broad singleton-to-ScriptableObject migration without new evidence the situation below has changed:**
+
+- `GameManager` (~70 references) and `TurnManager` (~35 references) are deep coupling hubs — virtually everything in the codebase depends on them. Converting either without an automated test suite is a real risk, not a mechanical one.
+- Most manager/widget singletons (`CombatFX`, `HandDisplay`, `ScreenShake`, `EnemyHandDisplay`, `ArchiveWidget`, `DeckWidget`, `APDisplay`, `DeckBuilderScreen`) rely on `StartCoroutine`/`Update()`. ScriptableObjects can't receive `Update()` or run coroutines natively — converting these would just require a parallel MonoBehaviour "runner" anyway, defeating the purpose.
+- The only zero-coupling singletons found (`CardDropManager`, `DeckBuilderScreen`) are already isolated and low-risk as-is — converting them wouldn't reduce any real architectural debt.
+- What *was* real and got fixed: `EnemyIntentWidget` and `EnemyHandDisplay` were the only 2 of 25 singletons missing the standard duplicate-instance guard (`if (Instance != null && Instance != this) { Destroy(gameObject); return; }`) every other one uses — fixed. `CombatResultManager` had an `AddListener` with no null-check on `GameManager.Instance` while its own `OnDestroy` already guarded the matching `RemoveListener` — fixed for consistency.
+
+If this comes up again: re-run the coupling scan (grep each singleton's `.Instance` usage count and check for `StartCoroutine`/`Update()`) before assuming the architecture should change — the numbers above may shift as the codebase grows, but treat that as something to re-verify, not assume.
+
 ## How to use this during the refactor
 
 When reviewing a script or folder against this skill: find the matching row, check the **Status** column, and either confirm compliance or flag the gap as a discrete refactor task — don't make broader stylistic changes the manual doesn't actually call for. If a question comes up that isn't covered by one of the three source pages above, fetch the relevant Unity Manual page directly rather than relying on community blogs, per the user's stated preference for the official manual as the source of truth.
