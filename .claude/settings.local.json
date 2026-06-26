@@ -24,7 +24,9 @@
       "WebFetch(domain:docs.unity3d.com)",
       "mcp__unity-mcp__Unity_GetConsoleLogs",
       "mcp__unity-mcp__Unity_RunCommand",
-      "WebFetch(domain:unity.com)"
+      "WebFetch(domain:unity.com)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
