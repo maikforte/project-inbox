@@ -139,10 +139,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InboxZero.UI.EmailRowView
   unreadDot: {fileID: 0}
+  icon: {fileID: 862595800106028650}
   senderLabel: {fileID: 3004}
   bodyLabel: {fileID: 4004}
   dateLabel: {fileID: 5004}
   button: {fileID: 1005}
+  combatIcon: {fileID: 21300000, guid: a0aaeded6e295cd44869892d5fc87416, type: 3}
+  restStopIcon: {fileID: 21300000, guid: 2ce08a99149936f4a81e6945030f27c2, type: 3}
 --- !u!114 &1010030790185145418
 MonoBehaviour:
   m_ObjectHideFlags: 0

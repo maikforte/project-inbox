@@ -10,10 +10,15 @@ namespace InboxZero.UI
     {
         [Header("Child References")]
         public Image              unreadDot;
+        public Image              icon;
         public TextMeshProUGUI    senderLabel;
         public TextMeshProUGUI    bodyLabel;
         public TextMeshProUGUI    dateLabel;
         public Button             button;
+
+        [Header("Type Icons")]
+        public Sprite combatIcon;
+        public Sprite restStopIcon;
 
         // Urgent tag colour only — all other label colours come from the prefab.
         static readonly Color C_Esc3 = new Color(1.00f, 0.20f, 0.20f);  // #FF3333
@@ -27,6 +32,9 @@ namespace InboxZero.UI
 
             if (unreadDot != null)
                 unreadDot.gameObject.SetActive(isUnread);
+
+            if (icon != null)
+                icon.sprite = opt.type == RoomType.Combat ? combatIcon : restStopIcon;
 
             if (senderLabel != null)
             {

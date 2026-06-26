@@ -48,6 +48,7 @@ Utility: `agent_help(question)` queries PixelLab's own knowledge base for usage 
 8. **Multi-frame objects can land in "review" status** instead of "completed" — when that happens, inspect the candidate frames and call `select_object_frames(object_id, indices=[...])` to promote the ones you want (or `dismiss_review(object_id)` to discard all and try again with a different prompt).
 
 ## Gotchas
+- `get_map_object`'s progress/ETA can get stuck reporting `processing 95%, eta ~0s` indefinitely even after the job has actually finished. If a `create_map_object` job seems stalled near completion, cross-check with `get_object(object_id=...)` instead (map objects are internally tracked as 1-direction objects) — it reported `status: completed` with working download URLs while `get_map_object` was still stuck on the same ID.
 - Tool list only loads at MCP-server-connect time for a session — if you just added/reconfigured the `pixellab` server, the calling session needs a restart before these tools appear (this bit us once already: a local-scope config got written under a different drive-letter casing than the active project key and silently didn't load — verify with `claude mcp list` from Bash if a tool seems missing).
 - `delete_*` calls require `confirm=True` — they are permanent, including all rotations/animations/storage files.
 - Don't use the chat/agent/sandbox tool families (`chat_send_message`, `sandbox_*`, `agent_talk`, etc.) for this project — those drive PixelLab's own hosted game-builder, not asset generation for import into our Unity project.
