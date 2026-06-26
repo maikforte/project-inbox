@@ -23,7 +23,8 @@
       "mcp__mcp-local__manage_script",
       "WebFetch(domain:docs.unity3d.com)",
       "mcp__unity-mcp__Unity_GetConsoleLogs",
-      "mcp__unity-mcp__Unity_RunCommand"
+      "mcp__unity-mcp__Unity_RunCommand",
+      "WebFetch(domain:unity.com)"
     ]
   }
 }

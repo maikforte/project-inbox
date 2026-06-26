@@ -1,9 +1,5 @@
 {
   "mcpServers": {
-    "mcp-local": {
-      "type": "http",
-      "url": "http://127.0.0.1:8080/mcp"
-    },
     "unity-mcp": {
       "command": "C:\\Users\\Forte\\.unity/relay\\relay_win.exe",
       "args": ["--mcp"]
